@@ -10,7 +10,6 @@ from progreso import (
 from celebracion import VentanaCelebracion
 from ui.mapa_window import VentanaMapa
 from ui.resumen_window import VentanaResumen
-from ui.repaso_window import SelectorRepaso
 
 BG_MAIN   = "#0f172a"
 BG_CARD   = "#1e293b"
@@ -302,6 +301,7 @@ class VentanaEjercicios(tk.Toplevel):
         VentanaResumen(self)
 
     def _abrir_repaso(self):
+        from ui.repaso_window import SelectorRepaso
         SelectorRepaso(self)
 
     def _abrir_mapa(self):
