@@ -3,111 +3,60 @@ from ui.ejercicios_window import VentanaEjercicios
 from ui.experimentacion_window import ZonaExperimentacion
 from ui.mapa_window import VentanaMapa
 from ui.repaso_window import SelectorRepaso
+from ui.referencia_window import VentanaReferencia
+from utils import centrar_ventana
+
+BG = "#0f172a"
 
 
 class SistemaPrincipal(tk.Tk):
     def __init__(self):
         super().__init__()
+        self.title("🐢 TortuScript → Python")
+        self.configure(bg=BG)
+        self.resizable(True, True)
+        self._construir_ui()
+        centrar_ventana(self, 520, 620)
 
-        self.title("🐍 Aprendé Python jugando")
-        self.geometry("600x450")
-        self.configure(bg="#e3f2fd")
-
-        # -------------------------
-        # TÍTULO
-        # -------------------------
-        tk.Label(
-            self,
-            text="🐢 TortuScript → Python",
-            font=("Arial", 20, "bold"),
-            bg="#e3f2fd",
-            fg="#0d47a1"
-        ).pack(pady=30)
-
-        # -------------------------
-        # DESCRIPCIÓN
-        # -------------------------
-        descripcion = (
-            "Elegí cómo querés aprender:\n\n"
-            "📚 Ejercicios → Resolvé desafíos paso a paso\n"
-            "🧪 Experimentar → Probá tus propias ideas\n"
-            "🗺️  Mapa → Ver tu progreso completo\n"
-            "🔁 Repaso → Practicá lo que ya aprendiste"
-        )
+    def _construir_ui(self):
+        tk.Label(self, text="🐢", font=("Arial", 52), bg=BG).pack(pady=(36, 0))
 
         tk.Label(
-            self,
-            text=descripcion,
-            font=("Arial", 12),
-            bg="#e3f2fd",
-            fg="#333",
-            justify="left"
-        ).pack(pady=10)
+            self, text="TortuScript",
+            font=("Arial", 26, "bold"), bg=BG, fg="#f1f5f9"
+        ).pack()
 
-        # -------------------------
-        # BOTONES
-        # -------------------------
-        frame = tk.Frame(self, bg="#e3f2fd")
-        frame.pack(pady=30)
-
-        tk.Button(
-            frame,
-            text="📚 Ejercicios",
-            font=("Arial", 14, "bold"),
-            bg="#FF9800",
-            fg="white",
-            width=20,
-            height=2,
-            command=self.abrir_ejercicios
-        ).pack(pady=10)
-
-        tk.Button(
-            frame,
-            text="🧪 Experimentar",
-            font=("Arial", 14, "bold"),
-            bg="#4CAF50",
-            fg="white",
-            width=20,
-            height=2,
-            command=self.abrir_experimentos
-        ).pack(pady=10)
-
-        tk.Button(
-            frame,
-            text="🗺️  Mapa de Progreso",
-            font=("Arial", 14, "bold"),
-            bg="#7C3AED",
-            fg="white",
-            width=20,
-            height=2,
-            command=self.abrir_mapa
-        ).pack(pady=10)
-
-        tk.Button(
-            frame,
-            text="🔁 Repaso",
-            font=("Arial", 14, "bold"),
-            bg="#c2410c",
-            fg="white",
-            width=20,
-            height=2,
-            command=self.abrir_repaso
-        ).pack(pady=10)
-
-        # -------------------------
-        # PIE
-        # -------------------------
         tk.Label(
-            self,
-            text="Aprendé paso a paso como un programador 🚀",
-            font=("Arial", 10, "italic"),
-            bg="#e3f2fd",
-            fg="#555"
-        ).pack(side=tk.BOTTOM, pady=20)
+            self, text="Aprendé Python de a poco, en español",
+            font=("Arial", 11), bg=BG, fg="#64748b"
+        ).pack(pady=(4, 28))
 
-    # -------------------------
-    # ABRIR VENTANAS
-    # -------------------------
+        botones = [
+            ("📚  Ejercicios",             "#f97316", self.abrir_ejercicios),
+            ("🧪  Experimentar",           "#22c55e", self.abrir_experimentos),
+            ("🗺️   Mapa de Progreso",       "#7c3aed", self.abrir_mapa),
+            ("🔁  Repaso",                 "#c2410c", self.abrir_repaso),
+            ("📖  Referencia TortuScript", "#0e7490", self.abrir_referencia),
+        ]
+
+        frame = tk.Frame(self, bg=BG)
+        frame.pack(pady=4)
+
+        for texto, color, cmd in botones:
+            tk.Button(
+                frame, text=texto,
+                font=("Arial", 13, "bold"),
+                bg=color, fg="white",
+                width=26, height=2,
+                relief=tk.FLAT, cursor="hand2",
+                command=cmd
+            ).pack(pady=6)
+
+        tk.Label(
+            self, text="Hecho con 🐢 y mucho amor",
+            font=("Arial", 9, "italic"), bg=BG, fg="#334155"
+        ).pack(side=tk.BOTTOM, pady=16)
+
     def abrir_ejercicios(self):
         VentanaEjercicios(self)
 
@@ -119,3 +68,6 @@ class SistemaPrincipal(tk.Tk):
 
     def abrir_repaso(self):
         SelectorRepaso(self)
+
+    def abrir_referencia(self):
+        VentanaReferencia(self)

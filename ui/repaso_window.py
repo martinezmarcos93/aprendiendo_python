@@ -1,5 +1,7 @@
 import random
+from utils import centrar_ventana
 import tkinter as tk
+from ui.ejercicios_window import VentanaEjercicios
 from ejercicios import EJERCICIOS
 from progreso import cargar_progreso, estrellas_texto
 
@@ -34,8 +36,7 @@ class SelectorRepaso(tk.Toplevel):
         super().__init__(parent)
         self.parent = parent
         self.title("🔁 Modo Repaso")
-        self.geometry("400x380")
-        self.resizable(False, False)
+        centrar_ventana(self, 400, 380)
         self.configure(bg=BG_MAIN)
         self.attributes("-topmost", True)
         self._modo_var = tk.StringVar(value="todos")
@@ -94,7 +95,6 @@ class SelectorRepaso(tk.Toplevel):
 # Ventana de repaso — hereda toda la UI de VentanaEjercicios
 # ─────────────────────────────────────────────────────────
 
-from ui.ejercicios_window import VentanaEjercicios  # import local para evitar circular
 class VentanaRepaso(VentanaEjercicios):
     """
     Igual que VentanaEjercicios pero con una cola personalizada
@@ -169,8 +169,6 @@ class VentanaRepaso(VentanaEjercicios):
             "dificiles":   "Los más difíciles",
         }
         self.title(f"🔁 Repaso — {nombres_modo.get(modo, '')}")
-        self.geometry("1100x720")
-        self.minsize(900, 600)
         self.configure(bg=BG_MAIN)
 
         from translator import TraductorTortuScript
@@ -180,6 +178,7 @@ class VentanaRepaso(VentanaEjercicios):
         self.indice      = self._cola[0] if self._cola else 0
 
         self._construir_ui()
+        centrar_ventana(self, 1100, 720)
         self._personalizar_barra()
 
         if not self._cola:

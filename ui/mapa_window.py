@@ -1,6 +1,7 @@
 import tkinter as tk
 from tkinter import font as tkfont
 from ejercicios import EJERCICIOS
+from utils import centrar_ventana
 from progreso import (
     cargar_progreso, calcular_nivel, titulo_nivel, estrellas_texto
 )
@@ -45,8 +46,8 @@ class VentanaMapa(tk.Toplevel):
     def __init__(self, parent, callback_ir_ejercicio=None):
         super().__init__(parent)
         self.title("🗺️  TortuScript – Mapa de Progreso")
-        self.geometry("1000x680")
-        self.minsize(800, 500)
+        self.configure()
+        centrar_ventana(self, 1000, 680)
         self.configure(bg=BG_MAIN)
 
         # callback para navegar directo a un ejercicio

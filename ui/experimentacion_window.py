@@ -1,5 +1,6 @@
 import tkinter as tk
 from tkinter import scrolledtext
+from utils import centrar_ventana
 from translator import TraductorTortuScript
 from executor import ejecutar_codigo
 
@@ -29,8 +30,7 @@ class ZonaExperimentacion(tk.Toplevel):
     def __init__(self, parent):
         super().__init__(parent)
         self.title("🧪 TortuScript – Experimentar")
-        self.geometry("1100x700")
-        self.minsize(900, 560)
+        centrar_ventana(self, 1100, 700)
         self.configure(bg=BG_MAIN)
         self.traductor = TraductorTortuScript()
         self._construir_ui()

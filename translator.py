@@ -3,49 +3,36 @@ import re
 
 class TraductorTortuScript:
     def __init__(self):
+        # Patrones generales (mostrar se maneja aparte porque necesita paréntesis)
         self.patrones = [
-            # estructuras
             (r'clase\s+(\w+)\s+hereda\s+de\s+(\w+)\s*:', r'class \1(\2):'),
-            (r'\bclase\b', 'class'),
-            (r'\bfuncion\b', 'def'),
+            (r'\bclase\b',    'class'),
+            (r'\bfuncion\b',  'def'),
             (r'\bdevolver\b', 'return'),
-
-            # control
             (r'repetir\s+(\d+)\s*veces\s*:', r'for _ in range(\1):'),
-            (r'\bpara\b', 'for'),
+            (r'\bpara\b',     'for'),
             (r'\bmientras\b', 'while'),
-            (r'\bsi\b', 'if'),
-            (r'\bsino\b', 'else'),
-
-            # lógica
-            (r'\by\b', 'and'),
-            (r'\bo\b', 'or'),
-            (r'\bno\b', 'not'),
-
-            # funciones básicas
-            (r'\bmostrar\b', 'print'),
-            (r'\bpreguntar\b', 'input'),
-
-            # booleanos
-            (r'\bVerdadero\b', 'True'),
-            (r'\bFalso\b', 'False'),
+            (r'\bsi\b',       'if'),
+            (r'\bsino\b',     'else'),
+            (r'\by\b',        'and'),
+            (r'\bo\b',        'or'),
+            (r'\bno\b',       'not'),
+            (r'\bpreguntar\b','input'),
+            (r'\bVerdadero\b','True'),
+            (r'\bFalso\b',    'False'),
         ]
 
         self.asignacion_re = re.compile(r'\bes\b')
+        self._mostrar_re   = re.compile(r'^mostrar\b(.*)')
 
-    # -------------------------
-    # PROTEGER STRINGS
-    # -------------------------
+    # ── Proteger strings de ser modificados por los patrones
     def _proteger_cadenas(self, linea):
         cadenas = []
-
         def reemplazar(match):
             cadenas.append(match.group(0))
             return f'__STR{len(cadenas)-1}__'
-
         linea = re.sub(r'"[^"\\]*(\\.[^"\\]*)*"', reemplazar, linea)
         linea = re.sub(r"'[^'\\]*(\\.[^'\\]*)*'", reemplazar, linea)
-
         return linea, cadenas
 
     def _restaurar_cadenas(self, linea, cadenas):
@@ -53,47 +40,40 @@ class TraductorTortuScript:
             linea = linea.replace(f'__STR{i}__', s)
         return linea
 
-    # -------------------------
-    # TRADUCIR UNA LÍNEA
-    # -------------------------
+    def _aplicar_patrones(self, texto):
+        for patron, reemplazo in self.patrones:
+            texto = re.sub(patron, reemplazo, texto)
+        return texto
+
     def traducir_linea(self, linea_original):
-        if linea_original.strip().startswith("#") or linea_original.strip() == "":
+        stripped = linea_original.strip()
+        if stripped.startswith('#') or stripped == '':
             return linea_original
 
-        # guardar indentación
-        indentacion = ""
+        # Preservar indentación
+        indentacion = ''
         for c in linea_original:
-            if c == " ":
-                indentacion += " "
+            if c == ' ':
+                indentacion += ' '
             else:
                 break
 
-        linea = linea_original.strip()
-
-        # proteger strings
+        linea = stripped
         linea, cadenas = self._proteger_cadenas(linea)
 
-        # aplicar reglas
-        for patron, reemplazo in self.patrones:
-            linea = re.sub(patron, reemplazo, linea)
+        # mostrar expr  →  print(expr)   [manejo especial para agregar paréntesis]
+        m = self._mostrar_re.match(linea)
+        if m:
+            argumento = m.group(1).strip()
+            argumento = self._aplicar_patrones(argumento)
+            argumento = self.asignacion_re.sub('=', argumento)
+            argumento = self._restaurar_cadenas(argumento, cadenas)
+            return indentacion + f'print({argumento})'
 
-        # asignación
-        linea = self.asignacion_re.sub("=", linea)
-
-        # restaurar strings
+        linea = self._aplicar_patrones(linea)
+        linea = self.asignacion_re.sub('=', linea)
         linea = self._restaurar_cadenas(linea, cadenas)
-
         return indentacion + linea
 
-    # -------------------------
-    # TRADUCIR BLOQUE
-    # -------------------------
     def traducir_codigo(self, codigo_fuente):
-        lineas = codigo_fuente.split("\n")
-        resultado = []
-
-        for linea in lineas:
-            traducida = self.traducir_linea(linea)
-            resultado.append(traducida)
-
-        return "\n".join(resultado)
+        return '\n'.join(self.traducir_linea(l) for l in codigo_fuente.split('\n'))

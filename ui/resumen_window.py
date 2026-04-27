@@ -1,4 +1,5 @@
 import tkinter as tk
+from utils import centrar_ventana
 from progreso import (
     cargar_progreso, calcular_nivel, titulo_nivel,
     estrellas_texto, resumen_sesion_hoy
@@ -26,8 +27,7 @@ class VentanaResumen(tk.Toplevel):
     def __init__(self, parent):
         super().__init__(parent)
         self.title("📊 Resumen de hoy")
-        self.geometry("560x620")
-        self.resizable(False, False)
+        centrar_ventana(self, 560, 620)
         self.configure(bg=BG_MAIN)
         self.attributes("-topmost", True)
 

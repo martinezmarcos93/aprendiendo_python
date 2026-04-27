@@ -10,6 +10,7 @@ from progreso import (
 from celebracion import VentanaCelebracion
 from ui.mapa_window import VentanaMapa
 from ui.resumen_window import VentanaResumen
+from utils import centrar_ventana
 
 BG_MAIN   = "#0f172a"
 BG_CARD   = "#1e293b"
@@ -28,15 +29,14 @@ class VentanaEjercicios(tk.Toplevel):
     def __init__(self, parent):
         super().__init__(parent)
         self.title("📚 TortuScript – Ejercicios")
-        self.geometry("1100x720")
-        self.minsize(900, 600)
         self.configure(bg=BG_MAIN)
-        self.traductor  = TraductorTortuScript()
-        self.indice     = 0
-        self.progreso   = cargar_progreso()
+        self.traductor   = TraductorTortuScript()
+        self.indice      = 0
+        self.progreso    = cargar_progreso()
         self.pista_nivel = 0
         self._construir_ui()
         self.cargar()
+        centrar_ventana(self, 1100, 720)
 
     def _construir_ui(self):
         # ── Barra superior
@@ -311,6 +311,15 @@ class VentanaEjercicios(tk.Toplevel):
         VentanaMapa(self, callback_ir_ejercicio=ir_a_ejercicio)
 
     def siguiente(self):
+        # Solo avanzar si el ejercicio actual fue completado al menos con 1 estrella
+        completado = self.progreso["ejercicios"].get(str(self.indice), {}).get("completado", False)
+        if not completado:
+            self.salida.delete("1.0", tk.END)
+            self._mostrar_salida([
+                ("🔒  Completá este ejercicio primero antes de avanzar.\n", "pista"),
+                ("   Hacé click en  ▶ Ejecutar  cuando tu código esté listo.\n", "info"),
+            ])
+            return
         if self.indice < len(EJERCICIOS) - 1:
             self.indice += 1
             self.cargar()
