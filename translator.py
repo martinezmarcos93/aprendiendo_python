@@ -77,3 +77,48 @@ class TraductorTortuScript:
 
     def traducir_codigo(self, codigo_fuente):
         return '\n'.join(self.traducir_linea(l) for l in codigo_fuente.split('\n'))
+
+
+# ──────────────────────────────────────────
+# DETECTOR DE TIPO DE CÓDIGO
+# ──────────────────────────────────────────
+
+# Palabras que solo existen en TortuScript
+_PALABRAS_TORTU = {
+    "mostrar", "preguntar", "funcion", "devolver",
+    "repetir", "veces", "mientras", "sino",
+    "Verdadero", "Falso", "es",
+}
+
+# Palabras que son Python puro
+_PALABRAS_PYTHON = {
+    "print", "input", "def", "return",
+    "for", "while", "range", "True", "False",
+    "import", "class", "lambda", "yield",
+}
+
+
+def detectar_tipo(codigo):
+    """
+    Retorna 'tortuscript', 'python' o 'mixto'.
+    Sirve para decidir si traducir o ejecutar directamente.
+    """
+    import re
+    tokens = set(re.findall(r'\b\w+\b', codigo))
+
+    tiene_tortu  = bool(tokens & _PALABRAS_TORTU)
+    tiene_python = bool(tokens & _PALABRAS_PYTHON)
+
+    # Si usa = sin "es", y no tiene palabras tortu → probablemente Python
+    usa_asignacion_python = bool(re.search(r'(?<![=!<>])=(?!=)', codigo))
+    usa_es = bool(re.search(r'\bes\b', codigo))
+    if usa_asignacion_python and not usa_es and not tiene_tortu:
+        tiene_python = True
+
+    if tiene_tortu and not tiene_python:
+        return "tortuscript"
+    if tiene_python and not tiene_tortu:
+        return "python"
+    if tiene_tortu and tiene_python:
+        return "mixto"
+    return "tortuscript"

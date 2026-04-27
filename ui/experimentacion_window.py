@@ -1,7 +1,7 @@
 import tkinter as tk
 from tkinter import scrolledtext
 from utils import centrar_ventana
-from translator import TraductorTortuScript
+from translator import TraductorTortuScript, detectar_tipo
 from executor import ejecutar_codigo
 
 BG_MAIN   = "#0f172a"
@@ -94,7 +94,6 @@ class ZonaExperimentacion(tk.Toplevel):
             relief=tk.FLAT, padx=10, pady=10, undo=True
         )
         self.editor.grid(row=1, column=0, sticky="nsew", padx=(0, 6))
-        self.editor.bind("<KeyRelease>", self._traducir_en_vivo)
 
         self.panel_python = scrolledtext.ScrolledText(
             panel, font=("Consolas", 13),
@@ -146,8 +145,19 @@ class ZonaExperimentacion(tk.Toplevel):
             self._set_salida([("⚠️  Escribí algo primero.\n", "info")])
             return
 
-        python = self.traductor.traducir_codigo(codigo)
-        self._set_python(python)
+        tipo = detectar_tipo(codigo)
+
+        if tipo == "python":
+            python = codigo
+            self._set_python(python)
+            self._set_salida([("ℹ️  Python directo detectado — ejecutando sin traducir.\n", "info")])
+        elif tipo == "mixto":
+            python = self.traductor.traducir_codigo(codigo)
+            self._set_python(python)
+            self._set_salida([("ℹ️  Mezcla detectada — traduje lo que pude.\n", "info")])
+        else:
+            python = self.traductor.traducir_codigo(codigo)
+            self._set_python(python)
 
         salida, hay_error, msg_error = ejecutar_codigo(python)
         self.salida.delete("1.0", tk.END)
@@ -160,8 +170,8 @@ class ZonaExperimentacion(tk.Toplevel):
             self._set_salida([("✅ Ejecutado sin errores (sin salida visible).\n", "ok")])
 
     def _traducir_en_vivo(self, event=None):
-        codigo = self.editor.get("1.0", tk.END)
-        self._set_python(self.traductor.traducir_codigo(codigo))
+        # Ya no se usa — la traducción ocurre al ejecutar
+        pass
 
     def _cargar_ejemplo(self, codigo):
         self.editor.delete("1.0", tk.END)

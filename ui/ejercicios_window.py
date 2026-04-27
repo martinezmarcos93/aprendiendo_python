@@ -1,7 +1,7 @@
 import tkinter as tk
 from tkinter import scrolledtext
 from ejercicios import EJERCICIOS
-from translator import TraductorTortuScript
+from translator import TraductorTortuScript, detectar_tipo
 from executor import ejecutar_codigo
 from progreso import (
     cargar_progreso, registrar_ejercicio,
@@ -107,7 +107,6 @@ class VentanaEjercicios(tk.Toplevel):
 
         self.editor = scrolledtext.ScrolledText(panel, font=("Consolas", 13), bg=BG_EDITOR, fg=VERDE, insertbackground=VERDE, relief=tk.FLAT, padx=10, pady=10, undo=True)
         self.editor.grid(row=1, column=0, sticky="nsew", padx=(0, 6))
-        self.editor.bind("<KeyRelease>", self._traducir_en_vivo)
 
         self.panel_python = scrolledtext.ScrolledText(panel, font=("Consolas", 13), bg=BG_PYTHON, fg=AZUL, insertbackground=AZUL, relief=tk.FLAT, padx=10, pady=10, state=tk.DISABLED)
         self.panel_python.grid(row=1, column=1, sticky="nsew", padx=(6, 0))
@@ -153,8 +152,8 @@ class VentanaEjercicios(tk.Toplevel):
         self._actualizar_barra_xp()
 
     def _traducir_en_vivo(self, event=None):
-        codigo = self.editor.get("1.0", tk.END)
-        self._set_python(self.traductor.traducir_codigo(codigo))
+        # Ya no se usa — la traducción ocurre al ejecutar
+        pass
 
     def _set_python(self, texto):
         self.panel_python.config(state=tk.NORMAL)
@@ -163,21 +162,41 @@ class VentanaEjercicios(tk.Toplevel):
         self.panel_python.config(state=tk.DISABLED)
 
     def ejecutar(self):
-        codigo_tortu = self.editor.get("1.0", tk.END).strip()
-        if not codigo_tortu:
+        codigo_usuario = self.editor.get("1.0", tk.END).strip()
+        if not codigo_usuario:
             self._mostrar_salida([("⚠️  Escribí algo primero.\n", "pista")])
             return
-        python = self.traductor.traducir_codigo(codigo_tortu)
+
+        tipo = detectar_tipo(codigo_usuario)
+
+        if tipo == "python":
+            # El usuario escribió Python directamente — ejecutar tal cual
+            python = codigo_usuario
+            self._set_python(python)
+            self._mostrar_salida([("ℹ️  Detecté Python directo — ejecutando sin traducir.\n", "info")])
+        elif tipo == "mixto":
+            # Mezcla — traducir y avisar
+            python = self.traductor.traducir_codigo(codigo_usuario)
+            self._set_python(python)
+            self._mostrar_salida([("ℹ️  Mezcla de TortuScript y Python — traduje lo que pude.\n", "info")])
+        else:
+            # TortuScript puro — traducir normalmente
+            python = self.traductor.traducir_codigo(codigo_usuario)
+            self._set_python(python)
+
         salida_txt, hay_error, msg_error = ejecutar_codigo(python)
         self.salida.delete("1.0", tk.END)
+
         if hay_error:
             self._mostrar_salida([("❌ Ocurrió un error:\n\n", "error"), (msg_error + "\n", "error")])
             return
+
         if salida_txt:
             self._mostrar_salida([("✅ Salida:\n", "ok"), (salida_txt + "\n", "bold")])
         else:
             self._mostrar_salida([("✅ Ejecutado sin errores (sin salida).\n", "ok")])
-        self._evaluar(codigo_tortu, salida_txt)
+
+        self._evaluar(codigo_usuario, salida_txt)
 
     def _evaluar(self, codigo_tortu, salida_txt):
         ej  = EJERCICIOS[self.indice]
