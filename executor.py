@@ -2,6 +2,21 @@ import sys
 import io
 from error_handler import explicar_error
 
+MAX_PASOS = 50_000
+
+
+def _tracer(max_pasos):
+    pasos = [0]
+    def trace(frame, event, arg):
+        pasos[0] += 1
+        if pasos[0] > max_pasos:
+            raise TimeoutError(
+                f"El código ejecutó más de {max_pasos:,} instrucciones.\n"
+                "¿Tenés un bucle infinito?"
+            )
+        return trace
+    return trace
+
 
 # -------------------------
 # INPUT SIMULADO
