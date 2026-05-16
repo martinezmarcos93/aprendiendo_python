@@ -23,7 +23,7 @@ class TraductorTortuScript:
         ]
 
         self.asignacion_re = re.compile(r'\bes\b')
-        self._mostrar_re   = re.compile(r'^mostrar\b(.*)')
+        self._mostrar_re   = re.compile(r'\bmostrar\b(.*)')
 
     # ── Proteger strings de ser modificados por los patrones
     def _proteger_cadenas(self, linea):
@@ -62,13 +62,17 @@ class TraductorTortuScript:
         linea, cadenas = self._proteger_cadenas(linea)
 
         # mostrar expr  →  print(expr)   [manejo especial para agregar paréntesis]
-        m = self._mostrar_re.match(linea)
+        m = self._mostrar_re.search(linea)
         if m:
+            before = linea[:m.start()]
             argumento = m.group(1).strip()
             argumento = self._aplicar_patrones(argumento)
             argumento = self.asignacion_re.sub('=', argumento)
             argumento = self._restaurar_cadenas(argumento, cadenas)
-            return indentacion + f'print({argumento})'
+            before = self._aplicar_patrones(before)
+            before = self.asignacion_re.sub('=', before)
+            before = self._restaurar_cadenas(before, cadenas)
+            return indentacion + before + f'print({argumento})'
 
         linea = self._aplicar_patrones(linea)
         linea = self.asignacion_re.sub('=', linea)

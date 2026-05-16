@@ -222,11 +222,11 @@ class VentanaEjercicios(tk.Toplevel):
             if self.pista_nivel == 0:
                 estrellas, xp = 3, 30
             elif self.pista_nivel == 1:
-                estrellas, xp = 3, 25
+                estrellas, xp = 2, 20
             elif self.pista_nivel == 2:
-                estrellas, xp = 2, 15
+                estrellas, xp = 1, 10
             else:
-                estrellas, xp = 1, 8
+                estrellas, xp = 1, 5
         else:
             # Hay salida pero no coincide
             estrellas, xp = 1, 5

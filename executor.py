@@ -1,5 +1,7 @@
 import sys
 import io
+import tkinter as tk
+from tkinter import simpledialog
 from error_handler import explicar_error
 
 MAX_PASOS = 50_000
@@ -19,25 +21,28 @@ def _tracer(max_pasos):
 
 
 # -------------------------
-# INPUT SIMULADO
-# Evita que input() congele la app.
-# Devuelve "" y avisa al usuario.
+# INPUT INTERACTIVO
+# Usa simpledialog para pedir datos sin colgar la app
 # -------------------------
-class InputSimulado:
+class InputInteractivo:
     def __init__(self, salida_buffer):
         self._buf = salida_buffer
-        self._usado = False
 
     def __call__(self, prompt=""):
         if prompt:
             self._buf.write(str(prompt))
-        if not self._usado:
-            self._usado = True
-            self._buf.write(
-                "\n⚠️  preguntar() no funciona en el modo ejercicios.\n"
-                "   Probá la zona de Experimentar para usar entrada de datos.\n"
-            )
-        return ""
+            
+        root = tk._default_root
+        if not root:
+            root = tk.Tk()
+            root.withdraw()
+            
+        respuesta = simpledialog.askstring("Entrada de datos", prompt if prompt else "Ingresá un valor:", parent=root)
+        if respuesta is None:
+            respuesta = ""
+            
+        self._buf.write(str(respuesta) + "\n")
+        return respuesta
 
 
 # -------------------------
@@ -47,11 +52,11 @@ class InputSimulado:
 # contaminen la siguiente.
 # -------------------------
 def _hacer_globals(salida_buffer):
-    input_sim = InputSimulado(salida_buffer)
+    input_interactivo = InputInteractivo(salida_buffer)
     return {
         "__builtins__": {
             "print":  print,
-            "input":  input_sim,
+            "input":  input_interactivo,
             "range":  range,
             "len":    len,
             "int":    int,
@@ -88,12 +93,18 @@ def ejecutar_codigo(codigo_python):
 
         # globals frescos por ejecución
         entorno = _hacer_globals(salida_capturada)
+        
+        # Iniciar protección contra bucles infinitos
+        sys.settrace(_tracer(MAX_PASOS))
+        
         exec(codigo_python, entorno)
-
+        
+        sys.settrace(None)
         sys.stdout = sys.__stdout__
         return salida_capturada.getvalue(), False, ""
 
     except Exception as e:
+        sys.settrace(None)
         sys.stdout = sys.__stdout__
 
         tipo_error      = type(e).__name__
@@ -109,4 +120,5 @@ def ejecutar_codigo(codigo_python):
         return salida_capturada.getvalue(), True, mensaje_final
 
     finally:
+        sys.settrace(None)
         sys.stdout = sys.__stdout__
