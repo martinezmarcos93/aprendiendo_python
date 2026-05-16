@@ -1,6 +1,7 @@
 import tkinter as tk
 import random
 import math
+from sounds import play_sound
 
 
 class VentanaCelebracion(tk.Toplevel):
@@ -18,6 +19,8 @@ class VentanaCelebracion(tk.Toplevel):
 
     def __init__(self, parent, estrellas=3, xp_ganado=0):
         super().__init__(parent)
+        
+        play_sound("success")
 
         self.overrideredirect(True)  # sin borde del sistema
         self.attributes("-topmost", True)

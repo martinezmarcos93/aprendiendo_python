@@ -1,13 +1,14 @@
 import tkinter as tk
+from tkinter import simpledialog
 from ui.ejercicios_window import VentanaEjercicios
 from ui.experimentacion_window import ZonaExperimentacion
 from ui.mapa_window import VentanaMapa
 from ui.repaso_window import SelectorRepaso
 from ui.referencia_window import VentanaReferencia
 from utils import centrar_ventana
+import progreso
 
 BG = "#0f172a"
-
 
 class SistemaPrincipal(tk.Tk):
     def __init__(self):
@@ -19,7 +20,21 @@ class SistemaPrincipal(tk.Tk):
         centrar_ventana(self, 520, 620)
 
     def _construir_ui(self):
-        tk.Label(self, text="🐢", font=("Arial", 52), bg=BG).pack(pady=(36, 0))
+        frame_perfil = tk.Frame(self, bg=BG)
+        frame_perfil.pack(fill="x", pady=(10, 0), padx=20)
+        
+        self.lbl_perfil = tk.Label(
+            frame_perfil, text=f"👤 Perfil: {progreso.PERFIL_ACTUAL}",
+            font=("Arial", 11, "bold"), bg=BG, fg="#94a3b8"
+        )
+        self.lbl_perfil.pack(side=tk.LEFT)
+        
+        tk.Button(
+            frame_perfil, text="Cambiar", font=("Arial", 9), bg="#334155", fg="white",
+            relief=tk.FLAT, cursor="hand2", padx=8, command=self._cambiar_perfil
+        ).pack(side=tk.LEFT, padx=10)
+
+        tk.Label(self, text="🐢", font=("Arial", 52), bg=BG).pack(pady=(16, 0))
 
         tk.Label(
             self, text="TortuScript",
@@ -56,6 +71,16 @@ class SistemaPrincipal(tk.Tk):
             self, text="Hecho con 🐢 y mucho amor",
             font=("Arial", 9, "italic"), bg=BG, fg="#334155"
         ).pack(side=tk.BOTTOM, pady=16)
+
+    def _cambiar_perfil(self):
+        perfiles = progreso.obtener_perfiles()
+        msg = "Perfiles existentes:\n" + "\n".join([f"- {p}" for p in perfiles]) + "\n\nIngresá tu nombre de perfil:"
+        nuevo = simpledialog.askstring("Cambiar Perfil", msg, parent=self)
+        if nuevo:
+            nuevo = nuevo.strip().lower()
+            if nuevo:
+                progreso.set_perfil(nuevo)
+                self.lbl_perfil.config(text=f"👤 Perfil: {nuevo}")
 
     def abrir_ejercicios(self):
         VentanaEjercicios(self)

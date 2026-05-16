@@ -1,8 +1,26 @@
 import json
 import os
+import glob
 from datetime import date, timedelta
 
-ARCHIVO_PROGRESO = "progreso_tortuscript.json"
+PERFIL_ACTUAL = "default"
+
+def set_perfil(nombre):
+    global PERFIL_ACTUAL
+    PERFIL_ACTUAL = nombre
+
+def get_archivo_progreso():
+    return f"progreso_{PERFIL_ACTUAL}.json"
+
+def obtener_perfiles():
+    archivos = glob.glob("progreso_*.json")
+    perfiles = []
+    for f in archivos:
+        nombre = f.replace("progreso_", "").replace(".json", "")
+        perfiles.append(nombre)
+    if "default" not in perfiles:
+        perfiles.append("default")
+    return sorted(list(set(perfiles)))
 
 PROGRESO_INICIAL = {
     "xp_total": 0,
@@ -19,9 +37,10 @@ PROGRESO_INICIAL = {
 # ─────────────────────────────────────────
 
 def cargar_progreso():
-    if os.path.exists(ARCHIVO_PROGRESO):
+    archivo = get_archivo_progreso()
+    if os.path.exists(archivo):
         try:
-            with open(ARCHIVO_PROGRESO, "r", encoding="utf-8") as f:
+            with open(archivo, "r", encoding="utf-8") as f:
                 data = json.load(f)
             # migrar archivos viejos que no tenían estos campos
             for campo, valor in PROGRESO_INICIAL.items():
@@ -34,10 +53,10 @@ def cargar_progreso():
     import copy
     return copy.deepcopy(PROGRESO_INICIAL)
 
-
 def guardar_progreso(progreso):
+    archivo = get_archivo_progreso()
     try:
-        with open(ARCHIVO_PROGRESO, "w", encoding="utf-8") as f:
+        with open(archivo, "w", encoding="utf-8") as f:
             json.dump(progreso, f, ensure_ascii=False, indent=2)
     except Exception:
         pass

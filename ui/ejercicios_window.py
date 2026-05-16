@@ -8,9 +8,10 @@ from progreso import (
     calcular_nivel, titulo_nivel, estrellas_texto
 )
 from celebracion import VentanaCelebracion
-from ui.mapa_window import VentanaMapa
 from ui.resumen_window import VentanaResumen
 from utils import centrar_ventana
+from highlighter import TortuHighlighter
+from sounds import play_sound
 
 BG_MAIN   = "#0f172a"
 BG_CARD   = "#1e293b"
@@ -105,11 +106,13 @@ class VentanaEjercicios(tk.Toplevel):
         tk.Label(panel, text="✏️  Tu código TortuScript", font=("Arial", 11, "bold"), bg=BG_MAIN, fg=VERDE, anchor="w").grid(row=0, column=0, sticky="ew", pady=(0, 4))
         tk.Label(panel, text="🐍  Python generado (en vivo)", font=("Arial", 11, "bold"), bg=BG_MAIN, fg=AZUL, anchor="w", padx=10).grid(row=0, column=1, sticky="ew", pady=(0, 4))
 
-        self.editor = scrolledtext.ScrolledText(panel, font=("Consolas", 13), bg=BG_EDITOR, fg=VERDE, insertbackground=VERDE, relief=tk.FLAT, padx=10, pady=10, undo=True)
+        self.editor = scrolledtext.ScrolledText(panel, font=("Consolas", 13), bg=BG_EDITOR, fg=BLANCO, insertbackground=BLANCO, relief=tk.FLAT, padx=10, pady=10, undo=True)
         self.editor.grid(row=1, column=0, sticky="nsew", padx=(0, 6))
+        self.hl_editor = TortuHighlighter(self.editor, es_python=False)
 
-        self.panel_python = scrolledtext.ScrolledText(panel, font=("Consolas", 13), bg=BG_PYTHON, fg=AZUL, insertbackground=AZUL, relief=tk.FLAT, padx=10, pady=10, state=tk.DISABLED)
+        self.panel_python = scrolledtext.ScrolledText(panel, font=("Consolas", 13), bg=BG_PYTHON, fg=BLANCO, insertbackground=BLANCO, relief=tk.FLAT, padx=10, pady=10, state=tk.DISABLED)
         self.panel_python.grid(row=1, column=1, sticky="nsew", padx=(6, 0))
+        self.hl_python = TortuHighlighter(self.panel_python, es_python=True)
 
         # ── Botones
         barra_btn = tk.Frame(self, bg=BG_MAIN)
@@ -159,6 +162,7 @@ class VentanaEjercicios(tk.Toplevel):
         self.panel_python.config(state=tk.NORMAL)
         self.panel_python.delete("1.0", tk.END)
         self.panel_python.insert("1.0", texto)
+        self.hl_python.resaltar()
         self.panel_python.config(state=tk.DISABLED)
 
     def ejecutar(self):
@@ -188,6 +192,7 @@ class VentanaEjercicios(tk.Toplevel):
         self.salida.delete("1.0", tk.END)
 
         if hay_error:
+            play_sound("error")
             self._mostrar_salida([("❌ Ocurrió un error:\n\n", "error"), (msg_error + "\n", "error")])
             return
 
@@ -230,6 +235,7 @@ class VentanaEjercicios(tk.Toplevel):
         else:
             # Hay salida pero no coincide
             estrellas, xp = 1, 5
+            play_sound("error")
             self._mostrar_salida([
                 ("\n⚠️  Casi! Tu salida no coincide exactamente.\n", "pista"),
                 (f"   Esperado:  {salida_correcta}\n", "info"),
@@ -294,6 +300,11 @@ class VentanaEjercicios(tk.Toplevel):
     def _actualizar_barra_xp(self):
         xp = self.progreso.get("xp_total", 0)
         niv, xp_actual, xp_max = calcular_nivel(xp)
+        
+        if hasattr(self, "_nivel_anterior") and niv > self._nivel_anterior:
+            play_sound("level_up")
+        self._nivel_anterior = niv
+        
         self.lbl_nivel.config(text=f"{titulo_nivel(niv)}  Nv.{niv}")
         self.lbl_xp.config(text=f"{xp} XP  ({xp_actual}/{xp_max})")
         self.canvas_xp.delete("all")

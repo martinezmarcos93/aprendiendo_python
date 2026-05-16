@@ -3,6 +3,7 @@ from tkinter import scrolledtext
 from utils import centrar_ventana
 from translator import TraductorTortuScript, detectar_tipo
 from executor import ejecutar_codigo
+from highlighter import TortuHighlighter
 
 BG_MAIN   = "#0f172a"
 BG_CARD   = "#1e293b"
@@ -90,17 +91,19 @@ class ZonaExperimentacion(tk.Toplevel):
 
         self.editor = scrolledtext.ScrolledText(
             panel, font=("Consolas", 13),
-            bg=BG_EDITOR, fg=VERDE, insertbackground=VERDE,
+            bg=BG_EDITOR, fg=BLANCO, insertbackground=BLANCO,
             relief=tk.FLAT, padx=10, pady=10, undo=True
         )
         self.editor.grid(row=1, column=0, sticky="nsew", padx=(0, 6))
+        self.hl_editor = TortuHighlighter(self.editor, es_python=False)
 
         self.panel_python = scrolledtext.ScrolledText(
             panel, font=("Consolas", 13),
-            bg=BG_PYTHON, fg=AZUL, insertbackground=AZUL,
+            bg=BG_PYTHON, fg=BLANCO, insertbackground=BLANCO,
             relief=tk.FLAT, padx=10, pady=10, state=tk.DISABLED
         )
         self.panel_python.grid(row=1, column=1, sticky="nsew", padx=(6, 0))
+        self.hl_python = TortuHighlighter(self.panel_python, es_python=True)
 
         # ── Botones
         barra_btn = tk.Frame(self, bg=BG_MAIN)
@@ -188,6 +191,7 @@ class ZonaExperimentacion(tk.Toplevel):
         self.panel_python.config(state=tk.NORMAL)
         self.panel_python.delete("1.0", tk.END)
         self.panel_python.insert("1.0", texto)
+        self.hl_python.resaltar()
         self.panel_python.config(state=tk.DISABLED)
 
     def _set_salida(self, partes):
