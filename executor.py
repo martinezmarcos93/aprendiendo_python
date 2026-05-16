@@ -85,7 +85,7 @@ def _hacer_globals(salida_buffer):
 # -------------------------
 # EJECUCIÓN PRINCIPAL
 # -------------------------
-def ejecutar_codigo(codigo_python):
+def ejecutar_codigo(codigo_python, extra_globals=None, callback_linea=None):
     salida_capturada = io.StringIO()
 
     try:
@@ -93,9 +93,19 @@ def ejecutar_codigo(codigo_python):
 
         # globals frescos por ejecución
         entorno = _hacer_globals(salida_capturada)
+        if extra_globals:
+            entorno.update(extra_globals)
         
-        # Iniciar protección contra bucles infinitos
-        sys.settrace(_tracer(MAX_PASOS))
+        # Iniciar protección y/o depurador
+        def _tracer_con_callback(frame, event, arg):
+            if event == "line" and callback_linea:
+                if frame.f_code.co_filename == "<string>":
+                    callback_linea(frame.f_lineno)
+            
+            t = _tracer(MAX_PASOS)
+            return t(frame, event, arg)
+
+        sys.settrace(_tracer_con_callback)
         
         exec(codigo_python, entorno)
         

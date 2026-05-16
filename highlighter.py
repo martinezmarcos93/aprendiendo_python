@@ -6,7 +6,8 @@ class TortuHighlighter:
         "mostrar", "preguntar", "funcion", "devolver",
         "repetir", "veces", "mientras", "si", "sino",
         "Verdadero", "Falso", "es", "clase", "hereda", "de",
-        "y", "o", "no"
+        "y", "o", "no",
+        "avanzar", "girar_der", "girar_izq", "color", "bajar_lapiz", "subir_lapiz"
     ]
     
     PALABRAS_PYTHON = [

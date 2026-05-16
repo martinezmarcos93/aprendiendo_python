@@ -49,6 +49,7 @@ class SistemaPrincipal(tk.Tk):
         botones = [
             ("📚  Ejercicios",             "#f97316", self.abrir_ejercicios),
             ("🧪  Experimentar",           "#22c55e", self.abrir_experimentos),
+            ("🐢  Zona Tortuga",           "#ec4899", self.abrir_tortuga),
             ("🗺️   Mapa de Progreso",       "#7c3aed", self.abrir_mapa),
             ("🔁  Repaso",                 "#c2410c", self.abrir_repaso),
             ("📖  Referencia TortuScript", "#0e7490", self.abrir_referencia),
@@ -87,6 +88,10 @@ class SistemaPrincipal(tk.Tk):
 
     def abrir_experimentos(self):
         ZonaExperimentacion(self)
+
+    def abrir_tortuga(self):
+        from ui.tortuga_window import ZonaTortuga
+        ZonaTortuga(self)
 
     def abrir_mapa(self):
         VentanaMapa(self)

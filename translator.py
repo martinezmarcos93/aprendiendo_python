@@ -24,6 +24,10 @@ class TraductorTortuScript:
 
         self.asignacion_re = re.compile(r'\bes\b')
         self._mostrar_re   = re.compile(r'\bmostrar\b(.*)')
+        self._avanzar_re   = re.compile(r'\bavanzar\b(.*)')
+        self._girar_der_re = re.compile(r'\bgirar_der\b(.*)')
+        self._girar_izq_re = re.compile(r'\bgirar_izq\b(.*)')
+        self._color_re     = re.compile(r'\bcolor\b(.*)')
 
     # ── Proteger strings de ser modificados por los patrones
     def _proteger_cadenas(self, linea):
@@ -45,6 +49,20 @@ class TraductorTortuScript:
             texto = re.sub(patron, reemplazo, texto)
         return texto
 
+    def _traducir_funcion_especial(self, linea, regex, func_nombre, cadenas):
+        m = regex.search(linea)
+        if m:
+            before = linea[:m.start()]
+            argumento = m.group(1).strip()
+            argumento = self._aplicar_patrones(argumento)
+            argumento = self.asignacion_re.sub('=', argumento)
+            argumento = self._restaurar_cadenas(argumento, cadenas)
+            before = self._aplicar_patrones(before)
+            before = self.asignacion_re.sub('=', before)
+            before = self._restaurar_cadenas(before, cadenas)
+            return before, f'{func_nombre}({argumento})'
+        return None, None
+
     def traducir_linea(self, linea_original):
         stripped = linea_original.strip()
         if stripped.startswith('#') or stripped == '':
@@ -61,21 +79,27 @@ class TraductorTortuScript:
         linea = stripped
         linea, cadenas = self._proteger_cadenas(linea)
 
-        # mostrar expr  →  print(expr)   [manejo especial para agregar paréntesis]
-        m = self._mostrar_re.search(linea)
-        if m:
-            before = linea[:m.start()]
-            argumento = m.group(1).strip()
-            argumento = self._aplicar_patrones(argumento)
-            argumento = self.asignacion_re.sub('=', argumento)
-            argumento = self._restaurar_cadenas(argumento, cadenas)
-            before = self._aplicar_patrones(before)
-            before = self.asignacion_re.sub('=', before)
-            before = self._restaurar_cadenas(before, cadenas)
-            return indentacion + before + f'print({argumento})'
+        # Funciones especiales que requieren paréntesis automático
+        especiales = [
+            (self._mostrar_re, 'print'),
+            (self._avanzar_re, 'avanzar'),
+            (self._girar_der_re, 'girar_der'),
+            (self._girar_izq_re, 'girar_izq'),
+            (self._color_re, 'color'),
+        ]
+        
+        for regex, func_nombre in especiales:
+            before, func_traducida = self._traducir_funcion_especial(linea, regex, func_nombre, cadenas)
+            if before is not None:
+                return indentacion + before + func_traducida
 
         linea = self._aplicar_patrones(linea)
         linea = self.asignacion_re.sub('=', linea)
+        
+        # Palabras clave sin argumentos (como bajar_lapiz)
+        linea = re.sub(r'\bbajar_lapiz\b', 'bajar_lapiz()', linea)
+        linea = re.sub(r'\bsubir_lapiz\b', 'subir_lapiz()', linea)
+        
         linea = self._restaurar_cadenas(linea, cadenas)
         return indentacion + linea
 
@@ -92,6 +116,7 @@ _PALABRAS_TORTU = {
     "mostrar", "preguntar", "funcion", "devolver",
     "repetir", "veces", "mientras", "sino",
     "Verdadero", "Falso", "es",
+    "avanzar", "girar_der", "girar_izq", "color", "bajar_lapiz", "subir_lapiz"
 }
 
 # Palabras que son Python puro
