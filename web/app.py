@@ -306,10 +306,23 @@ def create_app(token=None):
                  "nivel": None, "pasos": pasos, "ya_completada": False}
         return render_template("leccion.html", datos=datos, titulo="Práctica del día")
 
+    @app.get("/certificado/<curso_id>")
+    def certificado(curso_id):
+        """Diploma imprimible (o para guardar como PDF) al terminar un curso. Gratis y sin cuentas."""
+        p = progreso.cargar_progreso()
+        curso = next((c for c in _camino(p) if c["id"] == curso_id), None)
+        if curso is None:
+            abort(404)
+        if not curso["completo"]:
+            return redirect(url_for("inicio"))
+        return render_template("certificado.html", curso=curso, hoy=date.today(), xp=p.get("xp_total", 0),
+                               nombre=p["config"].get("nombre") or progreso.PERFIL_ACTUAL)
+
     @app.get("/logros")
     def pagina_logros():
         p = progreso.cargar_progreso()
-        return render_template("logros.html", catalogo=logros.catalogo(p))
+        return render_template("logros.html", catalogo=logros.catalogo(p),
+                               diplomas=[c for c in _camino(p) if c["completo"]])
 
     @app.get("/liga")
     def pagina_liga():

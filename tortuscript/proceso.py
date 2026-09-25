@@ -16,7 +16,8 @@ from .error_handler import _explicacion
 logger = logging.getLogger("tortuscript.proceso")
 
 RAIZ = Path(__file__).resolve().parent.parent
-TIEMPO_MAX = 5            # segundos reales (incluye esperar al proceso)
+TIEMPO_MAX = 10           # segundos reales (incluye arrancar Python: un antivirus puede demorarlo).
+                          # Los bucles infinitos no llegan acá: los corta el límite de pasos en ~0,1 s.
 CPU_MAX = 4               # segundos de CPU
 MEMORIA_MAX = 512 * 1024 * 1024
 

@@ -7,6 +7,14 @@
     <p class="tenue">Ganaste <b>{{ estado.logros_ganados }}</b> de {{ estado.logros_total }}. Se ganan solos, jugando: no se pierden nunca.</p>
     <div class="barra-larga"><span style="width: {{ (100 * estado.logros_ganados / estado.logros_total)|round|int }}%"></span></div>
   </section>
+  {% if diplomas %}
+  <section class="tarjeta">
+    <h2>🎓 Mis certificados</h2>
+    <div class="fila">
+      {% for c in diplomas %}<a class="boton amarillo" href="{{ url_for('certificado', curso_id=c.id) }}">{{ c.icono }} {{ c.titulo }}</a>{% endfor %}
+    </div>
+  </section>
+  {% endif %}
   <div class="logros-grid">
     {% for l in catalogo %}
     <div class="logro {{ 'ganado' if l.ganado else 'pendiente' }}" title="{{ l.descripcion }}">

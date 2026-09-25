@@ -1,0 +1,27 @@
+{% extends "base.html" %}
+{% block titulo %}Certificado{% endblock %}
+{% block contenido %}
+<div class="acciones-diploma">
+  <button class="boton verde" id="btn-imprimir" type="button">🖨️ Imprimir o guardar como PDF</button>
+  <a class="boton" href="{{ url_for('inicio') }}">🏠 Volver</a>
+</div>
+<article class="diploma" aria-label="Certificado de {{ curso.titulo }}">
+  <div class="sello" aria-hidden="true">🏅</div>
+  <h1>Certificado</h1>
+  <p class="otorga">Se le otorga a</p>
+  <div class="nombre">{{ nombre }}</div>
+  <p class="otorga">por completar con éxito el curso</p>
+  <div class="curso-titulo">{{ curso.icono }} {{ curso.titulo }}</div>
+  <div class="datos">
+    <div><b>{{ curso.total }}</b>lecciones</div>
+    <div><b>{{ curso.perfectas }}</b>lecciones perfectas</div>
+    <div><b>{{ xp }}</b>puntos de experiencia</div>
+  </div>
+  <div class="pie-diploma">
+    <div>{{ hoy.strftime('%d/%m/%Y') }}<br><small>Fecha</small></div>
+    <div class="sello" aria-hidden="true">🐢</div>
+    <div>TortuScript<br><small>Aprender programando en español</small></div>
+  </div>
+</article>
+{% endblock %}
+{% block scripts %}<script>document.getElementById("btn-imprimir").addEventListener("click", () => window.print());</script>{% endblock %}

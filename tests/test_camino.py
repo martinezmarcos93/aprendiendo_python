@@ -460,6 +460,38 @@ class TestWebCamino(Base):
         self.assertEqual(self.post("/api/lecciones/proyecto-casa/pasos/3/evaluar", {"codigo": solo_paredes}).get_json()["evaluacion"]["estado"],
                          "incorrecto")
 
+    # ── certificado ──
+    def _completar_curso_tortuga(self, perfectas=True):
+        self._terminar_hasta("dos-variables")
+        for _, lec in contenido.lecciones(contenido.cargar_curso("tortuga")):
+            progreso.registrar_paso_leccion(progreso.cargar_progreso(), lec["id"], 0, 0, perfectas, 1)
+
+    def test_el_certificado_solo_existe_al_terminar_el_curso(self):
+        self.post("/api/onboarding", {"meta_min": 10, "nombre": "Lua"})
+        for ruta in ("/certificado/tortuga", "/certificado/primeros-pasos"):
+            r = self.c.get(ruta)
+            self.assertEqual(r.status_code, 302)
+            self.assertTrue(r.headers["Location"].endswith("/"))
+        self.assertEqual(self.c.get("/certificado/inventado").status_code, 404)
+        self.assertNotIn("Ver mi certificado", self.c.get("/").get_data(as_text=True))
+
+    def test_certificado_con_nombre_curso_y_numeros(self):
+        self.post("/api/onboarding", {"meta_min": 10, "nombre": "Lua"})
+        self._completar_curso_tortuga()
+        html = self.c.get("/certificado/tortuga").get_data(as_text=True)
+        for texto in ("Certificado", "Lua", "Dibujá con la tortuga", ">12<", "lecciones perfectas", "puntos de experiencia"):
+            self.assertIn(texto, html)
+        self.assertIn("@media print", self.c.get("/static/css/tortu.css").get_data(as_text=True))
+        self.assertIn("Ver mi certificado", self.c.get("/").get_data(as_text=True))
+        self.assertIn("Mis certificados", self.c.get("/logros").get_data(as_text=True))
+
+    def test_el_certificado_cuenta_solo_las_perfectas_y_escapa_el_nombre(self):
+        self.post("/api/onboarding", {"meta_min": 10, "nombre": "<i>Lua</i>"})
+        self._completar_curso_tortuga(perfectas=False)
+        html = self.c.get("/certificado/tortuga").get_data(as_text=True)
+        self.assertIn("<b>0</b>lecciones perfectas", html)
+        self.assertNotIn("<i>Lua</i>", html)
+
     # ── curso de Python real ──
     def test_ejercicio_en_python_se_evalua_y_da_pistas_sin_traducir(self):
         self.post("/api/onboarding", {"meta_min": 10})

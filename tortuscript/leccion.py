@@ -146,11 +146,16 @@ def estado_cursos(cursos, progreso, indices_por_leccion):
             hallada = buscar_en_cursos(cursos, requiere)
             titulo_requerido = hallada[2]["titulo"].partition(". ")[2] or hallada[2]["titulo"] if hallada else requiere
             abierto = esta_completada(progreso, requiere, indices_por_leccion.get(requiere, []))
+        secciones = estado_camino(curso, progreso, indices_por_leccion, abierto, titulos)
+        lecciones = [l for s in secciones for l in s["lecciones"]]
+        hechas = sum(1 for l in lecciones if l["estado"] in ("hecha", "perfecta"))
         salida.append({
             "id": curso["id"], "titulo": curso["titulo"], "icono": curso.get("icono", "📘"),
             "descripcion": curso.get("descripcion", ""), "abierto": abierto,
             "requiere": None if abierto else titulo_requerido,
-            "secciones": estado_camino(curso, progreso, indices_por_leccion, abierto, titulos),
+            "hechas": hechas, "total": len(lecciones), "completo": bool(lecciones) and hechas == len(lecciones),
+            "perfectas": sum(1 for l in lecciones if l["estado"] == "perfecta"),
+            "secciones": secciones,
         })
     return salida
 
