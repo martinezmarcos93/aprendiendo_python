@@ -1,5 +1,5 @@
 """
-Evaluación de ejercicios, sin interfaz (la usan la app web y la app Tk).
+Evaluación de ejercicios, sin interfaz (la usa la app web).
 
 Se compara lo que MUESTRA el programa del chico con lo que muestra la solución
 oficial ejecutada con las mismas respuestas a preguntar(): cualquier forma de llegar

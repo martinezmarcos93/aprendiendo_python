@@ -1,4 +1,4 @@
-"""Núcleo de TortuScript, sin interfaz: lo usan la app web y la app Tk.
+"""Núcleo de TortuScript, sin interfaz: lo usa la app web (web/) y las herramientas (herramientas/).
 
 - translator: TortuScript → Python (tokenize)
 - executor: ejecución protegida del código del alumno

@@ -67,7 +67,7 @@ def pasos(curso):
 
 
 def descripcion_completa(paso):
-    """Consigna + forma + nota en una sola línea (para la app Tk y compatibilidad)."""
+    """Consigna + forma + nota en una sola línea (para la página de ejercicio clásica y la vista `ejercicios()`)."""
     texto = paso.get("consigna", "")
     if paso.get("forma"):
         texto += f'   Forma:  {paso["forma"]}'

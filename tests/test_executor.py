@@ -141,14 +141,15 @@ class TestEntradaDesacoplada(unittest.TestCase):
         self.assertIsNone(detalles["pregunta_pendiente"])
         self.assertIn("Hola Ana", salida)
 
-    def test_pedir_entrada_de_la_interfaz(self):
-        # Modo Tk: la interfaz responde.
-        preguntas = []
-        salida, _, _ = ejecutar_codigo(
-            "print(input('¿Color? '))",
-            pedir_entrada=lambda p: preguntas.append(p) or "azul")
-        self.assertEqual(preguntas, ["¿Color? "])
+    def test_sin_respuesta_conocida_el_programa_se_detiene_con_la_pregunta(self):
+        # La web pregunta y vuelve a ejecutar con las respuestas acumuladas.
+        detalles = {}
+        salida, error, _ = ejecutar_codigo("print(input('¿Color? '))", detalles=detalles)
+        self.assertFalse(error)
+        self.assertEqual(detalles["pregunta_pendiente"], "¿Color? ")
+        salida, _, _ = ejecutar_codigo("print(input('¿Color? '))", entradas_fijas=["azul"], detalles=detalles)
         self.assertIn("azul", salida)
+        self.assertIsNone(detalles["pregunta_pendiente"])
 
     def test_try_except_del_alumno_no_frena_el_corte_de_bucle(self):
         codigo = "while True:\n    try:\n        pass\n    except Exception:\n        pass"

@@ -1,4 +1,4 @@
-"""Tests de la app web (se saltean si Flask no está instalado: la app Tk no lo necesita)."""
+"""Tests de la app web (se saltean si Flask no está instalado)."""
 import shutil
 import tempfile
 import unittest

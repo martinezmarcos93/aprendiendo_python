@@ -98,25 +98,19 @@ class _Salida(io.StringIO):
 class InputInteractivo:
     """input() del alumno, sin depender de ninguna interfaz:
     1. primero usa las `entradas_fijas` (respuestas ya conocidas), en orden;
-    2. si se acabaron y hay `pedir_entrada(pregunta)`, se la pide a la interfaz (Tk);
-    3. si no, detiene el programa con NecesitaEntrada (la web pregunta y re-ejecuta).
+    2. si se acabaron, detiene el programa con NecesitaEntrada: la web muestra la pregunta y
+       vuelve a ejecutar con las respuestas acumuladas.
     Con `completar_con_vacio=True` responde "" en vez de detenerse (evaluación)."""
 
-    def __init__(self, salida, entradas_fijas=None, registro=None,
-                 pedir_entrada=None, completar_con_vacio=False):
+    def __init__(self, salida, entradas_fijas=None, registro=None, completar_con_vacio=False):
         self._salida = salida
         self._fijas = list(entradas_fijas or [])
         self._registro = registro
-        self._pedir = pedir_entrada
         self._vacio = completar_con_vacio
 
     def __call__(self, prompt=""):
         if self._fijas:
             respuesta = self._fijas.pop(0)
-        elif self._pedir is not None:
-            respuesta = self._pedir(str(prompt))
-            if respuesta is None:
-                respuesta = ""
         elif self._vacio:
             respuesta = ""
         else:
@@ -131,11 +125,11 @@ class InputInteractivo:
 # -------------------------
 # ENTORNO
 # -------------------------
-def _hacer_globals(salida, entradas, registro, pedir_entrada, completar_con_vacio):
+def _hacer_globals(salida, entradas, registro, completar_con_vacio):
     return {
         "__builtins__": {
             "print": print,
-            "input": InputInteractivo(salida, entradas, registro, pedir_entrada, completar_con_vacio),
+            "input": InputInteractivo(salida, entradas, registro, completar_con_vacio),
             "range": range, "len": len, "int": int, "float": float, "str": str,
             "list": list, "dict": dict, "tuple": tuple, "set": set, "bool": bool,
             "True": True, "False": False, "None": None,
@@ -163,7 +157,7 @@ def _hacer_tracer(callback_linea):
         return local
 
     def global_(frame, event, arg):
-        # Solo se traza el código del alumno: ni tkinter, ni turtle, ni diálogos.
+        # Solo se traza el código del alumno (no el del propio ejecutor).
         if frame.f_code.co_filename == ARCHIVO_ALUMNO:
             return local
         return None
@@ -175,17 +169,16 @@ def _hacer_tracer(callback_linea):
 # EJECUCIÓN PRINCIPAL
 # -------------------------
 def ejecutar_codigo(codigo_python, extra_globals=None, callback_linea=None,
-                    entradas_fijas=None, detalles=None, pedir_entrada=None,
+                    entradas_fijas=None, detalles=None,
                     completar_con_vacio=None):
     """Ejecuta el código y devuelve (salida_pantalla, hubo_error, mensaje_error).
 
     - callback_linea(n): se llama antes de ejecutar cada línea n del alumno (depurador).
     - entradas_fijas: respuestas para preguntar(), en orden. Si se pasa (aunque sea []),
       las preguntas de más se responden con "" (así se evalúa la solución oficial).
-    - pedir_entrada(pregunta) -> str: cómo pedirle una respuesta al chico (app Tk).
     - completar_con_vacio: True responde "" a las preguntas de más; False se detiene
       con la pregunta pendiente (web: respuestas ya dadas + la que falta). Por defecto,
-      True solo si se pasaron entradas_fijas y no hay pedir_entrada.
+      True solo si se pasaron entradas_fijas.
       Sin esto ni entradas, el programa se detiene en la primera pregunta y
       detalles['pregunta_pendiente'] la trae (app web: pregunta y re-ejecuta).
     - detalles (dict opcional): 'salida_programa' (solo prints), 'entradas' (respuestas
@@ -198,9 +191,8 @@ def ejecutar_codigo(codigo_python, extra_globals=None, callback_linea=None,
     try:
         codigo = validar_codigo(codigo_python)
         if completar_con_vacio is None:
-            completar_con_vacio = entradas_fijas is not None and pedir_entrada is None
-        entorno = _hacer_globals(salida, entradas_fijas, registro_entradas, pedir_entrada,
-                                 completar_con_vacio)
+            completar_con_vacio = entradas_fijas is not None
+        entorno = _hacer_globals(salida, entradas_fijas, registro_entradas, completar_con_vacio)
         if extra_globals:
             entorno.update(extra_globals)
         sys.stdout = salida
