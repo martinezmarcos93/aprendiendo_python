@@ -22,7 +22,7 @@
     {% for f in fichas %}
       {% set clase = 'perfecto' if f.estrellas == 3 else ('bien' if f.estrellas == 2 else ('intentado' if f.completado else '')) %}
       {% if f.abierto %}
-      <a class="ficha {{ clase }}" href="{{ url_for('ejercicio', n=f.n) }}">
+      <a class="ficha {{ clase }}" href="{{ url_for('leccion', leccion_id=f.leccion) }}">
       {% else %}
       <span class="ficha bloqueada" title="Completá los ejercicios anteriores para desbloquear este">
       {% endif %}

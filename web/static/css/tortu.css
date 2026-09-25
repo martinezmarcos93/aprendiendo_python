@@ -372,6 +372,43 @@ a.ficha:hover { transform: translateY(-3px); background: var(--superficie-2); }
 @keyframes subir { from { transform: translateY(100%); } to { transform: none; } }
 @media (max-width: 900px) { .leccion { padding-bottom: 12rem; } }
 
+/* ───────── camino de lecciones ───────── */
+.meta-diaria { display: flex; gap: 1.1rem; align-items: center; }
+.anillo { --pct: 0; flex: none; width: 84px; height: 84px; border-radius: 50%; display: grid; place-items: center;
+  background: conic-gradient(var(--verde) calc(var(--pct) * 1%), var(--superficie-2) 0); position: relative; }
+.anillo::before { content: ""; position: absolute; inset: 9px; border-radius: 50%; background: var(--superficie); }
+.anillo > span { position: relative; font-weight: 900; font-size: 1.1rem; }
+.metas { display: flex; gap: .5rem; flex-wrap: wrap; }
+.camino-lecciones { margin-top: 1.6rem; display: grid; gap: 1.6rem; max-width: 620px; margin-left: auto; margin-right: auto; }
+.seccion-camino { --c: var(--violeta); --c-fondo: #2a2170; }
+.seccion-camino.n1 { --c: #ffc53d; --c-fondo: #4a3508; } .seccion-camino.n2 { --c: #6cb0ff; --c-fondo: #14315a; }
+.seccion-camino.n3 { --c: #b39bff; --c-fondo: #2f1f66; } .seccion-camino.n4 { --c: #3fe0a4; --c-fondo: #08402f; }
+.seccion-camino.n5 { --c: #ff7b8f; --c-fondo: #5c1626; } .seccion-camino.n6 { --c: #ff9b4a; --c-fondo: #5c2a0c; }
+.seccion-camino.n7 { --c: #f08cff; --c-fondo: #5a1466; } .seccion-camino.n8 { --c: #4cc9ff; --c-fondo: #0b3c5c; }
+.banda-camino { display: flex; align-items: center; gap: .7rem; padding: .7rem 1rem; border-radius: var(--radio-chico);
+  background: var(--c-fondo); color: var(--c); font-size: 1.1rem; }
+.banda-camino .etiqueta-nivel { background: transparent; padding: 0; }
+.senda { list-style: none; margin: 1rem 0 0; padding: 0; display: grid; gap: 1.1rem; }
+.parada { display: flex; align-items: center; gap: 1rem; transition: transform .2s; }
+.parada.z1 { transform: translateX(64px); } .parada.z3 { transform: translateX(-64px); }
+.nodo-camino { flex: none; width: 74px; height: 74px; border-radius: 50%; display: grid; place-items: center; text-decoration: none;
+  font-size: 1.7rem; font-weight: 900; color: var(--texto-tenue); background: var(--superficie-2); border: 3px solid var(--borde);
+  box-shadow: 0 6px 0 #11153a; transition: transform .12s; }
+a.nodo-camino:hover { transform: translateY(-3px) scale(1.05); }
+.parada.hecha .nodo-camino { background: #173d2e; border-color: var(--verde); color: var(--verde); }
+.parada.perfecta .nodo-camino { background: #3b3312; border-color: var(--amarillo); }
+.parada.actual .nodo-camino { background: var(--violeta); border-color: #c9bbff; color: #fff; animation: latido 1.6s ease-in-out infinite; }
+.parada.bloqueada { opacity: .6; }
+.nombre-camino { font-weight: 800; }
+.burbuja { display: inline-block; margin-left: .5rem; padding: .15rem .7rem; border-radius: 999px; background: var(--amarillo); color: #2a1c00; font-size: .8rem; font-weight: 900; }
+@media (max-width: 600px) { .parada.z1 { transform: translateX(28px); } .parada.z3 { transform: translateX(-4px); } }
+
+/* ───────── bienvenida ───────── */
+.bienvenida .paso-bv { animation: aparecer .3s cubic-bezier(.2,.9,.3,1.2); }
+.bienvenida .campo { max-width: 22rem; margin: .4rem auto 1rem; text-align: center; }
+.bienvenida .opciones { max-width: 26rem; margin: 1rem auto; }
+.bienvenida h1 { font-size: 1.7rem; }
+
 /* ───────── modales ───────── */
 .modal {
   position: fixed; inset: 0; z-index: 50; display: grid; place-items: center;

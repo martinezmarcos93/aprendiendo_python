@@ -23,6 +23,7 @@ class TestWeb(unittest.TestCase):
         self.app = create_app(token="secreto")
         self.c = self.app.test_client()
         self.h = {"X-Tortu-Token": "secreto"}
+        progreso.guardar_config(progreso.cargar_progreso(), onboarding=True)   # sin pasar por la bienvenida
 
     def tearDown(self):
         progreso.DIRECTORIO, progreso.PERFIL_ACTUAL = self._orig
@@ -121,7 +122,7 @@ class TestWeb(unittest.TestCase):
         self.assertIn("ficha intentado", html)
         self.assertIn("ficha bloqueada", html)           # los que aún no se desbloquean
         self.assertIn("¡Te toca!", html)                 # el siguiente pendiente
-        self.assertIn('href="/ejercicios/3"', html)
+        self.assertIn('href="/leccion/', html)              # las fichas abren la lección
 
     def test_resumen_hoy(self):
         html = self.c.get("/resumen").get_data(as_text=True)

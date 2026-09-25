@@ -1,50 +1,64 @@
 {% extends "base.html" %}
 {% block titulo %}Inicio{% endblock %}
 {% block contenido %}
-{% set niveles = {1: "Mostrar", 2: "Variables", 3: "Preguntar", 4: "Cuentas", 5: "Condicionales", 6: "Repetir", 7: "Funciones", 8: "Desafíos"} %}
-{% set ns = namespace(actual=none) %}
-{% for ej in ejercicios %}{% if ns.actual is none and not estado.estrellas.get(loop.index0|string) %}{% set ns.actual = loop.index0 %}{% endif %}{% endfor %}
 <section class="hero">
   <div class="tarjeta">
     <div class="fila">
       <div class="mascota">🐢</div>
       <div>
-        <h1>¡Hola, {{ perfil }}!</h1>
+        <h1>¡Hola, {{ estado.nombre }}!</h1>
         <p class="tenue">Aprendé a programar de a poco, en español, y mirá cómo se convierte en Python de verdad.</p>
       </div>
     </div>
     <div class="mini-stats">
-      <div><b>{{ estado.completados }}/{{ estado.total }}</b><span class="tenue">ejercicios</span></div>
+      <div><b>{{ estado.lecciones_hechas }}/{{ estado.lecciones_total }}</b><span class="tenue">lecciones</span></div>
       <div><b>{{ estado.xp }}</b><span class="tenue">XP</span></div>
       <div><b>🔥 {{ estado.racha }}</b><span class="tenue">días seguidos</span></div>
     </div>
     <div class="acciones">
-      <a class="boton verde grande" href="{{ url_for('ejercicios_siguiente') }}">▶ {{ 'Empezar' if estado.completados == 0 else 'Seguir aprendiendo' }}</a>
+      {% if actual %}
+        <a class="boton verde grande" href="{{ url_for('leccion', leccion_id=actual.id) }}">▶ {{ 'Empezar' if estado.lecciones_hechas == 0 else 'Seguir' }}: {{ actual.nombre }}</a>
+      {% else %}
+        <a class="boton violeta grande" href="{{ url_for('repaso') }}">🎉 ¡Terminaste todo! Repasá</a>
+      {% endif %}
     </div>
   </div>
   <div class="accesos">
+    <div class="tarjeta meta-diaria" id="meta-diaria">
+      <div class="anillo" style="--pct: {{ estado.meta_pct }}" role="img" aria-label="Meta diaria: {{ estado.meta_pct }} por ciento">
+        <span>{{ estado.meta_pct }}%</span>
+      </div>
+      <div>
+        <h3>Meta de hoy</h3>
+        <span class="tenue">{{ estado.xp_hoy }} / {{ estado.meta_xp }} XP · {{ estado.meta_min }} minutos</span>
+        {% if estado.meta_pct >= 100 %}<div class="verde-t"><b>✅ ¡Meta cumplida!</b></div>{% endif %}
+      </div>
+    </div>
     <a class="tarjeta acceso" href="{{ url_for('experimentar') }}"><span class="icono">🧪</span><div><h3>Experimentar</h3><span class="tenue">Probá lo que quieras, sin ejercicios.</span></div></a>
     <a class="tarjeta acceso" href="{{ url_for('tortuga') }}"><span class="icono">🎨</span><div><h3>Zona Tortuga</h3><span class="tenue">Dibujá dándole órdenes a la tortuga.</span></div></a>
-    <a class="tarjeta acceso" href="{{ url_for('referencia') }}"><span class="icono">📖</span><div><h3>Referencia</h3><span class="tenue">Todo lo que podés escribir, con su Python.</span></div></a>
   </div>
 </section>
 
-<section class="camino">
-  {% for nivel, nombre in niveles.items() %}
-  <div class="tarjeta nivel-camino">
-    <h3><span class="etiqueta">Nivel {{ nivel }}</span> {{ nombre }}</h3>
-    <div class="nodos">
-      {% for ej in ejercicios %}{% if ej.nivel == nivel %}
-        {% set i = loop.index0 %}{% set e = estado.estrellas.get(i|string, 0) %}
-        {% if e %}
-          <a class="nodo {{ 'perfecto' if e == 3 else 'hecho' }}" href="{{ url_for('ejercicio', n=i+1) }}" title="{{ ej.titulo }}">{{ i+1 }}<small>{{ '⭐' * e }}</small></a>
-        {% elif i == ns.actual %}
-          <a class="nodo actual" href="{{ url_for('ejercicio', n=i+1) }}" title="{{ ej.titulo }} — ¡te toca!">{{ i+1 }}</a>
+<section class="camino-lecciones" aria-label="Camino de lecciones">
+  {% for seccion in camino %}
+  <div class="seccion-camino n{{ seccion.nivel }}">
+    <div class="banda-camino"><span class="etiqueta-nivel">NIVEL {{ seccion.nivel }}</span> <b>{{ seccion.titulo }}</b></div>
+    <ol class="senda">
+      {% for lec in seccion.lecciones %}
+      <li class="parada z{{ loop.index0 % 4 }} {{ lec.estado }}">
+        {% if lec.estado == 'bloqueada' %}
+          <span class="nodo-camino" title="Completá la lección anterior para desbloquearla" aria-label="{{ lec.nombre }} (bloqueada)">🔒</span>
         {% else %}
-          <span class="nodo bloqueado" title="Completá los anteriores para desbloquearlo">🔒</span>
+          <a class="nodo-camino" href="{{ url_for('leccion', leccion_id=lec.id) }}" title="{{ lec.nombre }}">
+            {% if lec.estado == 'perfecta' %}⭐{% elif lec.estado == 'hecha' %}✓{% else %}▶{% endif %}
+          </a>
         {% endif %}
-      {% endif %}{% endfor %}
-    </div>
+        <span class="nombre-camino"><span class="tenue">{{ lec.numero }}.</span> {{ lec.nombre }}
+          {% if lec.pasos > 1 %}<small class="tenue">· {{ lec.pasos }} pasos</small>{% endif %}
+          {% if lec.estado == 'actual' %}<span class="burbuja">¡Te toca!</span>{% endif %}</span>
+      </li>
+      {% endfor %}
+    </ol>
   </div>
   {% endfor %}
 </section>

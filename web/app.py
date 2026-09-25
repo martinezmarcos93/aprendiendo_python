@@ -36,6 +36,9 @@ def create_app(token=None):
     app.config["JSON_AS_ASCII"] = False
     # Pistas vistas por (perfil, ejercicio): se reinician al abrir el ejercicio.
     pistas_vistas = {}
+    INDICES_POR_LECCION = {}
+    for i, e in enumerate(EJERCICIOS):
+        INDICES_POR_LECCION.setdefault(e["leccion_id"], []).append(i)
     intentos = {}    # errores y respuesta vista por (perfil, lección, paso); se reinicia al abrir la lección
     colas = {}       # colas de repaso fijadas al empezar: (perfil, modo, semilla) -> [índices]
 
@@ -48,6 +51,16 @@ def create_app(token=None):
                 request.headers.get("X-Tortu-Token") != app.config["TOKEN"]:
             abort(403)
 
+    @app.before_request
+    def _bienvenida():
+        """Un perfil nuevo empieza por la bienvenida (nombre, experiencia y meta diaria)."""
+        if request.method != "GET" or request.endpoint in (None, "static", "bienvenida") \
+                or request.path.startswith("/api/"):
+            return None
+        if progreso.necesita_onboarding(progreso.cargar_progreso()):
+            return redirect(url_for("bienvenida"))
+        return None
+
     @app.context_processor
     def _globales():
         return {"token": app.config["TOKEN"], "estado": _estado(), "perfil": progreso.PERFIL_ACTUAL}
@@ -58,7 +71,16 @@ def create_app(token=None):
         xp = p.get("xp_total", 0)
         nivel, xp_actual, xp_max = progreso.calcular_nivel(xp)
         completados = [int(k) for k, v in p["ejercicios"].items() if v.get("completado")]
+        camino = motor.estado_camino(_curso(), p, INDICES_POR_LECCION)
+        planas = [lec for seccion in camino for lec in seccion["lecciones"]]
+        meta = progreso.meta_diaria_xp(p)
+        hoy_xp = progreso.xp_de_hoy(p)
         return {
+            "lecciones_hechas": sum(1 for lec in planas if lec["estado"] in ("hecha", "perfecta")),
+            "lecciones_total": len(planas),
+            "xp_hoy": hoy_xp, "meta_xp": meta, "meta_min": p["config"]["meta_min"],
+            "meta_pct": min(100, round(100 * hoy_xp / meta)) if meta else 0,
+            "nombre": p["config"].get("nombre") or progreso.PERFIL_ACTUAL,
             "xp": xp, "nivel": nivel, "titulo": progreso.titulo_nivel(nivel),
             "xp_actual": xp_actual, "xp_max": xp_max,
             "racha": progreso.racha_vigente(p),
@@ -128,7 +150,22 @@ def create_app(token=None):
     # ─────────────── páginas ───────────────
     @app.get("/")
     def inicio():
-        return render_template("inicio.html", ejercicios=EJERCICIOS)
+        p = progreso.cargar_progreso()
+        camino = motor.estado_camino(_curso(), p, INDICES_POR_LECCION)
+        actual = next((lec for seccion in camino for lec in seccion["lecciones"] if lec["estado"] == "actual"), None)
+        return render_template("inicio.html", camino=camino, actual=actual)
+
+    @app.get("/aprender")
+    def aprender():
+        """Va directo a la lección que toca (o a la última si ya terminó todo)."""
+        camino = motor.estado_camino(_curso(), progreso.cargar_progreso(), INDICES_POR_LECCION)
+        planas = [lec for seccion in camino for lec in seccion["lecciones"]]
+        destino = next((l for l in planas if l["estado"] == "actual"), planas[-1])
+        return redirect(url_for("leccion", leccion_id=destino["id"]))
+
+    @app.get("/bienvenida")
+    def bienvenida():
+        return render_template("bienvenida.html", metas=progreso.METAS_MIN, xp_por_minuto=progreso.XP_POR_MINUTO)
 
     @app.get("/ejercicios")
     def ejercicios_siguiente():
@@ -169,7 +206,7 @@ def create_app(token=None):
             d = datos.get(str(i), {})
             numero, _, nombre = ej["titulo"].partition(". ")
             niveles.setdefault(ej["nivel"], []).append({
-                "n": i + 1, "numero": numero, "nombre": nombre or ej["titulo"],
+                "n": i + 1, "leccion": ej["leccion_id"], "numero": numero, "nombre": nombre or ej["titulo"],
                 "completado": bool(d.get("completado")), "estrellas": d.get("estrellas", 0),
                 "xp": d.get("xp", 0), "abierto": bool(_desbloqueado(i, p)),
             })
@@ -183,7 +220,7 @@ def create_app(token=None):
         return render_template(
             "resumen.html", hoy=hoy, racha=progreso.racha_vigente(p), racha_max=p.get("racha_max", 0),
             jugo_hoy=p.get("ultimo_dia") == str(date.today()), calendario=progreso.calendario_semana(p),
-            estrellas_texto=progreso.estrellas_texto)
+            estrellas_texto=progreso.estrellas_texto, metas=progreso.METAS_MIN)
 
     @app.get("/referencia")
     def referencia():
@@ -342,6 +379,32 @@ def create_app(token=None):
             contenido = {"titulo": "Solución completa", "codigo": sol,
                          "python": TraductorTortuScript().traducir_codigo(sol)}
         return jsonify(nivel=nivel, **contenido)
+
+    @app.post("/api/onboarding")
+    def api_onboarding():
+        datos = request.get_json(silent=True) or {}
+        crudo = str(datos.get("nombre") or "").strip()
+        if crudo:
+            perfil = progreso.sanitizar_perfil(crudo)
+            if not perfil:
+                return jsonify(ok=False, mensaje="Usá letras o números para el nombre."), 400
+            if perfil != progreso.PERFIL_ACTUAL:
+                progreso.set_perfil(perfil)
+                progreso.recordar_perfil(perfil)
+        p = progreso.cargar_progreso()
+        ok = progreso.guardar_config(p, experiencia=datos.get("experiencia"), meta_min=datos.get("meta_min"),
+                                     nombre=crudo or None, onboarding=True)
+        if not ok:
+            return jsonify(ok=False, mensaje="Alguna respuesta no es válida."), 400
+        return jsonify(ok=True, actual=progreso.PERFIL_ACTUAL, estado=_estado())
+
+    @app.post("/api/config")
+    def api_config():
+        datos = request.get_json(silent=True) or {}
+        p = progreso.cargar_progreso()
+        if not progreso.guardar_config(p, meta_min=datos.get("meta_min")):
+            return jsonify(ok=False, mensaje="Esa meta no existe."), 400
+        return jsonify(ok=True, estado=_estado())
 
     @app.get("/api/perfiles")
     def api_perfiles():

@@ -27,6 +27,17 @@
     <div class="barra-larga"><span style="width: {{ (100 * estado.xp_actual / estado.xp_max)|round|int }}%"></span></div>
   </section>
 
+  <section class="tarjeta meta-diaria" id="meta-diaria">
+    <div class="anillo" style="--pct: {{ estado.meta_pct }}" role="img" aria-label="Meta diaria: {{ estado.meta_pct }} por ciento"><span>{{ estado.meta_pct }}%</span></div>
+    <div>
+      <h2>🎯 Meta de hoy</h2>
+      <p class="tenue" style="margin:0 0 .5rem">{{ estado.xp_hoy }} / {{ estado.meta_xp }} XP{% if estado.meta_pct >= 100 %} · <b class="verde-t">¡cumplida!</b>{% endif %}</p>
+      <div class="metas" role="radiogroup" aria-label="Cambiar la meta diaria">
+        {% for m in metas %}<button type="button" class="boton chico {{ 'violeta' if m == estado.meta_min }}" data-meta="{{ m }}" role="radio" aria-checked="{{ 'true' if m == estado.meta_min else 'false' }}">{{ m }} min</button>{% endfor %}
+      </div>
+    </div>
+  </section>
+
   <section class="tarjeta">
     <h2>📚 Conceptos practicados hoy</h2>
     {% if not hoy.conceptos %}
@@ -51,3 +62,4 @@
   <div class="acciones"><a class="boton verde grande" href="{{ url_for('ejercicios_siguiente') }}">▶ Seguir aprendiendo</a></div>
 </div>
 {% endblock %}
+{% block scripts %}<script src="{{ url_for('static', filename='js/resumen.js') }}"></script>{% endblock %}
