@@ -13,6 +13,8 @@
   <a class="saltar" href="#contenido">Saltar al contenido</a>
   <header class="barra">
     <a class="logo" href="{{ url_for('inicio') }}"><span class="tortu" aria-hidden="true">🐢</span> TortuScript</a>
+    <button class="menu-boton" id="btn-menu" type="button" aria-expanded="false" aria-controls="barra-menu" aria-label="Menú">☰ Menú</button>
+    <div class="barra-menu" id="barra-menu">
     <nav class="nav" aria-label="Principal">
       <a href="{{ url_for('inicio') }}" class="{{ 'activo' if request.endpoint == 'inicio' }}" {{ 'aria-current=page' if request.endpoint == 'inicio' }}>Inicio</a>
       <a href="{{ url_for('aprender') }}" class="{{ 'activo' if request.endpoint in ('leccion', 'ejercicio') }}">Aprender</a>
@@ -42,6 +44,7 @@
       <button class="chip sonido" id="btn-sonido" type="button" aria-pressed="true" title="Sonido" aria-label="Sonido de los premios">🔊</button>
       <button class="chip" id="btn-ajustes" type="button" title="Ajustes de accesibilidad" aria-haspopup="dialog" aria-label="Ajustes de accesibilidad">⚙️</button>
       <button class="chip perfil" id="btn-perfil" type="button" title="Cambiar de perfil" aria-haspopup="dialog">👤 <span id="e-perfil">{{ perfil }}</span></button>
+    </div>
     </div>
   </header>
 

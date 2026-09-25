@@ -146,6 +146,7 @@ Con **Playwright** (opcional, no está en `requirements.txt`) se puede verificar
 python herramientas/servidor_de_prueba.py    # servidor con progreso temporal (otra terminal)
 python herramientas/jugar_cursos.py          # juega TODAS las lecciones por el navegador
 python herramientas/revisar_contraste.py     # contraste WCAG AA en modo normal y alto contraste
+python herramientas/revisar_responsive.py    # que nada se desborde en pantallas de 320 a 768 px
 ```
 
 Cambios recientes: [`CHANGELOG.md`](CHANGELOG.md). Roadmap: [`docs/ROADMAP_MIMO_KIDS.md`](docs/ROADMAP_MIMO_KIDS.md).

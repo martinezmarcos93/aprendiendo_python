@@ -21,9 +21,10 @@ TOKEN = "prueba"
 def main():
     puerto = int(sys.argv[1]) if len(sys.argv) > 1 else 5077
     progreso.DIRECTORIO = Path(tempfile.mkdtemp(prefix="tortu_prueba_"))
+    from iniciar_web import crear_servidor
     from web.app import create_app
     print(f"Servidor de prueba en http://127.0.0.1:{puerto} (progreso temporal en {progreso.DIRECTORIO})")
-    create_app(token=TOKEN).run(host="127.0.0.1", port=puerto, debug=False, threaded=True)
+    crear_servidor(puerto, create_app(token=TOKEN)).serve_forever()
 
 
 if __name__ == "__main__":

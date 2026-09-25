@@ -333,6 +333,13 @@ const Tortu = (() => {
   }
   iniciarAjustes();
 
+  // Menú del encabezado en pantallas chicas (en escritorio el botón no se ve)
+  const botonMenu = document.getElementById("btn-menu");
+  botonMenu.addEventListener("click", () => {
+    const abierto = document.querySelector(".barra").classList.toggle("abierto");
+    botonMenu.setAttribute("aria-expanded", String(abierto));
+  });
+
   // El foco se queda adentro de la ventana abierta (con Tab y Shift+Tab)
   document.addEventListener("keydown", (ev) => {
     if (ev.key !== "Tab") return;

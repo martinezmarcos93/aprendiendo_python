@@ -30,6 +30,8 @@ Rama `feature/migracion-web-paridad`. Fases F0 a F9 del roadmap (`docs/ROADMAP_M
 - Documentación: `docs/CONTENIDO.md`, ADR-001 (migración) y ADR-002 (cursos como datos).
 
 ### Cambiado
+- Pantallas chicas: el encabezado se compacta con un botón **Menú** y ninguna página se desborda en 320–768 px
+  (`herramientas/revisar_responsive.py`). El servidor usa conexiones HTTP/1.1 que se reusan.
 - **Límite de memoria** del subproceso también en Windows (Job Object vía `ctypes`, sin dependencias): una bomba de
   memoria termina con un mensaje claro en vez de congelar la compu. Los pedidos web van de a uno para que el
   progreso no se pise entre pestañas.

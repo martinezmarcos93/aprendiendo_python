@@ -48,7 +48,8 @@ def puerto_libre(preferido=PUERTO_PREFERIDO, cantidad=CANTIDAD_DE_PUERTOS):
 
 def crear_servidor(puerto, app=None):
     """El servidor listo para `serve_forever()` (en un hilo, para poder probarlo, o en el principal)."""
-    from werkzeug.serving import make_server
+    from werkzeug.serving import WSGIRequestHandler, make_server
+    WSGIRequestHandler.protocol_version = "HTTP/1.1"          # conexiones que se reusan: la página baja fuentes y scripts sin reconectar
     if app is None:
         from web.app import create_app
         app = create_app()
