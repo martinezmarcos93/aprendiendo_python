@@ -10,6 +10,7 @@ resumen = {
   "cursos": {curso_id: (hechas, total)},
   "estrellas3": int,                 ejercicios 'escribir' resueltos con 3 estrellas (sin pistas)
   "nivel": int,
+  "proyectos": int,                  proyectos guardados
 }
 """
 from datetime import date
@@ -44,6 +45,8 @@ LOGROS = (
     ("racha-3", "🔥", "Tres días seguidos", "Programaste 3 días seguidos.", _racha(3)),
     ("racha-7", "📅", "Una semana entera", "Cumpliste el reto de 7 días seguidos.", _racha(7)),
     ("racha-30", "🏅", "Un mes seguido", "¡30 días seguidos programando!", _racha(30)),
+    ("primer-proyecto", "💾", "Primer proyecto", "Guardaste tu primer proyecto.", lambda p, r: r["proyectos"] >= 1),
+    ("cinco-proyectos", "🗂️", "Cinco proyectos", "Ya tenés 5 proyectos guardados.", lambda p, r: r["proyectos"] >= 5),
     ("congelador", "❄️", "Congelador ganado", "Ganaste tu primer congelador de racha.",
      lambda p, r: p.get("stats", {}).get("congeladores_ganados", 0) >= 1),
     ("meta-diaria", "🎯", "Meta cumplida", "Llegaste a tu meta diaria.", lambda p, r: len(p.get("dias_meta", [])) >= 1),
@@ -84,7 +87,8 @@ def resumen_de(progreso, camino):
         sum(1 for l in lecciones.values() for paso in l.get("pasos", {}).values()
             if paso.get("estrellas", 0) == 3 and paso.get("xp", 0) > 0)   # 'escribir' de cursos sin ejercicio clásico
     return {"pasos_hechos": pasos, "hechas_ids": hechas, "perfectas": perfectas, "cursos": cursos,
-            "estrellas3": tres, "nivel": _progreso.calcular_nivel(progreso.get("xp_total", 0))[0]}
+            "estrellas3": tres, "nivel": _progreso.calcular_nivel(progreso.get("xp_total", 0))[0],
+            "proyectos": len(progreso.get("proyectos") or {})}
 
 
 def cumplidos(progreso, resumen):
