@@ -13,3 +13,4 @@ progreso_*.corrupto-*
 logs/
 
 .claude/
+config_tortuscript.json
