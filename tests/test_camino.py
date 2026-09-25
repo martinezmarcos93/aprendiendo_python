@@ -191,7 +191,7 @@ class TestWebCamino(Base):
         self.assertEqual(html.count('class="parada'), 30)
         self.assertIn("¡Te toca!", html)
         self.assertIn('href="/leccion/hola-mundo"', html)
-        self.assertIn("0/42", html)
+        self.assertIn("0/48", html)
 
     def test_aprender_lleva_a_la_leccion_actual(self):
         self.post("/api/onboarding", {"meta_min": 10})
@@ -219,11 +219,14 @@ class TestWebCamino(Base):
         html = self.c.get("/").get_data(as_text=True)
         self.assertIn("Dibujá con la tortuga", html)
         self.assertIn("Se desbloquea al terminar «Dos variables»", html)
+        self.assertIn("Se desbloquea al terminar «Desafío final»", html)            # el curso de Python
         self.assertEqual(self.c.get("/leccion/tortuga-avanzar").status_code, 302)          # bloqueada
         self._terminar_hasta("dos-variables")
         html = self.c.get("/").get_data(as_text=True)
-        self.assertNotIn("Se desbloquea al terminar", html)
+        self.assertNotIn("Se desbloquea al terminar «Dos variables»", html)
+        self.assertIn("Se desbloquea al terminar «Desafío final»", html)            # el de Python sigue cerrado
         self.assertEqual(self.c.get("/leccion/tortuga-avanzar").status_code, 200)
+        self.assertEqual(self.c.get("/leccion/py-print").status_code, 302)
 
     def test_pagina_de_leccion_de_tortuga_trae_el_dibujo_objetivo_sin_la_solucion(self):
         self.post("/api/onboarding", {"meta_min": 10})
@@ -267,6 +270,46 @@ class TestWebCamino(Base):
         r = self.post("/api/lecciones/tortuga-girar/pasos/4/comprobar",
                       {"respuesta": ["avanzar 100", "girar_izq 90", "avanzar 100"]}).get_json()
         self.assertTrue(r["ok"])
+
+    # ── curso de Python real ──
+    def test_ejercicio_en_python_se_evalua_y_da_pistas_sin_traducir(self):
+        self.post("/api/onboarding", {"meta_min": 10})
+        self._terminar_hasta("desafio-final")
+        html = self.c.get("/leccion/py-print").get_data(as_text=True)
+        self.assertIn('"lenguaje": "python"', html)
+        self.assertNotIn("palabras_pista", html)
+        ruta = "/api/lecciones/py-print/pasos/6/evaluar"
+        r = self.post(ruta, {"codigo": 'nombre = "Lua"\nprint(nombre)'}).get_json()
+        self.assertEqual(r["evaluacion"]["estado"], "correcto")
+        self.assertEqual(r["premio"]["xp"], 30)
+        r = self.post(ruta, {"codigo": 'print("Lua")'}).get_json()                        # otra forma válida
+        self.assertEqual(r["evaluacion"]["estado"], "correcto")
+        self.assertEqual(self.post(ruta, {"codigo": 'print("Otro")'}).get_json()["evaluacion"]["estado"], "incorrecto")
+        pista = self.post("/api/lecciones/py-print/pasos/6/pista").get_json()
+        self.assertEqual(pista["texto"], "print, =")                                       # las del autor, no «mostrar»
+        for _ in range(2):
+            pista = self.post("/api/lecciones/py-print/pasos/6/pista").get_json()
+        self.assertEqual(pista["codigo"], 'nombre = "Lua"\nprint(nombre)')
+        self.assertNotIn("python", pista)                                                   # ya es Python: no se traduce
+
+    def test_ejercicio_en_python_con_input_pide_la_respuesta_y_luego_evalua(self):
+        self.post("/api/onboarding", {"meta_min": 10})
+        self._terminar_hasta("desafio-final")
+        self._dar_por_completa("py-print")
+        ruta = "/api/lecciones/py-input/pasos/6/evaluar"
+        codigo = 'nombre = input("¿Cómo te llamás? ")\nprint("Hola " + nombre)'
+        r = self.post(ruta, {"codigo": codigo}).get_json()
+        self.assertEqual(r["pregunta"], "¿Cómo te llamás? ")
+        self.assertNotIn("evaluacion", r)
+        r = self.post(ruta, {"codigo": codigo, "entradas": ["Ana"]}).get_json()
+        self.assertEqual(r["evaluacion"]["estado"], "correcto")
+
+    def test_explicacion_lado_a_lado_llega_a_la_pagina(self):
+        self.post("/api/onboarding", {"meta_min": 10})
+        self._terminar_hasta("desafio-final")
+        html = self.c.get("/leccion/py-print").get_data(as_text=True)
+        self.assertIn('"tortu": "mostrar', html)
+        self.assertIn("print(", html)
 
     def test_al_terminar_el_curso_1_la_siguiente_es_la_primera_del_curso_2(self):
         ultima = leccion.lista_lecciones(contenido.cargar_curso())[-1]["id"]

@@ -9,7 +9,7 @@ import re
 
 from . import tortuga
 from .executor import ejecutar_codigo
-from .translator import TraductorTortuScript
+from .translator import TraductorTortuScript, detectar_tipo
 
 CORRECTO = "correcto"
 INCORRECTO = "incorrecto"
@@ -55,10 +55,12 @@ def evaluar(solucion, detalles_alumno):
     """
     entradas = detalles_alumno.get("entradas", [])
     traductor = TraductorTortuScript()
-    python_sol = traductor.traducir_codigo(solucion.strip())
+    en_python = detectar_tipo(solucion) == "python"             # los ejercicios del curso puente
+    python_sol = solucion.strip() if en_python else traductor.traducir_codigo(solucion.strip())
     obtenido = normalizar_salida(detalles_alumno.get("salida_programa", ""))
+    pregunta = "input(" in solucion if en_python else "preguntar" in traductor.ultimas_palabras
 
-    if "preguntar" in traductor.ultimas_palabras and not entradas:
+    if pregunta and not entradas:
         return {"estado": FALTA_PREGUNTAR, "esperado": "", "obtenido": obtenido}
 
     det_sol = {}
@@ -80,7 +82,7 @@ def ordenes_de(fuente, entradas=None):
     registro = tortuga.Registro()
     detalles = {}
     _, hay_error, _ = ejecutar_codigo(
-        traductor.traducir_codigo(fuente.strip()), entradas_fijas=list(entradas or []), detalles=detalles,
+        fuente.strip() if detectar_tipo(fuente) == "python" else traductor.traducir_codigo(fuente.strip()), entradas_fijas=list(entradas or []), detalles=detalles,
         extra_globals=registro.globales(), callback_linea=registro.callback_linea)
     if hay_error or detalles.get("pregunta_pendiente") is not None:
         return None

@@ -17,7 +17,7 @@ from . import tortuga
 from .contenido import HUECO, TIPOS, pasos
 from .evaluacion import normalizar_salida
 from .executor import ejecutar_codigo
-from .translator import TraductorTortuScript
+from .translator import TraductorTortuScript, detectar_tipo
 
 ERROR, AVISO = "error", "aviso"
 
@@ -50,7 +50,7 @@ class Hallazgo:
 def _correr_dibujo(codigo_tortu, entradas=None):
     """Traduce y ejecuta con la tortuga. Devuelve (salida_programa, error, palabras_usadas, ordenes)."""
     t = TraductorTortuScript()
-    python = t.traducir_codigo(codigo_tortu)
+    python = codigo_tortu if detectar_tipo(codigo_tortu) == "python" else t.traducir_codigo(codigo_tortu)
     detalles = {}
     registro = tortuga.Registro()
     _, hay_error, mensaje = ejecutar_codigo(python, entradas_fijas=list(entradas or []), detalles=detalles,
@@ -112,6 +112,10 @@ def _validar_paso(paso, donde, hallazgos):
     usadas = set()
 
     if tipo == "explicacion":
+        if paso.get("tortu"):                      # TortuScript y Python lado a lado: el Python es la traducción exacta
+            traducido = TraductorTortuScript().traducir_codigo(paso["tortu"]).strip()
+            if traducido != (paso.get("codigo") or "").strip():
+                hallazgos.append(Hallazgo(ERROR, donde, f"el Python no es la traducción del TortuScript: {traducido!r}"))
         if _requeridos(paso, ["texto"], donde, hallazgos) and paso.get("codigo"):
             err, ordenes, usadas = _dibuja(paso["codigo"], entradas)
             if err:
@@ -210,8 +214,10 @@ def _validar_paso(paso, donde, hallazgos):
             return set()
         salida, err, usadas, ordenes = _correr_dibujo(paso["solucion"], entradas)
         usadas = set(usadas)
-        if "preguntar" in usadas and not entradas:
-            hallazgos.append(Hallazgo(ERROR, donde, "la solución usa preguntar: agregá «entradas_prueba»"))
+        if ("preguntar" in usadas or "input(" in paso["solucion"]) and not entradas:
+            hallazgos.append(Hallazgo(ERROR, donde, "la solución usa preguntar/input: agregá «entradas_prueba»"))
+        if paso.get("lenguaje") == "python" and not paso.get("palabras_pista"):
+            hallazgos.append(Hallazgo(AVISO, donde, "ejercicio en Python sin «palabras_pista» (la pista 1 diría mostrar)"))
         if err:
             hallazgos.append(Hallazgo(ERROR, donde, f"la solución no corre: {err}"))
         elif paso.get("tortuga"):

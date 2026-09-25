@@ -180,7 +180,7 @@ def paso_publico(paso, leccion_id, indice, numero_ejercicio=None):
     if paso.get("lenguaje"):
         publico["lenguaje"] = paso["lenguaje"]
     if tipo == "explicacion":
-        publico.update(texto=paso["texto"], codigo=paso.get("codigo"), forma=paso.get("forma"))
+        publico.update(texto=paso["texto"], codigo=paso.get("codigo"), forma=paso.get("forma"), tortu=paso.get("tortu"))
     elif tipo == "elegir":
         publico.update(pregunta=paso["pregunta"], codigo=paso.get("codigo"),
                        opciones=_mezclar([str(o) for o in paso["opciones"]], semilla))
