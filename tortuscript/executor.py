@@ -16,20 +16,30 @@ y de copiar/pegar cosas peligrosas, no de un atacante.
 import ast
 import io
 import sys
-from dialogo_preguntar import preguntar
-from error_handler import armar_mensaje_error
+from .error_handler import armar_mensaje_error
 
 MAX_PASOS = 50_000
 MAX_SALIDA = 20_000          # caracteres
 ARCHIVO_ALUMNO = "<tu código>"
 
 
-class BucleInfinito(Exception):
+# Las señales internas heredan de BaseException para que un `try/except Exception`
+# escrito por el alumno no pueda tragárselas (p. ej. dentro de un bucle infinito).
+class BucleInfinito(BaseException):
     """El código superó MAX_PASOS."""
 
 
-class SalidaDemasiadoLarga(Exception):
+class SalidaDemasiadoLarga(BaseException):
     """El código mostró más de MAX_SALIDA caracteres."""
+
+
+class NecesitaEntrada(BaseException):
+    """El programa llegó a preguntar() y no hay respuesta ni forma de pedirla.
+    La interfaz web la muestra y vuelve a ejecutar con la respuesta agregada."""
+
+    def __init__(self, pregunta):
+        super().__init__(pregunta)
+        self.pregunta = pregunta
 
 
 class CodigoNoPermitido(Exception):
@@ -86,22 +96,32 @@ class _Salida(io.StringIO):
 # INPUT
 # -------------------------
 class InputInteractivo:
-    """input() del alumno. Con `entradas_fijas` responde desde esa lista sin abrir
-    diálogos (se usa para evaluar la solución oficial con las mismas respuestas)."""
+    """input() del alumno, sin depender de ninguna interfaz:
+    1. primero usa las `entradas_fijas` (respuestas ya conocidas), en orden;
+    2. si se acabaron y hay `pedir_entrada(pregunta)`, se la pide a la interfaz (Tk);
+    3. si no, detiene el programa con NecesitaEntrada (la web pregunta y re-ejecuta).
+    Con `completar_con_vacio=True` responde "" en vez de detenerse (evaluación)."""
 
-    def __init__(self, salida, entradas_fijas=None, registro=None, ventana_padre=None):
+    def __init__(self, salida, entradas_fijas=None, registro=None,
+                 pedir_entrada=None, completar_con_vacio=False):
         self._salida = salida
-        self._fijas = list(entradas_fijas) if entradas_fijas is not None else None
+        self._fijas = list(entradas_fijas or [])
         self._registro = registro
-        self._padre = ventana_padre
+        self._pedir = pedir_entrada
+        self._vacio = completar_con_vacio
 
     def __call__(self, prompt=""):
-        if self._fijas is not None:
-            respuesta = self._fijas.pop(0) if self._fijas else ""
-        else:
-            respuesta = preguntar(prompt, padre=self._padre)
+        if self._fijas:
+            respuesta = self._fijas.pop(0)
+        elif self._pedir is not None:
+            respuesta = self._pedir(str(prompt))
             if respuesta is None:
                 respuesta = ""
+        elif self._vacio:
+            respuesta = ""
+        else:
+            self._salida.eco(str(prompt))
+            raise NecesitaEntrada(str(prompt))
         if self._registro is not None:
             self._registro.append(respuesta)
         self._salida.eco(f"{prompt}{respuesta}\n")
@@ -111,11 +131,11 @@ class InputInteractivo:
 # -------------------------
 # ENTORNO
 # -------------------------
-def _hacer_globals(salida, entradas_fijas=None, registro=None, ventana_padre=None):
+def _hacer_globals(salida, entradas, registro, pedir_entrada, completar_con_vacio):
     return {
         "__builtins__": {
             "print": print,
-            "input": InputInteractivo(salida, entradas_fijas, registro, ventana_padre),
+            "input": InputInteractivo(salida, entradas, registro, pedir_entrada, completar_con_vacio),
             "range": range, "len": len, "int": int, "float": float, "str": str,
             "list": list, "dict": dict, "tuple": tuple, "set": set, "bool": bool,
             "True": True, "False": False, "None": None,
@@ -155,21 +175,26 @@ def _hacer_tracer(callback_linea):
 # EJECUCIÓN PRINCIPAL
 # -------------------------
 def ejecutar_codigo(codigo_python, extra_globals=None, callback_linea=None,
-                    entradas_fijas=None, detalles=None, ventana_padre=None):
+                    entradas_fijas=None, detalles=None, pedir_entrada=None):
     """Ejecuta el código y devuelve (salida_pantalla, hubo_error, mensaje_error).
 
     - callback_linea(n): se llama antes de ejecutar cada línea n del alumno (depurador).
-    - entradas_fijas: respuestas para preguntar() sin abrir diálogos.
-    - ventana_padre: ventana sobre la que se abre la pregunta (la que ejecutó el código).
-    - detalles (dict opcional): se completa con 'salida_programa' (solo prints) y
-      'entradas' (lo que se respondió a cada preguntar()).
+    - entradas_fijas: respuestas para preguntar(), en orden. Si se pasa (aunque sea []),
+      las preguntas de más se responden con "" (así se evalúa la solución oficial).
+    - pedir_entrada(pregunta) -> str: cómo pedirle una respuesta al chico (app Tk).
+      Sin esto ni entradas, el programa se detiene en la primera pregunta y
+      detalles['pregunta_pendiente'] la trae (app web: pregunta y re-ejecuta).
+    - detalles (dict opcional): 'salida_programa' (solo prints), 'entradas' (respuestas
+      usadas) y 'pregunta_pendiente' (None si el programa terminó).
     """
     salida = _Salida()
     registro_entradas = []
+    pregunta_pendiente = None
     stdout_original = sys.stdout
     try:
         codigo = validar_codigo(codigo_python)
-        entorno = _hacer_globals(salida, entradas_fijas, registro_entradas, ventana_padre)
+        entorno = _hacer_globals(salida, entradas_fijas, registro_entradas, pedir_entrada,
+                                 completar_con_vacio=entradas_fijas is not None and pedir_entrada is None)
         if extra_globals:
             entorno.update(extra_globals)
         sys.stdout = salida
@@ -180,7 +205,10 @@ def ejecutar_codigo(codigo_python, extra_globals=None, callback_linea=None,
             sys.settrace(None)
             sys.stdout = stdout_original
         resultado = (salida.getvalue(), False, "")
-    except Exception as e:
+    except NecesitaEntrada as e:
+        pregunta_pendiente = e.pregunta
+        resultado = (salida.getvalue(), False, "")
+    except (BucleInfinito, SalidaDemasiadoLarga, Exception) as e:
         resultado = (salida.getvalue(), True, armar_mensaje_error(e, ARCHIVO_ALUMNO))
     finally:
         sys.settrace(None)
@@ -188,4 +216,5 @@ def ejecutar_codigo(codigo_python, extra_globals=None, callback_linea=None,
         if detalles is not None:
             detalles["salida_programa"] = salida.programa.getvalue()
             detalles["entradas"] = registro_entradas
+            detalles["pregunta_pendiente"] = pregunta_pendiente
     return resultado

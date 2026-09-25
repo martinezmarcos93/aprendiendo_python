@@ -1,6 +1,6 @@
 # ADR-001: Migrar TortuScript de Tkinter a una aplicación web local (Flask)
 
-## Estado: Aceptado (decisión de Marcos, 24/09/2026) — detalles técnicos: propuestos, a confirmar
+## Estado: Aceptado (24/09/2026) — decisión de Marcos; las 3 propuestas técnicas confirmadas: subproceso en servidor, HTML+CSS+JS sin build, mismo repo reorganizado
 
 ## Contexto
 - La interfaz Tkinter no permite la estética que buscamos (modelo: Mimo): tarjetas

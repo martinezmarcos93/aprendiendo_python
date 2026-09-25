@@ -1,8 +1,9 @@
 import tkinter as tk
 from tkinter import scrolledtext
+from dialogo_preguntar import preguntar
 from utils import centrar_ventana
-from translator import TraductorTortuScript, detectar_tipo
-from executor import ejecutar_codigo
+from tortuscript.translator import TraductorTortuScript, detectar_tipo
+from tortuscript.executor import ejecutar_codigo
 from highlighter import TortuHighlighter
 from sounds import play_sound
 import turtle
@@ -181,7 +182,7 @@ class ZonaTortuga(tk.Toplevel):
             self.canvas.update()
             time.sleep(0.4)
 
-        salida, hay_error, msg_error = ejecutar_codigo(python, extra_globals=extra_globals, callback_linea=_callback_linea, ventana_padre=self)
+        salida, hay_error, msg_error = ejecutar_codigo(python, extra_globals=extra_globals, callback_linea=_callback_linea, pedir_entrada=lambda pregunta: preguntar(pregunta, padre=self))
         
         self.editor.tag_remove("current_line", "1.0", tk.END)
         self.editor.update()

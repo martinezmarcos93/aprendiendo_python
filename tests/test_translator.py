@@ -2,8 +2,8 @@
 import ast
 import unittest
 
-from ejercicios import EJERCICIOS
-from translator import TraductorTortuScript, detectar_tipo
+from tortuscript.ejercicios import EJERCICIOS
+from tortuscript.translator import TraductorTortuScript, detectar_tipo
 
 
 class TestTraduccionLinea(unittest.TestCase):

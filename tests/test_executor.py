@@ -1,8 +1,8 @@
 """Tests del ejecutor: salida, depurador, anti-bucle, sandbox, tope de salida, entradas."""
 import unittest
 
-import executor
-from executor import ejecutar_codigo
+from tortuscript import executor
+from tortuscript.executor import ejecutar_codigo
 
 
 class TestEjecucion(unittest.TestCase):
@@ -118,3 +118,46 @@ class TestMensajesDeError(unittest.TestCase):
 
 if __name__ == "__main__":
     unittest.main()
+
+
+class TestEntradaDesacoplada(unittest.TestCase):
+    """El ejecutor no depende de ninguna interfaz para preguntar()."""
+
+    def test_sin_forma_de_preguntar_se_detiene_y_avisa(self):
+        # Modo web: el programa frena en la primera pregunta sin respuesta.
+        detalles = {}
+        salida, error, _ = ejecutar_codigo(
+            "print('antes')\nn = input('¿Nombre? ')\nprint('Hola ' + n)", detalles=detalles)
+        self.assertFalse(error)
+        self.assertEqual(detalles["pregunta_pendiente"], "¿Nombre? ")
+        self.assertIn("antes", salida)
+        self.assertNotIn("Hola", salida)
+
+    def test_reejecutar_con_la_respuesta_termina(self):
+        detalles = {}
+        salida, error, _ = ejecutar_codigo(
+            "n = input('¿Nombre? ')\nprint('Hola ' + n)", entradas_fijas=["Ana"], detalles=detalles)
+        self.assertFalse(error)
+        self.assertIsNone(detalles["pregunta_pendiente"])
+        self.assertIn("Hola Ana", salida)
+
+    def test_pedir_entrada_de_la_interfaz(self):
+        # Modo Tk: la interfaz responde.
+        preguntas = []
+        salida, _, _ = ejecutar_codigo(
+            "print(input('¿Color? '))",
+            pedir_entrada=lambda p: preguntas.append(p) or "azul")
+        self.assertEqual(preguntas, ["¿Color? "])
+        self.assertIn("azul", salida)
+
+    def test_try_except_del_alumno_no_frena_el_corte_de_bucle(self):
+        codigo = "while True:\n    try:\n        pass\n    except Exception:\n        pass"
+        _, error, msg = ejecutar_codigo(codigo)
+        self.assertTrue(error)
+        self.assertIn("no termina nunca", msg)
+
+    def test_try_except_del_alumno_no_se_traga_la_pregunta(self):
+        detalles = {}
+        ejecutar_codigo("try:\n    input('?')\nexcept Exception:\n    print('tragada')",
+                        detalles=detalles)
+        self.assertEqual(detalles["pregunta_pendiente"], "?")

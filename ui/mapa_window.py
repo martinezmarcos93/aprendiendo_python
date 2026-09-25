@@ -1,8 +1,8 @@
 import tkinter as tk
 from tkinter import font as tkfont
-from ejercicios import EJERCICIOS
+from tortuscript.ejercicios import EJERCICIOS
 from utils import centrar_ventana, habilitar_rueda
-from progreso import (
+from tortuscript.progreso import (
     cargar_progreso, calcular_nivel, titulo_nivel, estrellas_texto
 )
 

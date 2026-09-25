@@ -22,8 +22,9 @@ from pathlib import Path
 
 logger = logging.getLogger("tortuscript.progreso")
 
-# Los archivos viven junto al programa, no en la carpeta desde donde se lo abre.
-DIRECTORIO = Path(__file__).resolve().parent
+# Los archivos viven en la carpeta raíz del proyecto (no en la carpeta desde donde se
+# lo abre, ni dentro del paquete tortuscript/).
+DIRECTORIO = Path(__file__).resolve().parent.parent
 VERSION_ESQUEMA = 2
 
 PERFIL_ACTUAL = "default"

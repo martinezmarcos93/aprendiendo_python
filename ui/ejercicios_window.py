@@ -1,16 +1,17 @@
-import re
 import tkinter as tk
 from tkinter import scrolledtext
-from ejercicios import EJERCICIOS
-from translator import TraductorTortuScript, detectar_tipo
-from executor import ejecutar_codigo
-from progreso import (
+from tortuscript.ejercicios import EJERCICIOS
+from tortuscript.translator import TraductorTortuScript, detectar_tipo
+from tortuscript.executor import ejecutar_codigo
+from tortuscript import evaluacion
+from tortuscript.progreso import (
     cargar_progreso, registrar_ejercicio,
     calcular_nivel, titulo_nivel, estrellas_texto, racha_vigente
 )
 from celebracion import VentanaCelebracion
 from ui.resumen_window import VentanaResumen
 from ui.mapa_window import VentanaMapa
+from dialogo_preguntar import preguntar
 from utils import centrar_ventana
 from highlighter import TortuHighlighter
 from sounds import play_sound
@@ -206,7 +207,7 @@ class VentanaEjercicios(tk.Toplevel):
             self._set_python(python)
 
         detalles = {}
-        salida_txt, hay_error, msg_error = ejecutar_codigo(python, detalles=detalles, ventana_padre=self)
+        salida_txt, hay_error, msg_error = ejecutar_codigo(python, detalles=detalles, pedir_entrada=lambda pregunta: preguntar(pregunta, padre=self))
         self.salida.delete("1.0", tk.END)
 
         if hay_error:
@@ -220,71 +221,34 @@ class VentanaEjercicios(tk.Toplevel):
         self._evaluar(detalles)
         self.salida.see(tk.END)   # que el veredicto quede a la vista
 
-    @staticmethod
-    def _normalizar_salida(texto):
-        """Compara lo que importa, no el tipeo:
-        - ignora espacios al principio/final de línea y líneas vacías al final;
-        - varios espacios seguidos cuentan como uno;
-        - ignora espacios alrededor de signos: "7+3" == "7 + 3", "es:pizza" == "es: pizza".
-        Sigue siendo estricto con palabras, mayúsculas y tildes ("Holamundo" != "Hola mundo")."""
-        lineas = []
-        for linea in texto.strip().split("\n"):
-            linea = re.sub(r"\s+", " ", linea.strip())
-            linea = re.sub(r"\s*([^\w\s])\s*", r"\1", linea)
-            lineas.append(linea)
-        return "\n".join(lineas)
-
     def _evaluar(self, detalles):
-        ej  = EJERCICIOS[self.indice]
-        sol = ej.get("solucion", "").strip()
-        entradas_alumno = detalles.get("entradas", [])
+        ej = EJERCICIOS[self.indice]
+        r = evaluacion.evaluar(ej.get("solucion", ""), detalles)
 
-        # Salida esperada: se ejecuta la solución oficial con LAS MISMAS respuestas
-        # que dio el chico a preguntar() (sin abrir otro diálogo).
-        traductor_sol = TraductorTortuScript()
-        python_sol = traductor_sol.traducir_codigo(sol)
-        usa_preguntar = "preguntar" in traductor_sol.ultimas_palabras
-        if usa_preguntar and not entradas_alumno:
+        if r["estado"] == evaluacion.FALTA_PREGUNTAR:
             self._mostrar_salida([
                 ("\n⚠️  Este ejercicio pide usar  preguntar  para que el usuario escriba el dato.\n", "pista"),
             ])
             return
-        det_sol = {}
-        ejecutar_codigo(python_sol, entradas_fijas=entradas_alumno, detalles=det_sol)
-
-        salida_alumno   = self._normalizar_salida(detalles.get("salida_programa", ""))
-        salida_correcta = self._normalizar_salida(det_sol.get("salida_programa", ""))
-
-        if not salida_alumno:
-            # El código no produjo ninguna salida
+        if r["estado"] == evaluacion.SIN_SALIDA:
             self._mostrar_salida([
                 ("\n⚠️  Tu código no produjo ninguna salida.\n", "pista"),
                 ("   Recordá usar  mostrar  para ver el resultado.\n", "info"),
             ])
             return
-
-        if salida_alumno == salida_correcta:
-            # Salida correcta — estrellas según uso de pistas
-            if self.pista_nivel == 0:
-                estrellas, xp = 3, 30
-            elif self.pista_nivel == 1:
-                estrellas, xp = 2, 20
-            elif self.pista_nivel == 2:
-                estrellas, xp = 1, 10
-            else:
-                estrellas, xp = 1, 5
-        else:
+        if r["estado"] == evaluacion.INCORRECTO:
             # Hay salida pero no coincide: NO cuenta como completado.
             play_sound("error")
             self._mostrar_salida([
                 ("\n🤔  Casi… tu programa corre, pero lo que muestra no es lo que pide el ejercicio.\n\n", "pista"),
                 ("   Se esperaba:\n", "info"),
-                (self._sangrar(salida_correcta) + "\n\n", "bold"),
+                (self._sangrar(r["esperado"]) + "\n\n", "bold"),
                 ("   Compará línea por línea con lo que mostró tu programa (arriba).\n", "info"),
                 ("   Mayúsculas, tildes y espacios entre palabras cuentan.\n", "info"),
             ])
             return
 
+        estrellas, xp = evaluacion.estrellas_por_pistas(self.pista_nivel)
         hubo_mejora = registrar_ejercicio(self.progreso, self.indice, estrellas, xp)
         self.progreso = cargar_progreso()
         self.lbl_estrellas_hist.config(text=estrellas_texto(estrellas))
@@ -334,11 +298,7 @@ class VentanaEjercicios(tk.Toplevel):
         return "\n".join("      " + l for l in (texto or "(nada)").split("\n"))
 
     def _detectar_keywords(self, sol):
-        # Palabras de TortuScript que usa de verdad la solución (no subcadenas sueltas)
-        t = TraductorTortuScript()
-        t.traducir_codigo(sol)
-        palabras = [p for p in t.ultimas_palabras if p not in ("verdadero", "falso")]
-        return palabras or ["mostrar"]
+        return evaluacion.palabras_clave(sol)
 
     def _actualizar_barra_xp(self):
         xp = self.progreso.get("xp_total", 0)

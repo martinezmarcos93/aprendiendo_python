@@ -1,7 +1,7 @@
 """Tests de las explicaciones de error."""
 import unittest
 
-from error_handler import armar_mensaje_error, explicar_error
+from tortuscript.error_handler import armar_mensaje_error, explicar_error
 
 
 class TestExplicaciones(unittest.TestCase):

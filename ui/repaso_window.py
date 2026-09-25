@@ -2,8 +2,8 @@ import random
 from utils import centrar_ventana
 import tkinter as tk
 from ui.ejercicios_window import VentanaEjercicios
-from ejercicios import EJERCICIOS
-from progreso import cargar_progreso, estrellas_texto
+from tortuscript.ejercicios import EJERCICIOS
+from tortuscript.progreso import cargar_progreso, estrellas_texto
 
 BG_MAIN  = "#0f172a"
 BG_CARD  = "#1e293b"
@@ -159,7 +159,7 @@ class VentanaRepaso(VentanaEjercicios):
         self.title(f"🔁 Repaso — {nombres_modo.get(modo, '')}")
         self.configure(bg=BG_MAIN)
 
-        from translator import TraductorTortuScript
+        from tortuscript.translator import TraductorTortuScript
         self.traductor   = TraductorTortuScript()
         self.progreso    = cargar_progreso()
         self.pista_nivel = 0

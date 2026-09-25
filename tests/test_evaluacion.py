@@ -1,9 +1,7 @@
 """Tests de la comparación de salidas de los ejercicios."""
 import unittest
 
-from ui.ejercicios_window import VentanaEjercicios
-
-norm = VentanaEjercicios._normalizar_salida
+from tortuscript.evaluacion import normalizar_salida as norm
 
 
 class TestNormalizarSalida(unittest.TestCase):
@@ -29,3 +27,32 @@ class TestNormalizarSalida(unittest.TestCase):
 
 if __name__ == "__main__":
     unittest.main()
+
+
+class TestEvaluar(unittest.TestCase):
+    def _correr(self, codigo, entradas=None):
+        from tortuscript.executor import ejecutar_codigo
+        from tortuscript.translator import TraductorTortuScript
+        detalles = {}
+        ejecutar_codigo(TraductorTortuScript().traducir_codigo(codigo),
+                        entradas_fijas=entradas, detalles=detalles)
+        return detalles
+
+    def test_estados(self):
+        from tortuscript import evaluacion as ev
+        sol = 'mostrar "Hola mundo"'
+        self.assertEqual(ev.evaluar(sol, self._correr('mostrar "Hola mundo"'))["estado"], ev.CORRECTO)
+        self.assertEqual(ev.evaluar(sol, self._correr('mostrar "Chau"'))["estado"], ev.INCORRECTO)
+        self.assertEqual(ev.evaluar(sol, self._correr('x es 1'))["estado"], ev.SIN_SALIDA)
+
+    def test_preguntar_con_las_mismas_respuestas(self):
+        from tortuscript import evaluacion as ev
+        sol = 'n es preguntar("¿Nombre? ")\nmostrar "Hola " + n'
+        alumno = self._correr('x es preguntar("Decime tu nombre: ")\nmostrar "Hola " + x', ["Lua"])
+        self.assertEqual(ev.evaluar(sol, alumno)["estado"], ev.CORRECTO)
+        self.assertEqual(ev.evaluar(sol, self._correr('mostrar "Hola Lua"'))["estado"], ev.FALTA_PREGUNTAR)
+
+    def test_estrellas_por_pistas(self):
+        from tortuscript.evaluacion import estrellas_por_pistas
+        self.assertEqual([estrellas_por_pistas(n) for n in range(5)],
+                         [(3, 30), (2, 20), (1, 10), (1, 5), (1, 5)])

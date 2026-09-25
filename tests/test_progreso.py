@@ -6,7 +6,7 @@ import unittest
 from datetime import date, timedelta
 from pathlib import Path
 
-import progreso
+from tortuscript import progreso
 
 
 class BaseTemporal(unittest.TestCase):
@@ -131,7 +131,7 @@ class TestRachaYSesion(BaseTemporal):
 class TestNiveles(unittest.TestCase):
     def test_nivel_maximo_alcanzable(self):
         # Bug P4: con 900 XP posibles no se pasaba del nivel 7.
-        from ejercicios import EJERCICIOS
+        from tortuscript.ejercicios import EJERCICIOS
         maximo = len(EJERCICIOS) * 30
         self.assertEqual(progreso.calcular_nivel(maximo)[0], 10)
 

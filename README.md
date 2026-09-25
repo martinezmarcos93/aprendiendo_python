@@ -27,12 +27,15 @@ funcion saludar(n):         →     def saludar(n):
 ```
 proyecto/
 │
-├── main.py                       ← Punto de entrada (configura los logs)
-├── translator.py                 ← Traduce TortuScript → Python (con tokenize)
-├── executor.py                   ← Ejecuta el código del alumno con protecciones
-├── error_handler.py              ← Explica los errores en lenguaje simple
-├── ejercicios.py                 ← Los 30 ejercicios del curso
-├── progreso.py                   ← XP, nivel, racha, sesión y perfiles (guardado seguro)
+├── main.py                       ← Punto de entrada de la app Tk (configura los logs)
+├── tortuscript/                  ← NÚCLEO sin interfaz (lo usan la app Tk y la futura web)
+│   ├── translator.py             ← Traduce TortuScript → Python (con tokenize)
+│   ├── executor.py               ← Ejecuta el código del alumno con protecciones
+│   ├── error_handler.py          ← Explica los errores en lenguaje simple
+│   ├── evaluacion.py             ← Compara salidas, estrellas por pistas, palabras clave
+│   ├── progreso.py               ← XP, nivel, racha, sesión y perfiles (guardado seguro)
+│   └── ejercicios.py             ← Los 30 ejercicios del curso
+├── dialogo_preguntar.py          ← Ventanita de preguntar() (app Tk)
 ├── celebracion.py                ← Animación de confetti al completar
 ├── highlighter.py                ← Resaltado de sintaxis del editor
 ├── sounds.py                     ← Efectos de sonido (solo Windows)
@@ -190,5 +193,7 @@ Para resetear un perfil, borrá su `progreso_<perfil>.json` (y el `.bak`). Desde
 - Probado con Python 3.12 en Ubuntu 24.04 y Python 3.14 en Windows 11.
 
 ---
+
+> 🚧 **En migración a aplicación web** (Flask + HTML/CSS/JS). Ver `docs/decisions/ADR-001-migracion-a-web.md` y `docs/ROADMAP_MIMO_KIDS.md`. La app Tk sigue funcionando hasta que la web la iguale.
 
 *Hecho con 🐢 y mucho amor para aprender a programar de a poco.*

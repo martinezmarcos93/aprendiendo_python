@@ -1,10 +1,10 @@
 import tkinter as tk
 from utils import centrar_ventana, habilitar_rueda
-from progreso import (
+from tortuscript.progreso import (
     cargar_progreso, calcular_nivel, titulo_nivel,
     estrellas_texto, resumen_sesion_hoy, racha_vigente
 )
-from ejercicios import EJERCICIOS
+from tortuscript.ejercicios import EJERCICIOS
 
 BG_MAIN   = "#0f172a"
 BG_CARD   = "#1e293b"

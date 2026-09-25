@@ -6,7 +6,7 @@ from ui.mapa_window import VentanaMapa
 from ui.repaso_window import SelectorRepaso
 from ui.referencia_window import VentanaReferencia
 from utils import centrar_ventana
-import progreso
+from tortuscript import progreso
 
 BG = "#0f172a"
 

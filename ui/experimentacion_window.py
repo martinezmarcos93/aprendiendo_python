@@ -1,8 +1,9 @@
 import tkinter as tk
 from tkinter import scrolledtext
+from dialogo_preguntar import preguntar
 from utils import centrar_ventana
-from translator import TraductorTortuScript, detectar_tipo
-from executor import ejecutar_codigo
+from tortuscript.translator import TraductorTortuScript, detectar_tipo
+from tortuscript.executor import ejecutar_codigo
 from highlighter import TortuHighlighter
 
 BG_MAIN   = "#0f172a"
@@ -165,7 +166,7 @@ class ZonaExperimentacion(tk.Toplevel):
             python = self.traductor.traducir_codigo(codigo)
             self._set_python(python)
 
-        salida, hay_error, msg_error = ejecutar_codigo(python, ventana_padre=self)
+        salida, hay_error, msg_error = ejecutar_codigo(python, pedir_entrada=lambda pregunta: preguntar(pregunta, padre=self))
         self.salida.delete("1.0", tk.END)
 
         if hay_error:
