@@ -309,6 +309,69 @@ a.ficha:hover { transform: translateY(-3px); background: var(--superficie-2); }
 .modo .icono { font-size: 2rem; }
 .repaso-e { background: var(--naranja); color: #2a1300; }
 
+/* ───────── lección (motor de pasos) ───────── */
+.leccion { max-width: 760px; margin: 0 auto; padding-bottom: 9rem; }
+.leccion-cab { display: flex; align-items: center; gap: 1rem; }
+.cerrar { text-decoration: none; font-size: 1.4rem; font-weight: 900; color: var(--texto-suave); padding: .2rem .6rem; border-radius: 10px; }
+.cerrar:hover { background: var(--superficie); color: var(--texto); }
+.progreso-leccion { flex: 1; height: 16px; background: var(--superficie-2); border-radius: 999px; overflow: hidden; }
+.progreso-leccion > span { display: block; height: 100%; width: 0; border-radius: 999px;
+  background: linear-gradient(90deg, var(--verde), #7ff0b5); transition: width .5s cubic-bezier(.2,.9,.3,1.1); }
+.leccion-titulo { margin: .8rem 0; display: flex; gap: .6rem; align-items: center; }
+.paso-caja { min-height: 280px; }
+.paso-caja.entra { animation: aparecer .3s cubic-bezier(.2,.9,.3,1.2); }
+.paso-caja h2 { font-size: 1.05rem; color: var(--celeste); text-transform: uppercase; letter-spacing: .04em; }
+.texto-grande { font-size: 1.3rem; font-weight: 700; margin: .3rem 0 1rem; }
+.codigo-paso { margin: .5rem 0 1rem; padding: .9rem 1.1rem; background: var(--editor); border: 2px solid var(--borde);
+  border-radius: var(--radio-chico); font-size: 1.15rem; white-space: pre-wrap; line-height: 1.7; }
+.consola.mini { min-height: 2.6rem; margin-top: .8rem; }
+.opciones { display: grid; gap: .7rem; }
+.opcion-paso {
+  font: inherit; font-family: var(--fuente-codigo); font-size: 1.1rem; font-weight: 700; text-align: left; cursor: pointer;
+  color: var(--texto); background: var(--superficie-2); border: 2px solid var(--borde); border-radius: var(--radio-chico);
+  padding: .9rem 1.1rem; box-shadow: 0 4px 0 #171c43; transition: transform .08s, border-color .15s, background .15s; white-space: pre-wrap;
+}
+.opcion-paso:hover:not(:disabled) { border-color: var(--violeta); }
+.opcion-paso.elegida { border-color: var(--violeta); background: #2f2a74; }
+.opcion-paso.correcta { border-color: var(--verde); background: #103325; }
+.opcion-paso.mala { border-color: var(--rojo); background: #3b1426; animation: sacudir .35s; }
+@keyframes sacudir { 20%, 60% { transform: translateX(-6px); } 40%, 80% { transform: translateX(6px); } }
+.completar { line-height: 2.2; }
+.hueco { font: inherit; font-family: var(--fuente-codigo); min-width: 5.5ch; margin: 0 .15rem; padding: .05rem .5rem; cursor: pointer;
+  color: var(--texto); background: #0b1030; border: 2px dashed var(--texto-tenue); border-radius: 8px; }
+.hueco.lleno { border-style: solid; border-color: var(--violeta); background: #2f2a74; }
+.hueco.correcta { border-color: var(--verde); background: #103325; }
+.hueco.mala, .linea-paso.mala { border-color: var(--rojo); background: #3b1426; animation: sacudir .35s; }
+.fichas-paso { display: flex; flex-wrap: wrap; gap: .6rem; margin-top: .4rem; }
+.ficha-paso { font: inherit; font-family: var(--fuente-codigo); font-size: 1.05rem; font-weight: 700; cursor: pointer; color: var(--texto);
+  background: var(--superficie-2); border: 2px solid var(--borde); border-radius: 10px; padding: .5rem .9rem; box-shadow: 0 3px 0 #171c43; }
+.ficha-paso:disabled { opacity: .3; cursor: default; box-shadow: none; }
+.rotulo-zona { margin: .6rem 0 .3rem; font-weight: 800; color: var(--texto-suave); font-size: .9rem; }
+.zona-ordenar { display: grid; gap: .5rem; min-height: 3.4rem; padding: .6rem; border-radius: var(--radio-chico); }
+.zona-ordenar.armado { background: #0b1030; border: 2px dashed var(--borde); }
+.linea-paso { font: inherit; font-family: var(--fuente-codigo); font-size: 1.05rem; text-align: left; cursor: pointer; color: var(--texto);
+  background: var(--superficie-2); border: 2px solid var(--borde); border-radius: 10px; padding: .55rem .9rem; box-shadow: 0 3px 0 #171c43; white-space: pre; }
+.linea-paso.correcta { border-color: var(--verde); background: #103325; }
+.forma-paso { margin: .3rem 0 .8rem; }
+.forma-paso code { color: #a6f09a; background: var(--editor); padding: .15rem .5rem; border-radius: 6px; }
+.paso-caja .CodeMirror { height: 180px; }
+.paso-caja .pista-caja { margin-top: .6rem; }
+.mascota.gran { font-size: 5rem; text-align: center; }
+
+/* barra de feedback fija abajo */
+.pie-leccion { position: fixed; left: 0; right: 0; bottom: 0; z-index: 30; padding: 1rem 1.4rem 1.2rem;
+  display: flex; gap: 1rem; align-items: center; justify-content: space-between; flex-wrap: wrap;
+  border-top: 3px solid var(--borde); background: var(--fondo-2); animation: subir .25s ease-out; }
+.pie-leccion[hidden] { display: none; }
+.pie-leccion.bien { background: #0f3324; border-color: var(--verde); }
+.pie-leccion.mal { background: #3b1426; border-color: var(--rojo); }
+.pie-leccion.info { background: #13284a; border-color: var(--celeste); }
+.pie-mensaje { font-weight: 800; font-size: 1.1rem; flex: 1; min-width: 12rem; max-width: 760px; white-space: pre-wrap; }
+.pie-mensaje .respuesta-vista { font-family: var(--fuente-codigo); background: var(--editor); padding: .4rem .7rem; border-radius: 8px; margin-top: .3rem; }
+.pie-botones { display: flex; gap: .7rem; align-items: center; }
+@keyframes subir { from { transform: translateY(100%); } to { transform: none; } }
+@media (max-width: 900px) { .leccion { padding-bottom: 12rem; } }
+
 /* ───────── modales ───────── */
 .modal {
   position: fixed; inset: 0; z-index: 50; display: grid; place-items: center;

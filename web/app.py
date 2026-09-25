@@ -19,7 +19,7 @@ RAIZ = Path(__file__).resolve().parent.parent
 if str(RAIZ) not in sys.path:
     sys.path.insert(0, str(RAIZ))
 
-from tortuscript import contenido, evaluacion, progreso  # noqa: E402
+from tortuscript import contenido, evaluacion, leccion as motor, progreso  # noqa: E402
 from tortuscript.ejercicios import EJERCICIOS  # noqa: E402
 from tortuscript.proceso import correr  # noqa: E402
 from tortuscript.referencia import cargar_referencia  # noqa: E402
@@ -36,6 +36,7 @@ def create_app(token=None):
     app.config["JSON_AS_ASCII"] = False
     # Pistas vistas por (perfil, ejercicio): se reinician al abrir el ejercicio.
     pistas_vistas = {}
+    intentos = {}    # errores y respuesta vista por (perfil, lección, paso); se reinicia al abrir la lección
     colas = {}       # colas de repaso fijadas al empezar: (perfil, modo, semilla) -> [índices]
 
     # ─────────────── seguridad ───────────────
@@ -87,7 +88,42 @@ def create_app(token=None):
     def _pagina_ejercicio(indice, repaso=None):
         ej = _ejercicio_o_404(indice)
         pistas_vistas[(progreso.PERFIL_ACTUAL, indice)] = 0
-        return render_template("ejercicio.html", ej=ej, n=indice + 1, total=len(EJERCICIOS), repaso=repaso)
+        hallada = motor.buscar_leccion(_curso(), ej.get("leccion_id"))
+        leccion_larga = hallada[1]["id"] if hallada and len(hallada[1]["pasos"]) > 1 else None
+        return render_template("ejercicio.html", ej=ej, n=indice + 1, total=len(EJERCICIOS), repaso=repaso,
+                               leccion_larga=leccion_larga)
+
+    def _curso():
+        return contenido.cargar_curso()
+
+    def _leccion_o_404(leccion_id):
+        hallada = motor.buscar_leccion(_curso(), leccion_id)
+        if hallada is None:
+            abort(404)
+        return hallada
+
+    def _completada(leccion, p=None):
+        p = p or progreso.cargar_progreso()
+        indices = contenido.indices_ejercicio(leccion["id"]).values()
+        return motor.esta_completada(p, leccion["id"], list(indices))
+
+    def _leccion_desbloqueada(posicion, p=None):
+        if posicion == 0:
+            return True
+        p = p or progreso.cargar_progreso()
+        anterior = motor.lista_lecciones(_curso())[posicion - 1]
+        return _completada(anterior, p)
+
+    def _resumen_leccion(leccion_id, info):
+        """Lo que la página necesita saber al terminar (o no) una lección."""
+        siguiente = motor.leccion_siguiente(_curso(), leccion_id)
+        return {**info, "siguiente": siguiente["id"] if siguiente else None,
+                "titulo_siguiente": siguiente["titulo"] if siguiente else None}
+
+    def _ejecutar_para_motor(fuente, entradas):
+        """Lo que muestra un programa, o None si falla o pregunta algo (lo usa 'ordenar'/'completar')."""
+        r = correr({"op": "ejecutar", "fuente": fuente, "entradas": entradas})
+        return None if r.get("error") or r.get("pregunta") is not None else r.get("salida_programa", "")
 
     # ─────────────── páginas ───────────────
     @app.get("/")
@@ -105,6 +141,24 @@ def create_app(token=None):
         if not _desbloqueado(indice):
             return redirect(url_for("ejercicio", n=_siguiente_pendiente() + 1))
         return _pagina_ejercicio(indice)
+
+    @app.get("/leccion/<leccion_id>")
+    def leccion(leccion_id):
+        seccion, lec, posicion = _leccion_o_404(leccion_id)
+        p = progreso.cargar_progreso()
+        if not _leccion_desbloqueada(posicion, p):
+            return redirect(url_for("ejercicios_siguiente"))
+        for i in range(len(lec["pasos"])):
+            intentos.pop((progreso.PERFIL_ACTUAL, leccion_id, i), None)
+        ejercicios_de = contenido.indices_ejercicio(leccion_id)
+        pasos = [motor.paso_publico(paso, leccion_id, i, ejercicios_de[i] + 1 if i in ejercicios_de else None)
+                 for i, paso in enumerate(lec["pasos"])]
+        for ej_n in [x["ejercicio"] for x in pasos if x["tipo"] == "escribir"]:
+            pistas_vistas[(progreso.PERFIL_ACTUAL, ej_n - 1)] = 0
+        datos = {"id": leccion_id, "titulo": lec["titulo"], "seccion": seccion["titulo"],
+                 "nivel": seccion["nivel"], "pasos": pasos,
+                 "ya_completada": _completada(lec, p)}
+        return render_template("leccion.html", datos=datos, titulo=lec["titulo"])
 
     @app.get("/mapa")
     def mapa():
@@ -202,6 +256,48 @@ def create_app(token=None):
         return jsonify(correr({"op": "tortuga", "fuente": datos.get("codigo", ""),
                                "entradas": datos.get("entradas", [])}))
 
+    def _paso_o_404(leccion_id, i):
+        _, lec, _ = _leccion_o_404(leccion_id)
+        if not 0 <= i < len(lec["pasos"]):
+            abort(404)
+        return lec, lec["pasos"][i]
+
+    @app.post("/api/lecciones/<leccion_id>/pasos/<int:i>/comprobar")
+    def api_comprobar_paso(leccion_id, i):
+        lec, paso = _paso_o_404(leccion_id, i)
+        if paso["tipo"] == "escribir":
+            abort(400)                           # se evalúa ejecutando: /api/ejercicios/<n>/evaluar
+        clave = (progreso.PERFIL_ACTUAL, leccion_id, i)
+        estado_paso = intentos.setdefault(clave, {"errores": 0, "revelado": False})
+        r = motor.comprobar(paso, (request.get_json(silent=True) or {}).get("respuesta"), _ejecutar_para_motor)
+        if not r["ok"]:
+            estado_paso["errores"] += 1
+            return jsonify(ok=False, pista=r["pista"], malos=r["malos"],
+                           puede_ver_respuesta=motor.puede_ver_respuesta(estado_paso["errores"]))
+        p = progreso.cargar_progreso()
+        nivel_antes = progreso.calcular_nivel(p.get("xp_total", 0))[0]
+        xp = 0 if paso["tipo"] == "explicacion" else motor.xp_por_intentos(estado_paso["errores"] + 1, False)
+        perfecto = estado_paso["errores"] == 0
+        info = progreso.registrar_paso_leccion(p, leccion_id, i, xp, perfecto, len(lec["pasos"]))
+        return jsonify(ok=True, xp=info["xp_ganado"], perfecto=perfecto,
+                       sube_nivel=progreso.calcular_nivel(p["xp_total"])[0] > nivel_antes,
+                       leccion=_resumen_leccion(leccion_id, info), estado_juego=_estado())
+
+    @app.post("/api/lecciones/<leccion_id>/pasos/<int:i>/respuesta")
+    def api_ver_respuesta(leccion_id, i):
+        lec, paso = _paso_o_404(leccion_id, i)
+        if paso["tipo"] in ("escribir", "explicacion"):
+            abort(400)
+        clave = (progreso.PERFIL_ACTUAL, leccion_id, i)
+        estado_paso = intentos.setdefault(clave, {"errores": 0, "revelado": False})
+        if not motor.puede_ver_respuesta(estado_paso["errores"]):
+            abort(403)                           # primero hay que intentarlo (2 errores)
+        estado_paso["revelado"] = True
+        p = progreso.cargar_progreso()
+        info = progreso.registrar_paso_leccion(p, leccion_id, i, 0, False, len(lec["pasos"]))
+        return jsonify(respuesta=motor.respuesta_correcta(paso), leccion=_resumen_leccion(leccion_id, info),
+                       estado_juego=_estado())
+
     @app.post("/api/ejercicios/<int:n>/evaluar")
     def api_evaluar(n):
         indice = n - 1
@@ -220,6 +316,11 @@ def create_app(token=None):
             mejora = progreso.registrar_ejercicio(p, indice, estrellas, xp)
             r["premio"] = {"estrellas": estrellas, "xp": xp, "mejora": mejora,
                            "sube_nivel": progreso.calcular_nivel(p["xp_total"])[0] > nivel_antes}
+            lec_id, paso_i = ej.get("leccion_id"), ej.get("paso")
+            hallada = motor.buscar_leccion(_curso(), lec_id) if lec_id else None
+            if hallada is not None and paso_i is not None:     # el paso 'escribir' de su lección
+                info = progreso.registrar_paso_leccion(p, lec_id, paso_i, 0, estrellas == 3, len(hallada[1]["pasos"]))
+                r["leccion"] = _resumen_leccion(lec_id, info)
         r["estado_juego"] = _estado()
         return jsonify(r)
 

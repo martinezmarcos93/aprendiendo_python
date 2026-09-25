@@ -12,6 +12,7 @@
     {% else %}<span class="tenue">{{ n }} / {{ total }}</span>{% endif %}
   </div>
   <div class="consigna">📋 {{ ej.descripcion }}</div>
+  {% if leccion_larga and not repaso %}<p class="tenue" style="margin:.7rem 0 0">¿Querés practicar paso a paso? <a href="{{ url_for('leccion', leccion_id=leccion_larga) }}"><b>Hacé la lección completa ▶</b></a></p>{% endif %}
 </section>
 
 <section class="editores">

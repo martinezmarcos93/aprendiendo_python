@@ -173,6 +173,72 @@ class TestWeb(unittest.TestCase):
         self.assertEqual(r["premio"]["estrellas"], 3)
         self.assertTrue(r["premio"]["mejora"])
 
+    # ── motor de lecciones ──
+    def comprobar(self, i, respuesta, leccion="hola-mundo"):
+        return self.post(f"/api/lecciones/{leccion}/pasos/{i}/comprobar", {"respuesta": respuesta})
+
+    def test_pagina_de_leccion_no_filtra_respuestas(self):
+        html = self.c.get("/leccion/hola-mundo").get_data(as_text=True)
+        self.assertIn("datos-leccion", html)
+        self.assertIn("Hola mundo", html)
+        self.assertNotIn('"correcta"', html)
+        self.assertNotIn('"solucion"', html)
+        self.assertEqual(self.c.get("/leccion/no-existe").status_code, 404)
+
+    def test_leccion_bloqueada_redirige(self):
+        r = self.c.get("/leccion/texto-o-cuenta")
+        self.assertEqual(r.status_code, 302)
+        self._completar((0, 3))                                  # el ejercicio 1 ya hecho → lección 1 completa
+        self.assertEqual(self.c.get("/leccion/texto-o-cuenta").status_code, 200)
+
+    def test_paso_incorrecto_da_pista_y_luego_permite_ver_respuesta(self):
+        self.assertEqual(self.post("/api/lecciones/hola-mundo/pasos/1/respuesta").status_code, 403)   # sin intentar
+        r = self.comprobar(1, "escribir").get_json()
+        self.assertFalse(r["ok"])
+        self.assertIn("orden del ejemplo", r["pista"])
+        self.assertFalse(r["puede_ver_respuesta"])
+        self.assertTrue(self.comprobar(1, "pantalla").get_json()["puede_ver_respuesta"])
+        r = self.post("/api/lecciones/hola-mundo/pasos/1/respuesta").get_json()
+        self.assertEqual(r["respuesta"], "mostrar")
+        p = progreso.cargar_progreso()
+        self.assertEqual(p["lecciones"]["hola-mundo"]["pasos"]["1"], {"xp": 0, "perfecto": False})
+
+    def test_leccion_completa_paso_a_paso(self):
+        r = self.comprobar(0, True).get_json()                                     # explicación
+        self.assertTrue(r["ok"])
+        self.assertEqual(r["xp"], 0)
+        self.assertEqual(self.comprobar(1, "mostrar").get_json()["xp"], 5)         # elegir, 1.er intento
+        self.comprobar(2, ["sumar"])                                               # completar: mal
+        self.assertEqual(self.comprobar(2, ["mostrar"]).get_json()["xp"], 2)        # con reintento
+        malo = self.comprobar(3, ['mostrar "Chau"', 'mostrar "Hola"']).get_json()
+        self.assertEqual(malo["malos"], [0, 1])
+        self.assertTrue(self.comprobar(3, ['mostrar "Hola"', 'mostrar "Chau"']).get_json()["ok"])
+        self.assertTrue(self.comprobar(4, "Buen día").get_json()["ok"])
+        # el último paso es 'escribir': se evalúa ejecutando y completa la lección
+        r = self.post("/api/ejercicios/1/evaluar", {"codigo": 'mostrar "Hola mundo"'}).get_json()
+        self.assertEqual(r["evaluacion"]["estado"], "correcto")
+        self.assertTrue(r["leccion"]["completa"])
+        self.assertTrue(r["leccion"]["recien_completa"])
+        self.assertFalse(r["leccion"]["perfecta"])                                 # hubo un reintento
+        self.assertEqual(r["leccion"]["siguiente"], "texto-o-cuenta")
+        p = progreso.cargar_progreso()
+        self.assertEqual(p["xp_total"], 5 + 2 + 2 + 5 + 30)                        # elegir, completar, ordenar, predecir + ejercicio
+
+    def test_escribir_no_se_comprueba_por_la_api_de_pasos(self):
+        self.assertEqual(self.comprobar(5, "x").status_code, 400)
+        self.assertEqual(self.comprobar(99, "x").status_code, 404)
+
+    def test_perfecta_si_todo_al_primer_intento(self):
+        self.comprobar(0, True); self.comprobar(1, "mostrar"); self.comprobar(2, ["mostrar"])
+        self.comprobar(3, ['mostrar "Hola"', 'mostrar "Chau"']); self.comprobar(4, "Buen día")
+        r = self.post("/api/ejercicios/1/evaluar", {"codigo": 'mostrar "Hola mundo"'}).get_json()
+        self.assertTrue(r["leccion"]["perfecta"])
+
+    def test_la_pagina_de_ejercicio_ofrece_la_leccion_completa(self):
+        self.assertIn("Hacé la lección completa", self.c.get("/ejercicios/1").get_data(as_text=True))
+        self._completar((0, 3))
+        self.assertNotIn("Hacé la lección completa", self.c.get("/ejercicios/2").get_data(as_text=True))
+
     def test_api_tortuga(self):
         r = self.post("/api/tortuga", {"codigo": "avanzar 10\ngirar_der 90"}).get_json()
         self.assertEqual([o["o"] for o in r["ordenes"]], ["avanzar", "girar_der"])
