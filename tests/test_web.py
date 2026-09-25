@@ -42,7 +42,7 @@ class TestWeb(unittest.TestCase):
 
     # ── páginas ──
     def test_paginas(self):
-        for ruta in ("/", "/experimentar", "/ejercicios/1"):
+        for ruta in ("/", "/experimentar", "/tortuga", "/ejercicios/1"):
             with self.subTest(ruta=ruta):
                 r = self.c.get(ruta)
                 self.assertEqual(r.status_code, 200)
@@ -100,6 +100,11 @@ class TestWeb(unittest.TestCase):
         r = self.post("/api/ejecutar", {"codigo": "mostrar x"}).get_json()
         self.assertTrue(r["error"])
         self.assertIn("«x»", r["mensaje"])
+
+    def test_api_tortuga(self):
+        r = self.post("/api/tortuga", {"codigo": "avanzar 10\ngirar_der 90"}).get_json()
+        self.assertEqual([o["o"] for o in r["ordenes"]], ["avanzar", "girar_der"])
+        self.assertEqual(self.c.post("/api/tortuga", json={}).status_code, 403)
 
     def test_perfiles(self):
         r = self.post("/api/perfil", {"nombre": "../../Lua"}).get_json()

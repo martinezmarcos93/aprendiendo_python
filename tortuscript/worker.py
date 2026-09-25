@@ -7,12 +7,14 @@ aislado del servidor web, con límites de tiempo y memoria puestos por el padre.
 Pedido:
   {"op": "ejecutar", "fuente": "...", "entradas": [...]}
   {"op": "evaluar",  "fuente": "...", "entradas": [...], "solucion": "..."}
+  {"op": "tortuga",  "fuente": "...", "entradas": [...]}   → agrega "ordenes"
 """
 import json
 import sys
 
 from .evaluacion import evaluar
 from .executor import ejecutar_codigo
+from .tortuga import Registro
 from .translator import TraductorTortuScript, detectar_tipo
 
 
@@ -25,9 +27,12 @@ def _python_de(fuente):
 def atender(pedido):
     tipo, python = _python_de(pedido.get("fuente", ""))
     detalles = {}
+    registro = Registro() if pedido.get("op") == "tortuga" else None
     salida, hay_error, mensaje = ejecutar_codigo(
         python, entradas_fijas=list(pedido.get("entradas") or []),
-        detalles=detalles, completar_con_vacio=False)
+        detalles=detalles, completar_con_vacio=False,
+        extra_globals=registro.globales() if registro else None,
+        callback_linea=registro.callback_linea if registro else None)
     respuesta = {
         "tipo": tipo, "python": python,
         "salida": salida, "error": hay_error, "mensaje": mensaje,
@@ -35,6 +40,8 @@ def atender(pedido):
         "entradas": detalles.get("entradas", []),
         "pregunta": detalles.get("pregunta_pendiente"),
     }
+    if registro is not None:
+        respuesta["ordenes"] = registro.ordenes       # aunque haya error: se dibuja lo hecho
     if pedido.get("op") == "evaluar" and not hay_error and respuesta["pregunta"] is None:
         respuesta["evaluacion"] = evaluar(pedido.get("solucion", ""), detalles)
     return respuesta

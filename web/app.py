@@ -99,6 +99,10 @@ def create_app(token=None):
     def experimentar():
         return render_template("experimentar.html")
 
+    @app.get("/tortuga")
+    def tortuga():
+        return render_template("tortuga.html")
+
     # ─────────────── API ───────────────
     @app.post("/api/traducir")
     def api_traducir():
@@ -111,6 +115,12 @@ def create_app(token=None):
     def api_ejecutar():
         datos = request.get_json(silent=True) or {}
         return jsonify(correr({"op": "ejecutar", "fuente": datos.get("codigo", ""),
+                               "entradas": datos.get("entradas", [])}))
+
+    @app.post("/api/tortuga")
+    def api_tortuga():
+        datos = request.get_json(silent=True) or {}
+        return jsonify(correr({"op": "tortuga", "fuente": datos.get("codigo", ""),
                                "entradas": datos.get("entradas", [])}))
 
     @app.post("/api/ejercicios/<int:n>/evaluar")
