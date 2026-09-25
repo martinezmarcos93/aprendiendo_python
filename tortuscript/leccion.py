@@ -96,25 +96,38 @@ def es_perfecta(progreso, leccion_id, indices_escribir, total_pasos):
         ejercicios.get(str(i), {}).get("estrellas", 0) == 3 for i in indices_escribir)
 
 
-def estado_camino(curso, progreso, indices_por_leccion, curso_abierto=True):
+def estado_camino(curso, progreso, indices_por_leccion, curso_abierto=True, titulos=None):
     """Estado de cada lección para dibujar el camino:
     'perfecta' | 'hecha' | 'actual' (la primera pendiente) | 'bloqueada'.
     `indices_por_leccion`: {leccion_id: [índices de ejercicio 'escribir']}.
-    Con `curso_abierto=False` (el curso pide algo que falta) todas salen bloqueadas."""
-    salida, actual_asignada = [], False
+    Con `curso_abierto=False` (el curso pide algo que falta) todas salen bloqueadas.
+    Una lección puede pedir otra con {"requiere": "<id>"}: hasta completarla queda bloqueada (y las
+    que siguen también: el camino nunca se saltea una lección). `titulos` = {id: título} para el aviso."""
+    salida, primera_pendiente_vista = [], False
+    titulos = titulos or {}
     for seccion in curso["secciones"]:
         lecciones = []
         for lec in seccion["lecciones"]:
             indices = indices_por_leccion.get(lec["id"], [])
+            pide = None
             if esta_completada(progreso, lec["id"], indices):
                 estado = "perfecta" if es_perfecta(progreso, lec["id"], indices, len(lec["pasos"])) else "hecha"
-            elif not actual_asignada and curso_abierto:
-                estado, actual_asignada = "actual", True
             else:
-                estado = "bloqueada"
+                requisito = lec.get("requiere")
+                cumplido = not requisito or esta_completada(progreso, requisito, indices_por_leccion.get(requisito, []))
+                if not primera_pendiente_vista and curso_abierto and cumplido:
+                    estado = "actual"
+                else:
+                    estado = "bloqueada"
+                    if requisito and not cumplido and curso_abierto and not primera_pendiente_vista:
+                        pide = titulos.get(requisito, requisito)
+                primera_pendiente_vista = True
             numero, _, nombre = lec["titulo"].partition(". ")
-            lecciones.append({"id": lec["id"], "numero": numero, "nombre": nombre or lec["titulo"],
-                              "estado": estado, "pasos": len(lec["pasos"])})
+            fila = {"id": lec["id"], "numero": numero, "nombre": nombre or lec["titulo"],
+                    "estado": estado, "pasos": len(lec["pasos"])}
+            if pide:
+                fila["pide"] = pide
+            lecciones.append(fila)
         salida.append({"nivel": seccion["nivel"], "titulo": seccion["titulo"], "lecciones": lecciones})
     return salida
 
@@ -123,6 +136,8 @@ def estado_cursos(cursos, progreso, indices_por_leccion):
     """El camino completo: una entrada por curso con sus secciones y lecciones.
     Un curso está abierto si no pide nada o si ya se completó la lección que pide."""
     salida = []
+    titulos = {lec["id"]: lec["titulo"].partition(". ")[2] or lec["titulo"]
+               for curso in cursos for seccion in curso["secciones"] for lec in seccion["lecciones"]}
     for curso in cursos:
         requiere = (curso.get("requiere") or {}).get("leccion")
         titulo_requerido = None
@@ -135,7 +150,7 @@ def estado_cursos(cursos, progreso, indices_por_leccion):
             "id": curso["id"], "titulo": curso["titulo"], "icono": curso.get("icono", "📘"),
             "descripcion": curso.get("descripcion", ""), "abierto": abierto,
             "requiere": None if abierto else titulo_requerido,
-            "secciones": estado_camino(curso, progreso, indices_por_leccion, abierto),
+            "secciones": estado_camino(curso, progreso, indices_por_leccion, abierto, titulos),
         })
     return salida
 
@@ -196,7 +211,7 @@ def paso_publico(paso, leccion_id, indice, numero_ejercicio=None):
                        lineas=_mezclar(paso["lineas"], semilla, distinto_del_original=True))
     elif tipo == "escribir":
         publico.update(consigna=paso["consigna"], forma=paso.get("forma"), nota=paso.get("nota"),
-                       ejercicio=numero_ejercicio)
+                       ejercicio=numero_ejercicio, inicial=paso.get("inicial"))
     return publico
 
 

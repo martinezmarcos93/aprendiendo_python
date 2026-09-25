@@ -98,6 +98,12 @@ def _revisar_texto(texto, donde, hallazgos):
             hallazgos.append(Hallazgo(AVISO, donde, f"«{palabra}» suele llevar tilde: «{SIN_TILDE[p]}»"))
 
 
+def _es_subsecuencia(lineas, dentro_de):
+    """True si todas las líneas aparecen en `dentro_de`, en ese orden (puede haber otras en el medio)."""
+    it = iter(dentro_de)
+    return all(any(l == otra for otra in it) for l in lineas)
+
+
 def _requeridos(paso, campos, donde, hallazgos):
     faltan = [c for c in campos if paso.get(c) in (None, "", [])]
     for c in faltan:
@@ -216,6 +222,8 @@ def _validar_paso(paso, donde, hallazgos):
         usadas = set(usadas)
         if ("preguntar" in usadas or "input(" in paso["solucion"]) and not entradas:
             hallazgos.append(Hallazgo(ERROR, donde, "la solución usa preguntar/input: agregá «entradas_prueba»"))
+        if paso.get("inicial") and not _es_subsecuencia(paso["inicial"].split("\n"), paso["solucion"].split("\n")):
+            hallazgos.append(Hallazgo(AVISO, donde, "el código inicial no está contenido, en orden, en la solución"))
         if paso.get("lenguaje") == "python" and not paso.get("palabras_pista"):
             hallazgos.append(Hallazgo(AVISO, donde, "ejercicio en Python sin «palabras_pista» (la pista 1 diría mostrar)"))
         if err:

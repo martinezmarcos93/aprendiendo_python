@@ -192,7 +192,7 @@ class TestWebCamino(Base):
         self.assertEqual(html.count('class="parada'), 30)
         self.assertIn("¡Te toca!", html)
         self.assertIn('href="/leccion/hola-mundo"', html)
-        self.assertIn("0/48", html)
+        self.assertIn("0/51", html)
 
     def test_aprender_lleva_a_la_leccion_actual(self):
         self.post("/api/onboarding", {"meta_min": 10})
@@ -407,6 +407,58 @@ class TestWebCamino(Base):
 
     def _practica_status(self, i):
         return self.post("/api/practica/comprobar", {"leccion": "hola-mundo", "paso": i, "respuesta": "mostrar"}).status_code
+
+    # ── proyectos guiados ──
+    def test_proyectos_guiados_se_abren_tras_par_o_impar_y_arrancan_desde_el_codigo_anterior(self):
+        self.post("/api/onboarding", {"meta_min": 10})
+        self.assertEqual(self.c.get("/leccion/proyecto-adivinador").status_code, 302)
+        self._terminar_hasta("par-o-impar")
+        html = self.c.get("/leccion/proyecto-adivinador").get_data(as_text=True)
+        self.assertIn('"inicial"', html)
+        self.assertIn("secreto es 7", html)
+        self.assertNotIn('"solucion"', html)
+
+    def test_paso_de_proyecto_con_preguntar_se_evalua_con_lo_que_responde_el_chico(self):
+        self.post("/api/onboarding", {"meta_min": 10})
+        self._terminar_hasta("par-o-impar")
+        ruta = "/api/lecciones/proyecto-adivinador/pasos/3/evaluar"
+        codigo = ('secreto es 7\nintento es int(preguntar("¿Qué número pensé? "))\n'
+                  'si intento == secreto:\n    mostrar "¡Acertaste!"\nsino:\n    mostrar "Casi..."')
+        self.assertEqual(self.post(ruta, {"codigo": codigo}).get_json()["pregunta"], "¿Qué número pensé? ")
+        for respuesta in ("7", "3"):                                         # acierta o falla: la solución oficial lo acompaña
+            r = self.post(ruta, {"codigo": codigo, "entradas": [respuesta]}).get_json()
+            self.assertEqual(r["evaluacion"]["estado"], "correcto")
+        raro = codigo.replace('"Casi..."', '"Nop"')
+        r = self.post(ruta, {"codigo": raro, "entradas": ["3"]}).get_json()
+        self.assertEqual(r["evaluacion"]["estado"], "incorrecto")
+
+    def test_la_casa_pide_la_leccion_triangulo_y_las_anteriores(self):
+        self.post("/api/onboarding", {"meta_min": 10})
+        self._terminar_hasta("par-o-impar")
+        for dependencia in ("proyecto-adivinador", "proyecto-calculadora"):
+            self._dar_por_completa(dependencia)
+        self.assertEqual(self.c.get("/leccion/proyecto-casa").status_code, 302)       # falta terminar «Triángulo»
+        html = self.c.get("/").get_data(as_text=True)
+        self.assertIn("Primero terminá «Triángulo»", html)                             # el camino avisa qué falta
+        self._terminar_hasta("dos-variables")
+        for dependencia in ("tortuga-avanzar", "tortuga-girar", "cuadrado-a-mano", "cuadrado-repetir", "triangulo"):
+            self._dar_por_completa(dependencia)
+        self.assertEqual(self.c.get("/leccion/proyecto-casa").status_code, 200)
+
+    def test_el_dibujo_de_la_casa_se_evalua_como_dibujo(self):
+        self.post("/api/onboarding", {"meta_min": 10})
+        self._terminar_hasta("par-o-impar")
+        self._terminar_hasta("dos-variables")
+        for dependencia in ("tortuga-avanzar", "tortuga-girar", "cuadrado-a-mano", "cuadrado-repetir", "triangulo",
+                            "proyecto-adivinador", "proyecto-calculadora"):
+            self._dar_por_completa(dependencia)
+        casa = ("repetir 4 veces:\n    avanzar 100\n    girar_der 90\n"
+                "avanzar 100\ngirar_der 30\nrepetir 3 veces:\n    avanzar 100\n    girar_der 120")
+        r = self.post("/api/lecciones/proyecto-casa/pasos/3/evaluar", {"codigo": casa}).get_json()
+        self.assertEqual(r["evaluacion"]["estado"], "correcto")
+        solo_paredes = "repetir 4 veces:\n    avanzar 100\n    girar_der 90"
+        self.assertEqual(self.post("/api/lecciones/proyecto-casa/pasos/3/evaluar", {"codigo": solo_paredes}).get_json()["evaluacion"]["estado"],
+                         "incorrecto")
 
     # ── curso de Python real ──
     def test_ejercicio_en_python_se_evalua_y_da_pistas_sin_traducir(self):

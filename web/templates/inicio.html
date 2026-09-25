@@ -66,7 +66,7 @@
       {% for lec in seccion.lecciones %}
       <li class="parada z{{ loop.index0 % 4 }} {{ lec.estado }}">
         {% if lec.estado == 'bloqueada' %}
-          <span class="nodo-camino" title="Completá la lección anterior para desbloquearla" aria-label="{{ lec.nombre }} (bloqueada)">🔒</span>
+          <span class="nodo-camino" title="{{ ('Primero terminá «' ~ lec.pide ~ '»') if lec.pide else 'Completá la lección anterior para desbloquearla' }}" aria-label="{{ lec.nombre }} (bloqueada)">🔒</span>
         {% else %}
           <a class="nodo-camino" href="{{ url_for('leccion', leccion_id=lec.id) }}" title="{{ lec.nombre }}">
             {% if lec.estado == 'perfecta' %}⭐{% elif lec.estado == 'hecha' %}✓{% else %}▶{% endif %}
@@ -74,7 +74,8 @@
         {% endif %}
         <span class="nombre-camino"><span class="tenue">{{ lec.numero }}.</span> {{ lec.nombre }}
           {% if lec.pasos > 1 %}<small class="tenue">· {{ lec.pasos }} pasos</small>{% endif %}
-          {% if lec.estado == 'actual' %}<span class="burbuja">¡Te toca!</span>{% endif %}</span>
+          {% if lec.estado == 'actual' %}<span class="burbuja">¡Te toca!</span>{% endif %}
+          {% if lec.pide %}<small class="candado-curso">🔒 Primero terminá «{{ lec.pide }}»</small>{% endif %}</span>
       </li>
       {% endfor %}
     </ol>

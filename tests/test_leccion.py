@@ -247,6 +247,34 @@ class TestVariosCursos(unittest.TestCase):
         self.assertEqual(est[1]["requiere"], "fantasma")
 
 
+class TestLeccionQuePideOtra(unittest.TestCase):
+    def setUp(self):
+        base = _curso("a", ["a1", "a2"])
+        proyecto = _curso("p", ["p1", "p2", "p3"])
+        proyecto["secciones"][0]["lecciones"][1]["requiere"] = "a2"          # p2 pide a2
+        self.cursos = [base, proyecto]
+
+    def estados(self, hechas):
+        p = {"lecciones": {i: {"completada": True} for i in hechas}}
+        est = leccion.estado_cursos(self.cursos, p, {})
+        return {l["id"]: (l["estado"], l.get("pide")) for l in leccion.lecciones_planas(est)}
+
+    def test_la_leccion_queda_bloqueada_con_el_aviso_y_las_siguientes_tambien(self):
+        e = self.estados(["a1", "p1"])
+        self.assertEqual(e["p2"], ("bloqueada", "Lección a2"))
+        self.assertEqual(e["p3"], ("bloqueada", None))                      # no se saltea: espera a p2
+        self.assertEqual(e["a2"][0], "actual")
+
+    def test_al_cumplir_lo_que_pide_se_abre(self):
+        e = self.estados(["a1", "a2", "p1"])
+        self.assertEqual(e["p2"], ("actual", None))
+        self.assertEqual(e["p3"][0], "bloqueada")
+
+    def test_una_leccion_ya_hecha_no_pierde_el_estado_aunque_pida_algo(self):
+        e = self.estados(["p1", "p2"])                                      # (progreso viejo o forzado)
+        self.assertEqual((e["p2"][0], e["p3"][0]), ("hecha", "actual"))
+
+
 DIBUJO_ORDENAR = {"tipo": "ordenar", "consigna": "o", "tortuga": True,
                   "lineas": ["avanzar 50", "girar_der 90", "avanzar 50"]}
 DIBUJO_COMPLETAR = {"tipo": "completar", "consigna": "c", "tortuga": True, "codigo": "avanzar ___\ngirar_der 90\navanzar ___",

@@ -357,6 +357,10 @@
       extraKeys: { "Ctrl-Enter": () => ejecutar(), "Cmd-Enter": () => ejecutar(), Tab: (cm) => cm.replaceSelection("    ") },
     });
     editor.setSize(null, dibuja ? 260 : 180);
+    if (paso.inicial) {                                    // proyectos guiados: se sigue desde lo que ya estaba armado
+      editor.setValue(paso.inicial + "\n");
+      editor.setCursor(editor.lineCount(), 0);
+    }
     const acciones = el("div", "acciones");
     const run = el("button", "boton verde", dibuja ? "▶ Dibujar" : "▶ Ejecutar"); run.type = "button";
     const pista = el("button", "boton amarillo", "💡 Pista (1/3)"); pista.type = "button";

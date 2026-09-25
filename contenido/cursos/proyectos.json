@@ -1,0 +1,187 @@
+{
+  "id": "proyectos",
+  "titulo": "Proyectos guiados",
+  "icono": "🛠️",
+  "descripcion": "Armá programas de verdad, de a un paso por vez: un juego, una calculadora y una casa.",
+  "version": 1,
+  "requiere": {
+    "leccion": "par-o-impar"
+  },
+  "secciones": [
+    {
+      "id": "programas",
+      "nivel": 1,
+      "titulo": "Programas con datos",
+      "lecciones": [
+        {
+          "id": "proyecto-adivinador",
+          "titulo": "1. Adivinador de números",
+          "pasos": [
+            {
+              "tipo": "explicacion",
+              "texto": "Vas a armar un juego: la compu piensa un número y vos lo adivinás. Lo hacemos de a un paso. int(...) convierte lo que escribís en un número.",
+              "codigo": "secreto es 7\nintento es int(preguntar(\"¿Qué número pensé? \"))\nmostrar intento",
+              "entradas_prueba": [
+                "3"
+              ]
+            },
+            {
+              "tipo": "escribir",
+              "consigna": "Paso 1: guardá el número secreto 7, pedí un intento con preguntar (convertilo con int) y mostralo.",
+              "solucion": "secreto es 7\nintento es int(preguntar(\"¿Qué número pensé? \"))\nmostrar intento",
+              "entradas_prueba": [
+                "3"
+              ],
+              "nota": "Ya viste el ejemplo de arriba: probá escribirlo sin mirar."
+            },
+            {
+              "tipo": "explicacion",
+              "texto": "Ahora la compu tiene que decidir. si compara y sino elige qué hacer cuando no coincide.",
+              "codigo": "intento es 3\nsecreto es 7\nsi intento == secreto:\n    mostrar \"¡Acertaste!\"\nsino:\n    mostrar \"Casi...\""
+            },
+            {
+              "tipo": "escribir",
+              "consigna": "Paso 2: agregá el si y el sino. Si acierta mostrá ¡Acertaste!; si no, Casi...",
+              "solucion": "secreto es 7\nintento es int(preguntar(\"¿Qué número pensé? \"))\nsi intento == secreto:\n    mostrar \"¡Acertaste!\"\nsino:\n    mostrar \"Casi...\"",
+              "inicial": "secreto es 7\nintento es int(preguntar(\"¿Qué número pensé? \"))",
+              "entradas_prueba": [
+                "3"
+              ],
+              "nota": "Tu programa sigue desde el paso 1: no hace falta borrar nada."
+            },
+            {
+              "tipo": "explicacion",
+              "texto": "Para dar una pista hace falta una tercera opción. sino si prueba otra condición antes del sino final.",
+              "codigo": "n es 5\nsi n > 10:\n    mostrar \"Grande\"\nsino si n > 3:\n    mostrar \"Mediano\"\nsino:\n    mostrar \"Chico\""
+            },
+            {
+              "tipo": "escribir",
+              "consigna": "Paso 3: en vez de Casi..., decí Más bajo si tu intento es mayor que el secreto y Más alto si es menor.",
+              "solucion": "secreto es 7\nintento es int(preguntar(\"¿Qué número pensé? \"))\nsi intento == secreto:\n    mostrar \"¡Acertaste!\"\nsino si intento > secreto:\n    mostrar \"Más bajo\"\nsino:\n    mostrar \"Más alto\"",
+              "inicial": "secreto es 7\nintento es int(preguntar(\"¿Qué número pensé? \"))\nsi intento == secreto:\n    mostrar \"¡Acertaste!\"",
+              "entradas_prueba": [
+                "3"
+              ]
+            },
+            {
+              "tipo": "explicacion",
+              "texto": "¡Lo lograste! Podés cambiar el número secreto y jugar con tus amigos. Probalo con varios números.",
+              "codigo": "secreto es 7\nintento es int(preguntar(\"¿Qué número pensé? \"))\nsi intento == secreto:\n    mostrar \"¡Acertaste!\"\nsino si intento > secreto:\n    mostrar \"Más bajo\"\nsino:\n    mostrar \"Más alto\"",
+              "entradas_prueba": [
+                "7"
+              ]
+            }
+          ]
+        },
+        {
+          "id": "proyecto-calculadora",
+          "titulo": "2. Calculadora",
+          "pasos": [
+            {
+              "tipo": "explicacion",
+              "texto": "Una calculadora pide dos números y hace las cuentas. Primero pedimos los dos números y mostramos la suma.",
+              "codigo": "a es int(preguntar(\"Primer número: \"))\nb es int(preguntar(\"Segundo número: \"))\nmostrar a + b",
+              "entradas_prueba": [
+                "2",
+                "3"
+              ]
+            },
+            {
+              "tipo": "escribir",
+              "consigna": "Paso 1: pedí dos números (a y b) y mostrá la suma.",
+              "solucion": "a es int(preguntar(\"Primer número: \"))\nb es int(preguntar(\"Segundo número: \"))\nmostrar a + b",
+              "entradas_prueba": [
+                "2",
+                "3"
+              ]
+            },
+            {
+              "tipo": "escribir",
+              "consigna": "Paso 2: mostrá también la resta y la multiplicación, cada una en su línea.",
+              "solucion": "a es int(preguntar(\"Primer número: \"))\nb es int(preguntar(\"Segundo número: \"))\nmostrar a + b\nmostrar a - b\nmostrar a * b",
+              "inicial": "a es int(preguntar(\"Primer número: \"))\nb es int(preguntar(\"Segundo número: \"))\nmostrar a + b",
+              "entradas_prueba": [
+                "2",
+                "3"
+              ]
+            },
+            {
+              "tipo": "escribir",
+              "consigna": "Paso 3: hacé que cada resultado diga qué es, por ejemplo Suma: 5. Recordá que mostrar acepta varias cosas separadas por coma.",
+              "solucion": "a es int(preguntar(\"Primer número: \"))\nb es int(preguntar(\"Segundo número: \"))\nmostrar \"Suma:\", a + b\nmostrar \"Resta:\", a - b\nmostrar \"Multiplicación:\", a * b",
+              "inicial": "a es int(preguntar(\"Primer número: \"))\nb es int(preguntar(\"Segundo número: \"))",
+              "entradas_prueba": [
+                "2",
+                "3"
+              ]
+            },
+            {
+              "tipo": "explicacion",
+              "texto": "¡Tu calculadora está lista! Probala con distintos números.",
+              "codigo": "a es int(preguntar(\"Primer número: \"))\nb es int(preguntar(\"Segundo número: \"))\nmostrar \"Suma:\", a + b\nmostrar \"Resta:\", a - b\nmostrar \"Multiplicación:\", a * b",
+              "entradas_prueba": [
+                "8",
+                "2"
+              ]
+            }
+          ]
+        }
+      ]
+    },
+    {
+      "id": "dibujos",
+      "nivel": 2,
+      "titulo": "Un dibujo con la tortuga",
+      "lecciones": [
+        {
+          "id": "proyecto-casa",
+          "titulo": "3. Mi casa",
+          "pasos": [
+            {
+              "tipo": "explicacion",
+              "texto": "Una casa es un cuadrado con un techo triángulo. La dibujamos por partes: primero las paredes.",
+              "codigo": "repetir 4 veces:\n    avanzar 100\n    girar_der 90",
+              "lienzo": true
+            },
+            {
+              "tipo": "escribir",
+              "consigna": "Paso 1: dibujá las paredes, un cuadrado de lado 100.",
+              "solucion": "repetir 4 veces:\n    avanzar 100\n    girar_der 90",
+              "tortuga": true
+            },
+            {
+              "tipo": "explicacion",
+              "texto": "Después de las paredes la tortuga vuelve al inicio mirando hacia arriba. Avanza 100 hasta la esquina de arriba, gira 30 y dibuja el techo, otro triángulo de lado 100.",
+              "codigo": "repetir 4 veces:\n    avanzar 100\n    girar_der 90\navanzar 100\ngirar_der 30\nrepetir 3 veces:\n    avanzar 100\n    girar_der 120",
+              "lienzo": true
+            },
+            {
+              "tipo": "escribir",
+              "consigna": "Paso 2: agregá el techo a las paredes.",
+              "solucion": "repetir 4 veces:\n    avanzar 100\n    girar_der 90\navanzar 100\ngirar_der 30\nrepetir 3 veces:\n    avanzar 100\n    girar_der 120",
+              "inicial": "repetir 4 veces:\n    avanzar 100\n    girar_der 90",
+              "nota": "Primero subí a la esquina de arriba, girá 30 y después dibujá el triángulo.",
+              "tortuga": true
+            },
+            {
+              "tipo": "escribir",
+              "consigna": "Paso 3: pintá el techo de rojo. Poné color \"rojo\" justo antes de subir al techo.",
+              "solucion": "repetir 4 veces:\n    avanzar 100\n    girar_der 90\ncolor \"rojo\"\navanzar 100\ngirar_der 30\nrepetir 3 veces:\n    avanzar 100\n    girar_der 120",
+              "inicial": "repetir 4 veces:\n    avanzar 100\n    girar_der 90\navanzar 100\ngirar_der 30\nrepetir 3 veces:\n    avanzar 100\n    girar_der 120",
+              "nota": "Lo que viene después de color se dibuja de ese color.",
+              "forma": "color \"azul\"",
+              "tortuga": true
+            },
+            {
+              "tipo": "explicacion",
+              "texto": "¡Tu casa está lista! Cambiá los colores o el tamaño en la Zona Tortuga y guardala en Mis proyectos.",
+              "codigo": "repetir 4 veces:\n    avanzar 100\n    girar_der 90\ncolor \"rojo\"\navanzar 100\ngirar_der 30\nrepetir 3 veces:\n    avanzar 100\n    girar_der 120",
+              "lienzo": true
+            }
+          ],
+          "requiere": "triangulo"
+        }
+      ]
+    }
+  ]
+}
