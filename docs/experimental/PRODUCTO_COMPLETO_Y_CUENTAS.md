@@ -29,14 +29,14 @@ Cuenta del adulto (email + contraseña)
 - **Normativa:** al haber datos de menores en línea hay que revisar con asesoramiento legal lo aplicable en cada país (consentimiento parental verificable,
   derechos de acceso/eliminación, retención). Es un requisito de diseño, no un trámite posterior.
 
-### Decisión de arquitectura pendiente
+### Decisión de arquitectura: **opción C (híbrido), elegida el 25/09/2026**
 | Opción | Cómo funciona | Pros | Contras |
 |---|---|---|---|
 | **A. Local con "cuenta del hogar"** | Un perfil de adulto protege el modo padres; todo sigue en la PC | Mantiene el modelo offline y la privacidad; costo cero | Sin sincronización entre equipos; no permite cobro ni multi-dispositivo |
 | **B. Online con sincronización** | Cuenta en servidor; progreso y proyectos en base de datos | Multi-dispositivo, panel de padres real, pagos, escuelas | Requiere backend, seguridad completa (P0/P1), normativa de menores, código de usuarios ejecutándose en servidor |
 | **C. Híbrido (recomendado a evaluar)** | Aprendizaje y ejecución locales/en el navegador; la cuenta solo sincroniza progreso y datos del padre | Superficie de seguridad y datos mínima; se puede cobrar | Sincronización y resolución de conflictos |
 
-> Recomendación del brainstorming: si el modelo de negocio es que el padre paga, la opción C evita ejecutar código infantil en servidores públicos,
+> **Decidido: opción C.** Sigue siendo experimental (no hay implementación ni fecha). Fundamento de la recomendación: si el modelo de negocio es que el padre paga, la opción C evita ejecutar código infantil en servidores públicos,
 > que es el mayor riesgo de seguridad (ver §10 del documento de seguridad).
 
 ## 2. Qué falta en el mapa del producto
@@ -90,7 +90,7 @@ Qué ve el adulto y el niño al llegar, al volver al día siguiente, a la semana
 base de datos o una combinación). Esa definición condiciona todo lo demás.
 
 ## 6. Preguntas abiertas
-1. ¿Opción A, B o C de arquitectura? (define seguridad, costos y normativa).
+1. ~~¿Opción A, B o C?~~ Resuelto: **C**. Falta definir qué se sincroniza exactamente y cómo se resuelven los conflictos.
 2. ¿Habrá contenido compartido/público entre chicos, o el producto se mantiene privado por diseño?
 3. ¿Se contempla el rol docente/escuela desde el inicio o más adelante?
 4. ¿Qué edad mínima y máxima se apunta (10–14 en el material actual) y cómo se comunica a los padres?
