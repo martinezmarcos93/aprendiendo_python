@@ -224,6 +224,18 @@ a.nodo:hover { transform: translateY(-3px) scale(1.04); }
 /* ───────── experimentar ───────── */
 .ejemplos { display: flex; gap: .5rem; flex-wrap: wrap; }
 
+/* ───────── tortuga ───────── */
+.ordenes { margin-top: .7rem; font-size: .9rem; }
+.ordenes code { color: var(--celeste); }
+.tortuga-grid { grid-template-columns: 1fr minmax(320px, 520px); align-items: start; }
+.lienzo-caja { background: #fff; border: 2px solid var(--borde); border-radius: var(--radio-chico); overflow: hidden; }
+.lienzo-caja canvas { display: block; width: 100%; height: auto; aspect-ratio: 1; }
+.lienzo-panel h3 { color: var(--celeste); }
+.opcion { display: inline-flex; align-items: center; gap: .5rem; font-weight: 800; color: var(--texto-suave); }
+.opcion input[type=checkbox] { width: 1.2rem; height: 1.2rem; accent-color: var(--violeta); }
+.opcion input[type=range] { accent-color: var(--violeta); }
+.CodeMirror .linea-actual { background: #33407a; box-shadow: inset 4px 0 0 var(--amarillo); }
+
 /* ───────── modales ───────── */
 .modal {
   position: fixed; inset: 0; z-index: 50; display: grid; place-items: center;
@@ -249,7 +261,7 @@ a.nodo:hover { transform: translateY(-3px) scale(1.04); }
 
 /* ───────── responsive ───────── */
 @media (max-width: 900px) {
-  .hero, .editores { grid-template-columns: 1fr; }
+  .hero, .editores, .tortuga-grid { grid-template-columns: 1fr; }
   .estadisticas { margin-left: 0; }
 }
 @media (prefers-reduced-motion: reduce) {

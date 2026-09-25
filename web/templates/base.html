@@ -16,6 +16,7 @@
       <a href="{{ url_for('inicio') }}" class="{{ 'activo' if request.endpoint == 'inicio' }}">Inicio</a>
       <a href="{{ url_for('ejercicios_siguiente') }}" class="{{ 'activo' if request.endpoint == 'ejercicio' }}">Ejercicios</a>
       <a href="{{ url_for('experimentar') }}" class="{{ 'activo' if request.endpoint == 'experimentar' }}">Experimentar</a>
+      <a href="{{ url_for('tortuga') }}" class="{{ 'activo' if request.endpoint == 'tortuga' }}">Tortuga</a>
     </nav>
     <div class="estadisticas">
       <span class="chip racha" title="Días seguidos programando">🔥 <span id="e-racha">{{ estado.racha }}</span></span>

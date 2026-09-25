@@ -39,11 +39,12 @@ const Tortu = (() => {
         Tab: (cm) => cm.replaceSelection("    "),
       },
     });
-    const python = CodeMirror.fromTextArea(document.getElementById("python"), {
+    const campoPython = document.getElementById("python");
+    const python = campoPython && CodeMirror.fromTextArea(campoPython, {
       mode: "python", lineNumbers: true, readOnly: true,
     });
     let espera = null;
-    editor.on("change", () => {
+    if (python) editor.on("change", () => {
       clearTimeout(espera);
       espera = setTimeout(async () => {
         try { python.setValue((await api("/api/traducir", { codigo: editor.getValue() })).python); }

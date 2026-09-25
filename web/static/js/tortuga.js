@@ -1,0 +1,204 @@
+/* Zona Tortuga: el servidor devuelve la lista de órdenes; acá se animan en un <canvas>. */
+"use strict";
+const Lienzo = (() => {
+  const VERDE = "#16a34a";
+  const TAM = 600;
+
+  /** Estado puro de la tortuga (0° = arriba, giro a la derecha = horario). Sin DOM: testeable. */
+  function nuevoEstado() {
+    return { x: 0, y: 0, rumbo: 0, lapiz: true, color: VERDE, trazos: [] };
+  }
+  function destino(e, distancia) {
+    const r = (e.rumbo * Math.PI) / 180;
+    return { x: e.x + Math.sin(r) * distancia, y: e.y - Math.cos(r) * distancia };
+  }
+  /** Aplica una orden completa (sin animar). */
+  function aplicar(e, orden) {
+    switch (orden.o) {
+      case "avanzar": case "retroceder": {
+        const d = orden.o === "avanzar" ? orden.v : -orden.v;
+        const p = destino(e, d);
+        if (e.lapiz) e.trazos.push({ x1: e.x, y1: e.y, x2: p.x, y2: p.y, color: e.color });
+        e.x = p.x; e.y = p.y;
+        break;
+      }
+      case "girar_der": e.rumbo = (e.rumbo + orden.v) % 360; break;
+      case "girar_izq": e.rumbo = (e.rumbo - orden.v) % 360; break;
+      case "color": e.color = orden.v; break;
+      case "bajar_lapiz": e.lapiz = true; break;
+      case "subir_lapiz": e.lapiz = false; break;
+    }
+    return e;
+  }
+
+  function dibujarTortuga(ctx, e) {
+    ctx.save();
+    ctx.translate(TAM / 2 + e.x, TAM / 2 + e.y);
+    ctx.rotate((e.rumbo * Math.PI) / 180);
+    ctx.fillStyle = e.color; ctx.strokeStyle = "#0b3d1e"; ctx.lineWidth = 2;
+    for (const [px, py] of [[-11, -9], [11, -9], [-11, 10], [11, 10]]) {   // patas
+      ctx.beginPath(); ctx.arc(px, py, 5, 0, 7); ctx.fill(); ctx.stroke();
+    }
+    ctx.beginPath(); ctx.arc(0, -17, 6, 0, 7); ctx.fill(); ctx.stroke();      // cabeza
+    ctx.beginPath(); ctx.ellipse(0, 0, 13, 17, 0, 0, 7); ctx.fill(); ctx.stroke();   // caparazón
+    ctx.strokeStyle = "rgba(255,255,255,.55)"; ctx.beginPath();
+    ctx.moveTo(-8, -4); ctx.lineTo(8, -4); ctx.moveTo(-8, 6); ctx.lineTo(8, 6); ctx.moveTo(0, -12); ctx.lineTo(0, 13); ctx.stroke();
+    ctx.restore();
+  }
+
+  function crear(canvas) {
+    const ctx = canvas.getContext("2d");
+    let e = nuevoEstado();
+    let ejecucion = 0;                       // se incrementa para cancelar una animación en curso
+
+    function pintar(parcial) {
+      ctx.fillStyle = "#fff"; ctx.fillRect(0, 0, TAM, TAM);
+      ctx.lineCap = "round"; ctx.lineWidth = 3;
+      const trazos = parcial ? e.trazos.concat([parcial]) : e.trazos;
+      for (const t of trazos) {
+        ctx.strokeStyle = t.color; ctx.beginPath();
+        ctx.moveTo(TAM / 2 + t.x1, TAM / 2 + t.y1); ctx.lineTo(TAM / 2 + t.x2, TAM / 2 + t.y2); ctx.stroke();
+      }
+      dibujarTortuga(ctx, e);
+    }
+    const esperar = (ms) => new Promise((r) => setTimeout(r, ms));
+    function cuadro() { return new Promise((r) => requestAnimationFrame(r)); }
+
+    /** Anima un movimiento o giro; `paso` = unidades por segundo. */
+    async function animar(orden, vel, id) {
+      const pxSeg = 60 + vel * vel * 40, gradosSeg = vel * 90;
+      if (orden.o === "avanzar" || orden.o === "retroceder") {
+        const total = Math.abs(orden.v), signo = orden.o === "avanzar" ? 1 : -1;
+        const x0 = e.x, y0 = e.y, dur = (total / pxSeg) * 1000;
+        const ini = performance.now();
+        while (id === ejecucion) {
+          const f = dur === 0 ? 1 : Math.min(1, (performance.now() - ini) / dur);
+          const p = destino({ x: x0, y: y0, rumbo: e.rumbo }, signo * total * f);
+          if (f >= 1) break;
+          const guardado = [e.x, e.y]; e.x = p.x; e.y = p.y;
+          pintar(e.lapiz ? { x1: x0, y1: y0, x2: p.x, y2: p.y, color: e.color } : null);
+          e.x = guardado[0]; e.y = guardado[1];
+          await cuadro();
+        }
+        if (id === ejecucion) aplicar(e, orden);
+      } else if (orden.o === "girar_der" || orden.o === "girar_izq") {
+        const signo = orden.o === "girar_der" ? 1 : -1, r0 = e.rumbo;
+        const dur = (Math.abs(orden.v) / gradosSeg) * 1000, ini = performance.now();
+        while (id === ejecucion) {
+          const f = dur === 0 ? 1 : Math.min(1, (performance.now() - ini) / dur);
+          if (f >= 1) break;
+          e.rumbo = r0 + signo * orden.v * f; pintar(null);
+          await cuadro();
+        }
+        e.rumbo = r0;
+        if (id === ejecucion) aplicar(e, orden);
+      } else {
+        aplicar(e, orden);
+      }
+      if (id === ejecucion) pintar(null);
+    }
+
+    return {
+      estado: () => e,
+      reiniciar() { ejecucion++; e = nuevoEstado(); pintar(null); },
+      detener() { ejecucion++; },
+      /** Reproduce las órdenes. opciones: {velocidad 1-10, depurador, alLinea(n), alFinal()} */
+      async reproducir(ordenes, opciones) {
+        e = nuevoEstado();
+        const id = ++ejecucion;
+        const vel = opciones.velocidad || 5;
+        pintar(null);
+        for (const orden of ordenes) {
+          if (id !== ejecucion) return false;
+          if (opciones.depurador && opciones.alLinea) {
+            opciones.alLinea(orden.l);
+            await esperar(Math.max(60, 500 - vel * 45));
+          }
+          await animar(orden, vel, id);
+        }
+        if (id !== ejecucion) return false;
+        if (opciones.alLinea) opciones.alLinea(null);
+        return true;
+      },
+      pintar,
+    };
+  }
+
+  return { crear, nuevoEstado, aplicar, destino };
+})();
+
+(() => {
+  if (!document.getElementById("lienzo")) return;
+  const EJEMPLOS = [
+    ["Cuadrado", "repetir 4 veces:\n    avanzar 100\n    girar_der 90"],
+    ["Triángulo", 'color "azul"\nrepetir 3 veces:\n    avanzar 120\n    girar_der 120'],
+    ["Estrella", 'color "naranja"\nrepetir 5 veces:\n    avanzar 150\n    girar_der 144'],
+    ["Escalera", 'color "violeta"\nrepetir 6 veces:\n    avanzar 40\n    girar_izq 90\n    avanzar 40\n    girar_der 90'],
+    ["Arcoíris", 'colores es ["rojo", "naranja", "amarillo", "verde", "celeste", "azul", "violeta"]\nlargo es 220\npara c en colores:\n    color c\n    avanzar largo\n    girar_der 90\n    largo es largo - 25'],
+    ["Línea punteada", "repetir 8 veces:\n    avanzar 20\n    subir_lapiz\n    avanzar 20\n    bajar_lapiz"],
+  ];
+  const canvas = document.getElementById("lienzo");
+  const lienzo = Lienzo.crear(canvas);
+  window.lienzoTortuga = lienzo;
+  const { editor } = Tortu.crearEditores(dibujar);
+  const btn = document.getElementById("btn-ejecutar");
+  const btnDetener = document.getElementById("btn-detener");
+  const chkDepurador = document.getElementById("chk-depurador");
+  const velocidad = document.getElementById("velocidad");
+  let lineaMarcada = null;
+
+  const caja = document.getElementById("ejemplos");
+  for (const [nombre, codigo] of EJEMPLOS) {
+    const b = document.createElement("button");
+    b.type = "button"; b.className = "boton chico celeste"; b.textContent = nombre;
+    b.addEventListener("click", () => { editor.setValue(codigo); editor.focus(); });
+    caja.appendChild(b);
+  }
+
+  function marcarLinea(n) {
+    if (lineaMarcada !== null) editor.removeLineClass(lineaMarcada, "background", "linea-actual");
+    lineaMarcada = null;
+    if (n) { lineaMarcada = n - 1; editor.addLineClass(lineaMarcada, "background", "linea-actual"); }
+  }
+
+  function ocupado(si) {
+    btn.disabled = si; btnDetener.disabled = !si;
+  }
+
+  async function dibujar() {
+    if (btn.disabled) return;
+    const codigo = editor.getValue();
+    Tortu.limpiarResultado();
+    if (!codigo.trim()) {
+      Tortu.veredicto("info", "⚠️ Escribí algo primero", [["mensaje", "Probá con un ejemplo de arriba o escribí:  avanzar 100"]]);
+      return;
+    }
+    ocupado(true);
+    try {
+      const r = await Tortu.ejecutarConPreguntas("/api/tortuga", { codigo });
+      Tortu.mostrarConsola(r);
+      if (r.cancelado) { Tortu.veredicto("info", "✋ Cancelaste la pregunta", []); return; }
+      const terminó = await lienzo.reproducir(r.ordenes || [], {
+        velocidad: Number(velocidad.value), depurador: chkDepurador.checked, alLinea: marcarLinea,
+      });
+      marcarLinea(null);
+      if (!terminó) Tortu.veredicto("info", "⏹ Frenaste el dibujo", []);
+      else if (r.error) Tortu.veredicto("error", "🔧 Hay algo para arreglar", [["mensaje", r.mensaje]]);
+      else Tortu.veredicto("bien", "✅ ¡Dibujo completado!", []);
+    } catch (e) {
+      Tortu.veredicto("error", "😵 No pude comunicarme con TortuScript", [["mensaje", String(e)]]);
+    } finally {
+      ocupado(false);
+    }
+  }
+
+  btn.addEventListener("click", dibujar);
+  btnDetener.addEventListener("click", () => { lienzo.detener(); });
+  document.getElementById("btn-limpiar").addEventListener("click", () => {
+    lienzo.reiniciar(); marcarLinea(null);
+    editor.setValue(""); Tortu.limpiarResultado();
+    document.getElementById("consola").textContent = "";
+    editor.focus();
+  });
+  lienzo.reiniciar();
+})();
