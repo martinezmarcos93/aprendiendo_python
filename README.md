@@ -1,12 +1,6 @@
 # 🐢 TortuScript → Python
 
-Un entorno de aprendizaje para que chicos de 10 a 14 años aprendan a programar en Python usando un pseudolenguaje en español llamado **TortuScript**.
-
----
-
-## ¿Qué es TortuScript?
-
-TortuScript es un lenguaje inventado que se escribe en español y se traduce automáticamente a Python real. La idea es que el chico aprenda la lógica de programar sin que el idioma inglés sea una barrera al principio.
+Una aplicación para que chicos de 10 a 14 años aprendan a programar en Python usando **TortuScript**, un pseudolenguaje en español que se traduce solo a Python real. Se usa en el navegador, **corre en tu compu** (sin internet, sin cuentas y sin anuncios) y se parece a las apps de lecciones cortas: explicación, práctica, feedback al instante, racha, logros y una liga de amigos.
 
 ```
 # TortuScript               →     Python
@@ -22,193 +16,138 @@ funcion saludar(n):         →     def saludar(n):
 
 ---
 
-## Estructura del proyecto
+## Cómo se usa
 
-```
-proyecto/
-│
-├── main.py                       ← Punto de entrada de la app Tk (configura los logs)
-├── tortuscript/                  ← NÚCLEO sin interfaz (lo usan la app Tk y la futura web)
-│   ├── translator.py             ← Traduce TortuScript → Python (con tokenize)
-│   ├── executor.py               ← Ejecuta el código del alumno con protecciones
-│   ├── error_handler.py          ← Explica los errores en lenguaje simple
-│   ├── evaluacion.py             ← Compara salidas, estrellas por pistas, palabras clave
-│   ├── progreso.py               ← XP, nivel, racha, sesión y perfiles (guardado seguro)
-│   ├── ejercicios.py             ← Los 30 ejercicios del curso
-│   └── worker.py + proceso.py    ← (web) el código del chico corre en un subproceso con límites
-├── web/                          ← App web: app.py (Flask), templates/, static/{css,js,vendor,fonts}
-├── iniciar_web.py                ← Lanzador de la versión web
-├── requirements.txt              ← Flask (solo para la web)
-├── dialogo_preguntar.py          ← Ventanita de preguntar() (app Tk)
-├── celebracion.py                ← Animación de confetti al completar
-├── highlighter.py                ← Resaltado de sintaxis del editor
-├── sounds.py                     ← Efectos de sonido (solo Windows)
-├── utils.py                      ← Centrado de ventanas y scroll con la rueda
-├── progreso_<perfil>.json        ← Guardado automático por perfil (+ copia .bak)
-├── config_tortuscript.json       ← Último perfil usado
-├── logs/                         ← Errores internos (nunca se muestran al chico)
-├── tests/                        ← Tests automáticos (unittest)
-├── docs/                         ← Informe de auditoría
-│
-└── ui/
-    ├── __init__.py               ← Necesario para que Python reconozca la carpeta
-    ├── main_window.py            ← Menú principal y selector de perfil
-    ├── ejercicios_window.py      ← Ventana principal de ejercicios
-    ├── experimentacion_window.py ← Zona libre para experimentar
-    ├── tortuga_window.py         ← Zona Tortuga (dibujo + depurador paso a paso)
-    ├── mapa_window.py            ← Mapa visual de progreso
-    ├── resumen_window.py         ← Resumen de sesión y racha
-    ├── repaso_window.py          ← Modo repaso de ejercicios completados
-    └── referencia_window.py      ← Guía completa del lenguaje TortuScript
-```
-
----
-
-## Instalación
-
-**Requisitos:** Python 3.8 o superior. tkinter viene incluido con Python en Windows y macOS; en Linux (Ubuntu/Debian) instalalo con `sudo apt install python3-tk`.
-
-Para verificar que tenés todo instalado:
+**Requisitos:** Python 3.9 o más nuevo. Nada más: la única dependencia es Flask.
 
 ```bash
-python --version
-python -m tkinter
+python -m venv .venv                          # una sola vez
+.venv/bin/python -m pip install -r requirements.txt     # en Windows: .venv\Scripts\python.exe
+.venv/bin/python iniciar_web.py               # abre el navegador solo
 ```
 
-Si la segunda línea abre una ventanita, estás listo. No necesita instalar ninguna dependencia externa.
+También podés hacer doble clic en `lanzadores/Iniciar TortuScript.bat` (Windows) o correr `lanzadores/iniciar_tortuscript.sh` (Linux/macOS). Para tener un acceso directo: `lanzadores/crear_acceso_windows.ps1` o `sh lanzadores/instalar_acceso_linux.sh`.
 
-**Versión web (nueva, en migración — Python 3.9+):**
+Opciones de `iniciar_web.py`: `--sin-navegador` (solo arranca el servidor) y `--puerto N`. Se cierra con Ctrl+C o cerrando la ventana.
 
-```bash
-python3 -m venv .venv
-.venv/bin/python -m pip install -r requirements.txt   # solo Flask
-.venv/bin/python iniciar_web.py                       # abre el navegador
-```
-
-Corre solo en tu PC (`127.0.0.1`), sin internet ni cuentas. Todas las librerías del navegador
-(editor, confetti, fuentes) vienen incluidas en `web/static/`.
-
-**Versión de escritorio (Tk, se retira cuando la web la iguale):**
-
-```bash
-python main.py
-```
+Si la red de tu oficina o escuela intercepta certificados SSL y `pip` falla, apuntá `PIP_CERT` al bundle de certificados de tu sistema.
 
 ---
 
-## Modos de la aplicación
+## Qué hay adentro
 
-### 📚 Ejercicios
-30 desafíos organizados en 8 niveles de dificultad progresiva. Cada ejercicio tiene un editor de TortuScript a la izquierda y la traducción a Python en vivo a la derecha (se actualiza mientras escribís). **Ctrl+Enter** ejecuta. Al ejecutar, el programa compara **lo que muestra el programa** con lo que muestra la solución oficial — no el código fuente, así que hay múltiples formas válidas de resolver cada ejercicio. Se toleran espacios al final de las líneas; mayúsculas y tildes cuentan.
+### 🗺️ Aprender: cuatro cursos, 51 lecciones
+Cada lección dura unos 2 minutos y sigue el ciclo **explicar → practicar → escribir**: una tarjeta que explica con un ejemplo que se puede ejecutar, preguntas de elegir, predecir lo que muestra un programa, completar con fichas, ordenar líneas y, al final, escribir el programa. Ante un error hay una pista específica; se puede reintentar y, tras dos errores, ver la respuesta (sin XP en ese paso). **No hay vidas ni castigos.**
 
-Solo una salida correcta completa el ejercicio: si lo que se muestra no coincide, se explica la diferencia y no se avanza. No se puede pasar al siguiente ejercicio sin haber completado el anterior.
+| Curso | Lecciones | De qué trata |
+|---|---|---|
+| 🐢 Primeros pasos con TortuScript | 30 | mostrar, variables, preguntar, cuentas, si/sino, repetir, mientras, funciones |
+| 🎨 Dibujá con la tortuga | 12 | avanzar y girar, figuras con repetir, colores, lápiz, variables y funciones (se abre al terminar *Dos variables*) |
+| 🛠️ Proyectos guiados | 3 | un adivinador de números, una calculadora y una casa; cada paso sigue desde el código anterior |
+| 🐍 De TortuScript a Python real | 6 | print, input, if, for/while y def, escritos en Python de verdad (se abre al terminar *Desafío final*) |
 
-| Nivel | Concepto |
-|-------|----------|
-| 1 | Mostrar texto |
-| 2 | Variables |
-| 3 | Entrada de datos |
-| 4 | Operaciones matemáticas |
-| 5 | Condicionales (si / sino) |
-| 6 | Bucles (repetir N veces) |
-| 7 | Funciones |
-| 8 | Desafíos combinados |
+El **camino** es la pantalla de inicio: muestra dónde estás y qué sigue. Las lecciones se desbloquean en orden.
 
-El sistema de pistas da hasta 3 ayudas por ejercicio: palabras clave, primera línea, y solución completa. Usar pistas reduce las estrellas obtenidas (3 → 2 → 1). Limpiar el editor no borra las pistas ya vistas.
+### 🎮 Motivación, sin presión
+- **XP y niveles** (10 títulos: 🐣 Aprendiz … 🏆 Maestro). Solo suma cuando mejorás tu mejor resultado.
+- **Meta diaria** con anillo: 5, 10 o 15 minutos (20, 40 o 60 XP).
+- **Racha** con **congeladores que se ganan** (uno cada 7 días seguidos, hasta 2): si faltás un día, la racha se salva sola. Reto de 7 días.
+- **25 logros** que nunca se pierden y una **liga local semanal** (Bronce → Diamante) entre los perfiles de la compu y rivales simulados; suben los 3 primeros y nadie baja.
+- **Práctica del día**: repaso espaciado e intercalado (1, 2, 4, 8 y 16 días) con los pasos de lecciones viejas.
+- **Certificado imprimible** (o PDF) al terminar cada curso.
 
-### 🧪 Experimentar
-Zona libre sin ejercicios ni evaluación. Ideal para probar ideas propias. Tiene botones de ejemplos rápidos para arrancar y la misma traducción en vivo.
+### 🧰 Herramientas
+- **🧪 Experimentar**: escribís lo que quieras, con la traducción a Python en vivo. Acepta TortuScript o Python.
+- **🎨 Zona Tortuga**: dibujo con `avanzar`, `retroceder`, `girar_der`, `girar_izq`, `color`, `subir_lapiz` y `bajar_lapiz`; con *paso a paso* se resalta cada línea mientras la tortuga la ejecuta. Colores en español (`"rojo"`, `"celeste"`...) o `#rrggbb`.
+- **📂 Mis proyectos**: guardar, abrir, duplicar y borrar lo hecho en Experimentar y en la Zona Tortuga (hasta 30 por perfil).
+- **📖 Referencia** del lenguaje, **🗺️ Mapa** de los 30 ejercicios clásicos, **🔁 Repaso** de ejercicios (4 modos) y **📊 Resumen** de hoy.
+- **👤 Perfiles**: cada chico tiene su progreso, sus ajustes y su meta en la misma compu.
 
-### 🐢 Zona Tortuga
-Dibujo con una tortuga: `avanzar`, `retroceder`, `girar_der`, `girar_izq`, `color`, `subir_lapiz`, `bajar_lapiz`. Con **Paso a paso** activado, cada línea se resalta en el editor mientras la tortuga la ejecuta.
-
-### 🗺️ Mapa de Progreso
-Vista de todos los ejercicios como tarjetas, agrupados por nivel. Muestra el estado de cada uno: verde con 3 estrellas, azul con 2, amarillo con 1, gris con candado si todavía no se completó. Al hacer click en una tarjeta se abre ese ejercicio (solo los completados o el siguiente pendiente).
-
-### 📊 Resumen de sesión
-Muestra la racha diaria con un mini calendario de los últimos 7 días, los conceptos practicados en la sesión de hoy, y la lista de ejercicios completados con sus estrellas y XP.
-
-### 🔁 Repaso
-Permite repasar ejercicios ya completados en cuatro modos:
-- **Todo lo completado** — en orden original
-- **Solo los imperfectos** — los que no tienen 3 estrellas aún
-- **Orden aleatorio** — mezcla todos los completados
-- **Los más difíciles** — ordena de menos a más estrellas
-
-### 📖 Referencia TortuScript
-Guía completa del lenguaje con todas las construcciones disponibles. Cada concepto muestra el código TortuScript en verde a la izquierda y su equivalente Python en azul a la derecha.
+### ♿ Accesibilidad y voz
+Ajustes por perfil (⚙️): tamaño de letra grande y enorme, alto contraste, tipo de letra fácil de leer, menos movimiento y **lectura en voz alta** de las consignas (usa las voces del sistema, sin internet). Se maneja todo con el teclado (enlace *Saltar al contenido*, foco visible, `Esc` sale del editor, teclas `1`–`9` eligen opciones) y funciona con lectores de pantalla. El contraste de las páginas principales cumple WCAG AA (`herramientas/revisar_contraste.py`).
 
 ---
 
-## Sistema de XP y niveles
-
-Completar un ejercicio otorga 30 XP (3⭐), 20 XP (2⭐) o 5-10 XP (1⭐, con pistas). El XP solo sube si mejorás tu mejor resultado. Con los 30 ejercicios el máximo es 900 XP, y la escala está pensada para que el nivel 10 se alcance.
-
-| Nivel | Título | XP necesario |
-|-------|--------|-------------|
-| 1 | 🐣 Aprendiz | 0 |
-| 2 | 🐢 Tortuga | 50 |
-| 3 | 🐍 Serpiente | 110 |
-| 4 | 🦎 Lagarto | 180 |
-| 5 | 🦅 Águila | 260 |
-| 6 | 🔥 Dragón | 350 |
-| 7 | 💎 Cristal | 450 |
-| 8 | 🚀 Cohete | 560 |
-| 9 | ⚡ Rayo | 680 |
-| 10 | 🏆 Maestro | 800 |
-
-La racha diaria se incrementa cada día que se completa al menos un ejercicio. Si se saltea un día, la racha vuelve a cero.
-
----
-
-## Referencia del lenguaje TortuScript
+## El lenguaje TortuScript
 
 | TortuScript | Python | Descripción |
 |-------------|--------|-------------|
-| `mostrar X` | `print(X)` | Mostrar en pantalla |
-| `X es Y` | `X = Y` | Asignar variable |
-| `si X es Y:` | `if X == Y:` | Dentro de una condición, `es` compara |
-| `preguntar("msg")` | `input("msg")` | Pedir dato al usuario |
-| `si condicion:` | `if condicion:` | Condicional |
-| `sino si condicion:` | `elif condicion:` | Otra condición |
-| `sino:` | `else:` | Rama alternativa |
-| `repetir N veces:` | `for _ in range(N):` | Bucle N veces (N puede ser una variable) |
+| `mostrar X` | `print(X)` | Mostrar en pantalla (`mostrar "a", 3` junta varias cosas) |
+| `X es Y` | `X = Y` | Asignar variable (dentro de una condición, `es` compara) |
+| `preguntar("msg")` | `input("msg")` | Pedir un dato |
+| `si` / `sino si` / `sino` | `if` / `elif` / `else` | Condicionales |
+| `repetir N veces:` | `for _ in range(N):` | Repetir |
 | `para x en lista:` | `for x in lista:` | Recorrer una lista |
-| `mientras condicion:` | `while condicion:` | Bucle mientras |
-| `funcion nombre(p):` | `def nombre(p):` | Definir función |
-| `devolver X` | `return X` | Retornar valor |
-| `clase Nombre:` | `class Nombre:` | Definir clase |
-| `clase Hijo hereda de Padre:` | `class Hijo(Padre):` | Herencia |
-| `y` / `o` / `no` | `and` / `or` / `not` | Operadores lógicos |
+| `mientras cond:` | `while cond:` | Repetir mientras se cumpla |
+| `funcion n(p):` / `devolver X` | `def n(p):` / `return X` | Funciones |
+| `y` / `o` / `no` | `and` / `or` / `not` | Lógica |
 | `Verdadero` / `Falso` | `True` / `False` | Booleanos |
 
-- Las palabras clave aceptan **tildes y mayúsculas**: `función`, `Mostrar`, `SI`.
-- `y`, `o`, `no` y `color` solo se traducen cuando funcionan como operador o comando: se pueden usar como nombres de variables (`y es 3`, `color es "rojo"`).
-- La indentación puede ser con espacios o con Tab.
-- `preguntar()` abre una ventanita para escribir la respuesta. En los ejercicios, la solución oficial se evalúa con las mismas respuestas que diste.
+Las palabras aceptan **tildes y mayúsculas** (`función`, `Mostrar`). `y`, `o`, `no` y `color` solo se traducen cuando funcionan como operador o comando: se pueden usar como nombres de variable. La indentación puede ser con espacios o con Tab.
+
+---
+
+## Cómo está hecho
+
+```
+proyecto/
+├── iniciar_web.py            ← lanzador (abre el navegador)
+├── lanzadores/               ← .bat / .sh / accesos directos
+├── requirements.txt          ← Flask
+├── tortuscript/              ← NÚCLEO sin interfaz
+│   ├── translator.py         ← TortuScript → Python (con tokenize)
+│   ├── executor.py           ← ejecuta el código del chico con protecciones
+│   ├── worker.py, proceso.py ← el código corre en un subproceso con límites
+│   ├── error_handler.py      ← errores explicados en lenguaje simple
+│   ├── evaluacion.py         ← compara salidas y dibujos con la solución
+│   ├── tortuga.py            ← la tortuga como registro de órdenes + comparación de dibujos
+│   ├── leccion.py            ← motor de lecciones (pasos, comprobación, camino, cursos)
+│   ├── practica.py           ← repaso espaciado
+│   ├── logros.py, liga.py    ← gamificación
+│   ├── proyectos.py          ← Mis proyectos
+│   ├── progreso.py           ← XP, racha, perfiles, ajustes (guardado seguro)
+│   ├── contenido.py, referencia.py, validacion.py
+├── contenido/                ← los cursos y la referencia, como DATOS (JSON)
+├── web/                      ← Flask: app.py, templates/, static/{css,js,vendor,fonts,img}
+├── herramientas/             ← validador de contenido, jugador de cursos, contraste, paquete
+├── tests/                    ← unittest
+└── docs/                     ← ADR, roadmap, guía para escribir cursos
+```
+
+- **El contenido es dato, no código.** Los cursos están en `contenido/cursos/*.json` y los revisa un **validador automático** que corre cada respuesta, cada fragmento y cada salida esperada: nunca llega a la pantalla un ejercicio roto. Guía completa en [`docs/CONTENIDO.md`](docs/CONTENIDO.md).
+- **Un solo servidor local.** Flask escucha solo en `127.0.0.1`; toda la API exige un token secreto de la sesión (una página ajena abierta en el navegador no puede usarla) y se rechazan `Host` que no sean locales.
+- **El código del chico nunca corre dentro del servidor.** Va a un subproceso con límite de tiempo (y de CPU y memoria en Linux/macOS), validación previa con AST (sin `import` ni nombres que empiecen con `_`), builtins limitados, tope de 50.000 pasos y de 20.000 caracteres de salida. **No es un sandbox para código hostil**: protege al chico de errores y de copiar/pegar cosas peligrosas.
+- **`preguntar()`** se resuelve re-ejecutando el programa con las respuestas acumuladas; la tortuga es un registro de órdenes que el navegador anima en un `<canvas>`.
+- **Todo offline**: CodeMirror, confeti y las fuentes están en `web/static/`; no se pide nada a internet.
+
+Decisiones de diseño: [`docs/decisions/`](docs/decisions/) (ADR-001 migración a web, ADR-002 cursos como datos y progreso aditivo).
 
 ---
 
 ## Dónde se guarda el progreso
 
-El progreso se guarda automáticamente en `progreso_<perfil>.json` junto al programa (el perfil inicial es `default`, así que el archivo es `progreso_default.json`). Cada guardado es atómico y deja una copia `progreso_<perfil>.json.bak` del estado anterior. Si el archivo se daña, se aparta como `.corrupto-<fecha>` y se recupera desde la copia: nunca se pisa en silencio.
+En `progreso_<perfil>.json`, junto al programa (el perfil inicial es `default`). Cada guardado es atómico y deja una copia `.bak`; si el archivo se daña se aparta como `.corrupto-<fecha>` y se recupera desde la copia: nunca se pisa en silencio. El esquema es **aditivo**: los archivos de versiones anteriores se abren y se completan solos (hoy es la versión 8). Para empezar de cero un perfil, borrá su `progreso_<perfil>.json` (y el `.bak`).
 
-Para resetear un perfil, borrá su `progreso_<perfil>.json` (y el `.bak`). Desde **Cambiar** en el menú se puede crear o elegir otro perfil; la app recuerda el último usado.
-
----
-
-## Notas técnicas
-
-- El código del alumno pasa por una validación previa (no se permite `import` ni nombres que empiecen con `_`) y se ejecuta con builtins limitados, un límite total de 50.000 pasos (corta bucles infinitos) y un tope de 20.000 caracteres de salida. **No es un sandbox para código hostil**: protege al chico de errores y de copiar/pegar cosas peligrosas, pero no limita la memoria.
-- Los errores se explican en lenguaje simple, con la línea a mirar; el detalle técnico en inglés aparece aparte, "para curiosos".
-- La evaluación compara lo que muestra el programa contra lo que muestra la solución oficial — esto permite llegar a la respuesta correcta por distintos caminos.
-- Los sonidos usan `winsound` y solo suenan en Windows.
-- Tests: `python -m unittest discover tests` (sin dependencias externas).
-- La carpeta `ui/` debe contener el archivo `__init__.py` para que Python la reconozca como paquete.
-- Probado con Python 3.12 en Ubuntu 24.04 y Python 3.14 en Windows 11.
+Los logs de errores internos van a `logs/tortuscript.log` y nunca se muestran al chico.
 
 ---
 
-> 🚧 **En migración a aplicación web** (Flask + HTML/CSS/JS). Ver `docs/decisions/ADR-001-migracion-a-web.md` y `docs/ROADMAP_MIMO_KIDS.md`. La app Tk sigue funcionando hasta que la web la iguale.
+## Para quien mantiene el proyecto
+
+```bash
+python -m unittest discover tests            # tests (325)
+python herramientas/validar_contenido.py     # valida todos los cursos
+python herramientas/crear_paquete.py         # arma dist/TortuScript-<fecha>.zip para instalar en otra compu
+```
+
+Con **Playwright** (opcional, no está en `requirements.txt`) se puede verificar la interfaz real:
+
+```bash
+python herramientas/servidor_de_prueba.py    # servidor con progreso temporal (otra terminal)
+python herramientas/jugar_cursos.py          # juega TODAS las lecciones por el navegador
+python herramientas/revisar_contraste.py     # contraste WCAG AA en modo normal y alto contraste
+```
+
+Cambios recientes: [`CHANGELOG.md`](CHANGELOG.md). Roadmap: [`docs/ROADMAP_MIMO_KIDS.md`](docs/ROADMAP_MIMO_KIDS.md).
 
 *Hecho con 🐢 y mucho amor para aprender a programar de a poco.*

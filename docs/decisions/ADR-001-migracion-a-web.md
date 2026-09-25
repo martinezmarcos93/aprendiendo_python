@@ -1,6 +1,8 @@
 # ADR-001: Migrar TortuScript de Tkinter a una aplicación web local (Flask)
 
-## Estado: Aceptado (24/09/2026) — decisión de Marcos; las 3 propuestas técnicas confirmadas: subproceso en servidor, HTML+CSS+JS sin build, mismo repo reorganizado
+## Estado: Aceptado (24/09/2026) e **implementado (25/09/2026)** — decisión de Marcos; las 3 propuestas técnicas confirmadas: subproceso en servidor, HTML+CSS+JS sin build, mismo repo reorganizado
+
+> Resultado: la app Tk se retiró (`ui/` y los módulos de escritorio se borraron) tras verificar la paridad pantalla por pantalla. Lo construido después (lecciones, cursos, gamificación, accesibilidad) está en el [ADR-002](ADR-002-cursos-como-datos-y-progreso-aditivo.md) y en el `CHANGELOG.md`.
 
 ## Contexto
 - La interfaz Tkinter no permite la estética que buscamos (modelo: Mimo): tarjetas

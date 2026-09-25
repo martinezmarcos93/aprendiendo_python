@@ -9,7 +9,11 @@
 
 ---
 
-## ✅ Estado: APROBADO (24/09/2026) — con migración total a web
+## ✅ Estado: IMPLEMENTADO (25/09/2026)
+
+Todas las fases del roadmap se construyeron en la rama `feature/migracion-web-paridad` (una sesión de trabajo autónomo, un commit de cierre por fase). Ver la tabla "Estado de implementación" al final de esta sección y el `CHANGELOG.md`.
+
+## ✅ Aprobado (24/09/2026) — con migración total a web
 
 Marcos aprobó el roadmap y decidió **reconstruir TortuScript como aplicación web** (Flask +
 HTML/CSS/JS). Ver [ADR-001](decisions/ADR-001-migracion-a-web.md). La decisión 1 de §5
@@ -28,6 +32,29 @@ queda resuelta como "web local"; el orden de fases pasa a ser:
 | 9 | **M3 — Retiro de Tk + lanzador** (1) | Se borra `ui/`; ícono/lanzador que abre el navegador; Fase 8 (instalador) |
 
 Total estimado: **21-28 sesiones**.
+
+### Estado de implementación (25/09/2026)
+
+| Fase | Estado | Notas |
+|---|---|---|
+| M0 Núcleo sin Tk | ✅ | `tortuscript/` |
+| Fase 0 Contenido como datos + validador | ✅ | `contenido/`, `herramientas/validar_contenido.py`, dentro de los tests |
+| M1 Base web | ✅ | Flask, sistema de diseño, perfiles, subproceso |
+| F1 Tortuga en web | ✅ | registro de órdenes + canvas animado y depurador |
+| M2 Paridad | ✅ | Mapa, Resumen, Repaso, Referencia, sonidos (WebAudio) |
+| Fase 1 Motor de lecciones | ✅ | 6 tipos de paso, feedback, pista, ver respuesta |
+| Fase 2 Camino + onboarding + meta diaria | ✅ | pantalla de inicio = camino; meta de 5/10/15 min |
+| Fase 4 Contenido | ✅ | 4 cursos, 51 lecciones (más que las 35 previstas) |
+| Fase 3 Gamificación | ✅ | racha + congeladores ganados, reto de 7 días, 25 logros, liga local; **sin vidas** |
+| Fase 5 Repaso espaciado | ✅ | Práctica del día (cajas 1-2-4-8-16 días, intercalado) |
+| Fase 6 Proyectos y certificado | ✅ | Mis proyectos, 3 proyectos guiados, certificado imprimible |
+| Fase 7 Accesibilidad y audio | ✅ | ajustes por perfil; voz con Web Speech (voces del sistema) en vez de Piper |
+| M3 Retiro de Tk + lanzador | ✅ | `iniciar_web.py`, `lanzadores/`, ícono |
+| Fase 8 Empaquetado | ✅ | `herramientas/crear_paquete.py` (.zip instalable) |
+
+Decisiones tomadas durante la implementación (por contexto, sin frenar): las vidas siguen apagadas; la liga es local con
+rivales simulados; no hay bonus de XP por lección (los niveles se recalibraron con el XP máximo del curso 1); el TTS usa
+las voces del sistema. Pendiente a futuro: instalador nativo por sistema operativo y más cursos.
 
 ## 0. Qué se clona y qué no
 
