@@ -5,6 +5,8 @@
 > Lo que hoy existe está en el [README](../../README.md). Los aspectos técnicos y de seguridad no forman parte de este recorrido:
 > ver [SEGURIDAD_SITIO_PROFESIONAL.md](SEGURIDAD_SITIO_PROFESIONAL.md).
 
+> Cuentas de padres con perfiles de hijos y lo que falta del producto: [PRODUCTO_COMPLETO_Y_CUENTAS.md](PRODUCTO_COMPLETO_Y_CUENTAS.md).
+
 **Principio:** el usuario percibe solo *entrar → crear perfil → elegir intereses → descubrir su camino → aprender → experimentar → crear →
 especializarse → construir proyectos → desarrollar sus propios juegos*. Seguridad, cookies, `robots.txt`, Flask y APIs son capas invisibles.
 
