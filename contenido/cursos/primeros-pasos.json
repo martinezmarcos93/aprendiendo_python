@@ -13,6 +13,55 @@
           "titulo": "1. Hola mundo",
           "pasos": [
             {
+              "tipo": "explicacion",
+              "texto": "Programar es darle órdenes a la computadora. La orden mostrar escribe algo en la pantalla. El texto va entre comillas.",
+              "codigo": "mostrar \"Hola mundo\""
+            },
+            {
+              "tipo": "elegir",
+              "pregunta": "¿Qué orden escribe un texto en la pantalla?",
+              "opciones": [
+                "mostrar",
+                "escribir",
+                "pantalla"
+              ],
+              "correcta": 0,
+              "pista": "Es la orden del ejemplo de recién."
+            },
+            {
+              "tipo": "completar",
+              "consigna": "Completá el programa para que muestre Hola.",
+              "codigo": "___ \"Hola\"",
+              "fichas": [
+                "mostrar",
+                "Hola",
+                "sumar"
+              ],
+              "respuesta": [
+                "mostrar"
+              ],
+              "salida": "Hola"
+            },
+            {
+              "tipo": "ordenar",
+              "consigna": "Ordená las líneas para que primero salga Hola y después Chau.",
+              "lineas": [
+                "mostrar \"Hola\"",
+                "mostrar \"Chau\""
+              ]
+            },
+            {
+              "tipo": "predecir",
+              "codigo": "mostrar \"Buen día\"",
+              "opciones": [
+                "Buen día",
+                "mostrar \"Buen día\"",
+                "\"Buen día\""
+              ],
+              "correcta": 0,
+              "pista": "Las comillas le dicen a la computadora dónde empieza y termina el texto, pero no se ven."
+            },
+            {
               "tipo": "escribir",
               "consigna": "Hacé que aparezca el texto Hola mundo.",
               "forma": "mostrar \"tu texto\"",

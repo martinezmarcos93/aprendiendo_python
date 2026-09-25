@@ -25,7 +25,7 @@ logger = logging.getLogger("tortuscript.progreso")
 # Los archivos viven en la carpeta raíz del proyecto (no en la carpeta desde donde se
 # lo abre, ni dentro del paquete tortuscript/).
 DIRECTORIO = Path(__file__).resolve().parent.parent
-VERSION_ESQUEMA = 2
+VERSION_ESQUEMA = 3
 
 PERFIL_ACTUAL = "default"
 
@@ -86,6 +86,8 @@ PROGRESO_INICIAL = {
     "ultimo_dia": None,       # "YYYY-MM-DD"
     "dias_activo": [],        # lista de "YYYY-MM-DD" únicos, últimos 90
     "sesion_hoy": [],         # índices completados en `ultimo_dia`
+    # Lecciones (v3): {leccion_id: {"pasos": {"0": {"xp": 5, "perfecto": true}}, "completada": bool, "perfecta": bool}}
+    "lecciones": {},
 }
 
 
@@ -228,6 +230,35 @@ def registrar_ejercicio(progreso, indice, estrellas, xp_ganado):
 
     guardar_progreso(progreso)
     return hubo_mejora
+
+
+# ─────────────────────────────────────────
+# LECCIONES
+# ─────────────────────────────────────────
+def registrar_paso_leccion(progreso, leccion_id, indice, xp, perfecto, total_pasos):
+    """Anota un paso terminado de una lección y guarda.
+
+    Se recuerda el MEJOR resultado de cada paso: repetir una lección nunca da XP doble, solo
+    suma la diferencia si el resultado mejora. Los pasos 'escribir' se pagan por
+    registrar_ejercicio (xp=0 acá) y solo se anotan para saber si la lección está completa.
+    Devuelve {"xp_ganado", "completa", "perfecta", "recien_completa"}.
+    """
+    lec = progreso.setdefault("lecciones", {}).setdefault(
+        leccion_id, {"pasos": {}, "completada": False, "perfecta": False})
+    antes = lec["pasos"].get(str(indice), {"xp": 0, "perfecto": False})
+    mejor = {"xp": max(antes["xp"], xp), "perfecto": bool(antes["perfecto"] or perfecto)}
+    ganado = mejor["xp"] - antes["xp"]
+    lec["pasos"][str(indice)] = mejor
+    progreso["xp_total"] = progreso.get("xp_total", 0) + ganado
+
+    estaba_completa = lec["completada"]
+    lec["completada"] = lec["completada"] or all(str(i) in lec["pasos"] for i in range(total_pasos))
+    lec["perfecta"] = lec["completada"] and all(
+        lec["pasos"].get(str(i), {}).get("perfecto") for i in range(total_pasos))
+    actualizar_racha(progreso)
+    guardar_progreso(progreso)
+    return {"xp_ganado": ganado, "completa": lec["completada"], "perfecta": lec["perfecta"],
+            "recien_completa": lec["completada"] and not estaba_completa}
 
 
 # ─────────────────────────────────────────

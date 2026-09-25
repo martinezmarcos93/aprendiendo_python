@@ -203,6 +203,7 @@ def validar_curso(curso):
 
     # ── cada paso, en el orden en que lo vive el chico ──
     presentadas = {}          # palabra → dónde se presentó
+    en_leccion = {}           # palabra → id de la lección donde se presentó
     for seccion, leccion, i, paso in pasos(curso):
         donde = f"{leccion.get('titulo', leccion.get('id'))} · paso {i + 1} ({paso.get('tipo')})"
         for texto in _textos_del_paso(paso):
@@ -211,8 +212,9 @@ def validar_curso(curso):
         nuevas = set()
         if paso.get("forma"):
             nuevas = _palabras(paso["forma"]) - _SIN_PRESENTACION
-            if nuevas and all(p in presentadas for p in nuevas):
-                # La Forma no enseña nada nuevo (si presenta algo nuevo, lo viejo va de paso)
+            if nuevas and all(p in presentadas and en_leccion[p] != leccion.get("id") for p in nuevas):
+                # La Forma no enseña nada nuevo (si presenta algo nuevo, lo viejo va de paso).
+                # Repetirla dentro de la misma lección donde se explicó sirve de recordatorio.
                 hallazgos.append(Hallazgo(AVISO, donde, "esta Forma no presenta nada nuevo: "
                                           + ", ".join(f"«{p}» ya se mostró en {presentadas[p]}" for p in sorted(nuevas))))
         if paso.get("tipo") == "explicacion" and paso.get("codigo"):
@@ -224,4 +226,5 @@ def validar_curso(curso):
             hallazgos.append(Hallazgo(ERROR, donde, f"usa {', '.join(sin_presentar)} antes de enseñarlo (falta una Forma o una explicación)"))
         for p in nuevas | usadas:
             presentadas.setdefault(p, donde)
+            en_leccion.setdefault(p, leccion.get("id"))
     return hallazgos

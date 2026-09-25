@@ -16,6 +16,8 @@ from tortuscript.validacion import ERROR, validar_curso  # noqa: E402
 
 
 def main():
+    if hasattr(sys.stdout, "reconfigure"):
+        sys.stdout.reconfigure(encoding="utf-8")     # Windows: consola/pipe en cp1252
     ids = sys.argv[1:] or sorted(p.stem for p in CARPETA.glob("*.json"))
     total_errores = 0
     for curso_id in ids:

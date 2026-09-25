@@ -75,7 +75,7 @@ def ejercicios(curso_id=CURSO_PRINCIPAL):
     """
     curso = cargar_curso(curso_id)
     salida = []
-    for seccion, leccion, _, paso in pasos(curso):
+    for seccion, leccion, indice_paso, paso in pasos(curso):
         if paso["tipo"] != "escribir":
             continue
         salida.append({
@@ -87,5 +87,11 @@ def ejercicios(curso_id=CURSO_PRINCIPAL):
             "nota": paso.get("nota"),
             "solucion": paso["solucion"],
             "leccion_id": leccion["id"],
+            "paso": indice_paso,
         })
     return salida
+
+
+def indices_ejercicio(leccion_id, curso_id=CURSO_PRINCIPAL):
+    """{índice_de_paso: índice_de_ejercicio} de los pasos 'escribir' de una lección."""
+    return {e["paso"]: i for i, e in enumerate(ejercicios(curso_id)) if e["leccion_id"] == leccion_id}
