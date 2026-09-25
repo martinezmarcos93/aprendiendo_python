@@ -1,7 +1,7 @@
 import tkinter as tk
 from tkinter import font as tkfont
 from ejercicios import EJERCICIOS
-from utils import centrar_ventana
+from utils import centrar_ventana, habilitar_rueda
 from progreso import (
     cargar_progreso, calcular_nivel, titulo_nivel, estrellas_texto
 )
@@ -79,7 +79,7 @@ class VentanaMapa(tk.Toplevel):
 
         self.frame_mapa.bind("<Configure>", self._on_frame_configure)
         self.canvas.bind("<Configure>", self._on_canvas_configure)
-        self.canvas.bind_all("<MouseWheel>", self._on_mousewheel)
+        habilitar_rueda(self.canvas)
 
         self._dibujar_mapa()
 
@@ -198,10 +198,14 @@ class VentanaMapa(tk.Toplevel):
             bg_card  = "#0f2a1a"
             borde    = VERDE
             num_color = VERDE
-        elif completado:
+        elif completado and estrellas == 2:
             bg_card  = "#1a2040"
             borde    = AZUL
             num_color = AZUL
+        elif completado:
+            bg_card  = "#2a2410"
+            borde    = AMARILLO
+            num_color = AMARILLO
         else:
             bg_card  = BG_CARD
             borde    = GRIS_OSC
@@ -209,7 +213,8 @@ class VentanaMapa(tk.Toplevel):
 
         # Marco con borde coloreado
         frame_outer = tk.Frame(parent, bg=borde, padx=1, pady=1)
-        frame_outer.grid(row=0, column=col, padx=6, pady=4, sticky="n")
+        # 5 tarjetas por fila: el nivel 8 tiene 9 ejercicios y no entraba en una sola
+        frame_outer.grid(row=col // 5, column=col % 5, padx=6, pady=4, sticky="n")
 
         frame_card = tk.Frame(frame_outer, bg=bg_card, width=140, height=110)
         frame_card.pack()
@@ -249,8 +254,8 @@ class VentanaMapa(tk.Toplevel):
                 font=("Arial", 16), bg=bg_card, fg=GRIS
             ).pack(pady=(6, 0))
 
-        # Click para ir al ejercicio
-        if self.callback_ir:
+        # Click para ir al ejercicio (siempre: desde el menú abre la ventana de ejercicios)
+        if True:
             for widget in [frame_card, frame_outer]:
                 widget.bind("<Button-1>", lambda e, idx=indice: self._ir_a(idx))
                 widget.configure(cursor="hand2")
@@ -301,10 +306,27 @@ class VentanaMapa(tk.Toplevel):
     # ─────────────────────────────────────────
     # NAVEGACIÓN
     # ─────────────────────────────────────────
+    def _indice_permitido(self, indice):
+        """Se puede ir a un ejercicio ya completado o al primero sin completar."""
+        ej = self.progreso.get("ejercicios", {})
+        if ej.get(str(indice), {}).get("completado"):
+            return True
+        primero_pendiente = next(
+            (i for i in range(len(EJERCICIOS)) if not ej.get(str(i), {}).get("completado")), None)
+        return indice == primero_pendiente
+
     def _ir_a(self, indice):
+        if not self._indice_permitido(indice):
+            self.title("🔒 Completá los ejercicios anteriores para desbloquear ese")
+            return
         if self.callback_ir:
             self.callback_ir(indice)
-            self.destroy()
+        else:
+            from ui.ejercicios_window import VentanaEjercicios
+            ventana = VentanaEjercicios(self.master)
+            ventana.indice = indice
+            ventana.cargar()
+        self.destroy()
 
     # ─────────────────────────────────────────
     # SCROLL
@@ -315,5 +337,4 @@ class VentanaMapa(tk.Toplevel):
     def _on_canvas_configure(self, event):
         self.canvas.itemconfig(self.canvas_window, width=event.width)
 
-    def _on_mousewheel(self, event):
-        self.canvas.yview_scroll(int(-1 * (event.delta / 120)), "units")
+

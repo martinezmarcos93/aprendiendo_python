@@ -44,3 +44,31 @@ def centrar_ventana(ventana, ancho, alto):
 
     ventana.geometry(f"{ancho_final}x{alto_final}+{x}+{y}")
     ventana.minsize(min(860, ancho_final), min(480, alto_final))
+
+
+def habilitar_rueda(canvas):
+    """Scroll con la rueda del mouse sobre `canvas` en Windows, macOS y Linux.
+
+    Linux (X11) no manda <MouseWheel> sino <Button-4>/<Button-5>. Se enlaza solo
+    mientras el puntero está encima, así no queda un bind_all vivo al cerrar.
+    """
+    def _rueda(event):
+        if getattr(event, "num", None) == 4:
+            paso = -1
+        elif getattr(event, "num", None) == 5:
+            paso = 1
+        else:
+            paso = -1 if event.delta > 0 else 1
+        canvas.yview_scroll(paso, "units")
+
+    def _entrar(_):
+        for secuencia in ("<MouseWheel>", "<Button-4>", "<Button-5>"):
+            canvas.bind_all(secuencia, _rueda)
+
+    def _salir(_):
+        for secuencia in ("<MouseWheel>", "<Button-4>", "<Button-5>"):
+            canvas.unbind_all(secuencia)
+
+    canvas.bind("<Enter>", _entrar)
+    canvas.bind("<Leave>", _salir)
+    canvas.bind("<Destroy>", _salir, add="+")

@@ -13,6 +13,7 @@ BG = "#0f172a"
 class SistemaPrincipal(tk.Tk):
     def __init__(self):
         super().__init__()
+        progreso.set_perfil(progreso.perfil_recordado())
         self.title("🐢 TortuScript → Python")
         self.configure(bg=BG)
         self.resizable(True, True)
@@ -78,10 +79,11 @@ class SistemaPrincipal(tk.Tk):
         msg = "Perfiles existentes:\n" + "\n".join([f"- {p}" for p in perfiles]) + "\n\nIngresá tu nombre de perfil:"
         nuevo = simpledialog.askstring("Cambiar Perfil", msg, parent=self)
         if nuevo:
-            nuevo = nuevo.strip().lower()
-            if nuevo:
-                progreso.set_perfil(nuevo)
-                self.lbl_perfil.config(text=f"👤 Perfil: {nuevo}")
+            limpio = progreso.sanitizar_perfil(nuevo)
+            if limpio:
+                progreso.set_perfil(limpio)
+                progreso.recordar_perfil(limpio)
+                self.lbl_perfil.config(text=f"👤 Perfil: {limpio}")
 
     def abrir_ejercicios(self):
         VentanaEjercicios(self)
@@ -94,7 +96,7 @@ class SistemaPrincipal(tk.Tk):
         ZonaTortuga(self)
 
     def abrir_mapa(self):
-        VentanaMapa(self)
+        VentanaMapa(self)   # sin callback: al hacer click abre Ejercicios en esa tarjeta
 
     def abrir_repaso(self):
         SelectorRepaso(self)

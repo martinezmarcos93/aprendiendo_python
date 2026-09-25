@@ -1,8 +1,8 @@
 import tkinter as tk
-from utils import centrar_ventana
+from utils import centrar_ventana, habilitar_rueda
 from progreso import (
     cargar_progreso, calcular_nivel, titulo_nivel,
-    estrellas_texto, resumen_sesion_hoy
+    estrellas_texto, resumen_sesion_hoy, racha_vigente
 )
 from ejercicios import EJERCICIOS
 
@@ -29,7 +29,7 @@ class VentanaResumen(tk.Toplevel):
         self.title("📊 Resumen de hoy")
         centrar_ventana(self, 560, 620)
         self.configure(bg=BG_MAIN)
-        self.attributes("-topmost", True)
+        self.transient(parent)   # queda sobre la app, no sobre todo el escritorio
 
         self.progreso = cargar_progreso()
         self.resumen  = resumen_sesion_hoy(self.progreso, EJERCICIOS)
@@ -48,8 +48,7 @@ class VentanaResumen(tk.Toplevel):
         canvas.create_window((0, 0), window=frame, anchor="nw")
         frame.bind("<Configure>", lambda e: canvas.configure(
             scrollregion=canvas.bbox("all")))
-        canvas.bind("<MouseWheel>", lambda e: canvas.yview_scroll(
-            int(-1 * (e.delta / 120)), "units"))
+        habilitar_rueda(canvas)
 
         self._seccion_racha(frame)
         self._seccion_nivel(frame)
@@ -59,7 +58,7 @@ class VentanaResumen(tk.Toplevel):
 
     # ── Racha
     def _seccion_racha(self, parent):
-        racha = self.progreso.get("racha", 0)
+        racha = racha_vigente(self.progreso)
         racha_max = self.progreso.get("racha_max", 0)
         ultimo_dia = self.progreso.get("ultimo_dia", "")
 

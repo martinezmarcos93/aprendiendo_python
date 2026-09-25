@@ -96,6 +96,9 @@ class ZonaExperimentacion(tk.Toplevel):
         )
         self.editor.grid(row=1, column=0, sticky="nsew", padx=(0, 6))
         self.hl_editor = TortuHighlighter(self.editor, es_python=False)
+        self._id_traduccion = None
+        self.editor.bind("<KeyRelease>", self._programar_traduccion, add="+")
+        self.editor.bind("<Control-Return>", lambda e: (self.ejecutar(), "break")[1])
 
         self.panel_python = scrolledtext.ScrolledText(
             panel, font=("Consolas", 13),
@@ -172,9 +175,18 @@ class ZonaExperimentacion(tk.Toplevel):
         else:
             self._set_salida([("✅ Ejecutado sin errores (sin salida visible).\n", "ok")])
 
-    def _traducir_en_vivo(self, event=None):
-        # Ya no se usa — la traducción ocurre al ejecutar
-        pass
+    def _programar_traduccion(self, event=None):
+        if self._id_traduccion is not None:
+            self.after_cancel(self._id_traduccion)
+        self._id_traduccion = self.after(300, self._traducir_en_vivo)
+
+    def _traducir_en_vivo(self):
+        self._id_traduccion = None
+        codigo = self.editor.get("1.0", "end-1c")
+        if detectar_tipo(codigo) == "python":
+            self._set_python(codigo)
+        else:
+            self._set_python(self.traductor.traducir_codigo(codigo))
 
     def _cargar_ejemplo(self, codigo):
         self.editor.delete("1.0", tk.END)

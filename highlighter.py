@@ -7,7 +7,8 @@ class TortuHighlighter:
         "repetir", "veces", "mientras", "si", "sino",
         "Verdadero", "Falso", "es", "clase", "hereda", "de",
         "y", "o", "no",
-        "avanzar", "girar_der", "girar_izq", "color", "bajar_lapiz", "subir_lapiz"
+        "avanzar", "retroceder", "girar_der", "girar_izq", "color", "bajar_lapiz", "subir_lapiz",
+        "para", "en", "función", "sí"
     ]
     
     PALABRAS_PYTHON = [
@@ -46,7 +47,9 @@ class TortuHighlighter:
 
         # Keywords
         patron_kw = r'\b(?:' + '|'.join(palabras) + r')\b'
-        for match in re.finditer(patron_kw, contenido):
+        # TortuScript acepta mayúsculas (Mostrar, SI); Python no
+        flags = 0 if self.es_python else re.IGNORECASE
+        for match in re.finditer(patron_kw, contenido, flags):
             self._aplicar_tag("keyword", match.start(), match.end())
 
         # Numbers

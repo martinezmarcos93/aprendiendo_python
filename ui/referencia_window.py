@@ -1,6 +1,6 @@
 import tkinter as tk
 from tkinter import scrolledtext
-from utils import centrar_ventana
+from utils import centrar_ventana, habilitar_rueda
 
 BG_MAIN  = "#0f172a"
 BG_CARD  = "#1e293b"
@@ -142,8 +142,7 @@ class VentanaReferencia(tk.Toplevel):
             scrollregion=canvas.bbox("all")))
         canvas.bind("<Configure>", lambda e: canvas.itemconfig(
             canvas.find_all()[0], width=e.width))
-        canvas.bind_all("<MouseWheel>", lambda e: canvas.yview_scroll(
-            int(-1 * (e.delta / 120)), "units"))
+        habilitar_rueda(canvas)
 
         # Intro rápida
         intro = tk.Frame(frame, bg=BG_CARD, pady=12)

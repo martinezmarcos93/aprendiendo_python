@@ -41,7 +41,7 @@ class ZonaTortuga(tk.Toplevel):
         ).pack(side=tk.LEFT, padx=16)
 
         tk.Label(
-            barra, text="Dale órdenes a la tortuga: avanzar, girar_der, girar_izq, color, subir_lapiz, bajar_lapiz",
+            barra, text="Dale órdenes a la tortuga: avanzar, retroceder, girar_der, girar_izq, color, subir_lapiz, bajar_lapiz",
             font=("Arial", 11), bg=BG_CARD, fg=GRIS
         ).pack(side=tk.LEFT, padx=4)
 
@@ -69,6 +69,7 @@ class ZonaTortuga(tk.Toplevel):
         )
         self.editor.grid(row=1, column=0, sticky="nsew", padx=(0, 6))
         self.hl_editor = TortuHighlighter(self.editor, es_python=False)
+        self.editor.bind("<Control-Return>", lambda e: (self.ejecutar(), "break")[1])
 
         # Turtle Canvas
         frame_canvas = tk.Frame(panel, bg="white", highlightthickness=2, highlightbackground=GRIS)
@@ -153,6 +154,7 @@ class ZonaTortuga(tk.Toplevel):
 
         # Funciones de tortuga
         def avanzar(dist): self.t.forward(dist)
+        def retroceder(dist): self.t.backward(dist)
         def girar_der(angulo): self.t.right(angulo)
         def girar_izq(angulo): self.t.left(angulo)
         def color(c): self.t.color(c)
@@ -161,6 +163,7 @@ class ZonaTortuga(tk.Toplevel):
 
         extra_globals = {
             "avanzar": avanzar,
+            "retroceder": retroceder,
             "girar_der": girar_der,
             "girar_izq": girar_izq,
             "color": color,

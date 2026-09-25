@@ -38,7 +38,7 @@ class SelectorRepaso(tk.Toplevel):
         self.title("🔁 Modo Repaso")
         centrar_ventana(self, 400, 380)
         self.configure(bg=BG_MAIN)
-        self.attributes("-topmost", True)
+        self.transient(parent)
         self._modo_var = tk.StringVar(value="todos")
         self._construir_ui()
 
