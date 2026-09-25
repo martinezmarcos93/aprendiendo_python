@@ -231,5 +231,18 @@ def xp_por_intentos(intentos, vio_respuesta):
     return XP_PRIMER_INTENTO if intentos <= 1 else XP_REINTENTO
 
 
+def xp_maximo(curso):
+    """XP de una pasada perfecta por todo el curso (los 'escribir' valen 30; leer no da XP)."""
+    total = 0
+    for seccion in curso["secciones"]:
+        for lec in seccion["lecciones"]:
+            for paso in lec["pasos"]:
+                if paso["tipo"] == "escribir":
+                    total += 30
+                elif paso["tipo"] != "explicacion":
+                    total += XP_PRIMER_INTENTO
+    return total
+
+
 def puede_ver_respuesta(errores):
     return errores >= ERRORES_PARA_VER_RESPUESTA

@@ -372,8 +372,9 @@ def calendario_semana(progreso, hoy=None):
 # ─────────────────────────────────────────
 # NIVEL Y UTILIDADES
 # ─────────────────────────────────────────
-# Con 30 ejercicios a 30 XP el máximo es 900: el nivel 10 tiene que ser alcanzable.
-UMBRALES_NIVEL = [0, 50, 110, 180, 260, 350, 450, 560, 680, 800]
+# Con el curso completo (30 ejercicios a 30 XP + 143 pasos a 5 XP) el máximo es 1460: el nivel 10
+# tiene que ser alcanzable, pero solo hacia el final. tests/test_progreso.py lo verifica.
+UMBRALES_NIVEL = [0, 80, 180, 300, 440, 600, 780, 980, 1200, 1350]
 _TRAMO_FINAL = 100
 
 

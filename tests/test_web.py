@@ -238,7 +238,8 @@ class TestWeb(unittest.TestCase):
     def test_la_pagina_de_ejercicio_ofrece_la_leccion_completa(self):
         self.assertIn("Hacé la lección completa", self.c.get("/ejercicios/1").get_data(as_text=True))
         self._completar((0, 3))
-        self.assertNotIn("Hacé la lección completa", self.c.get("/ejercicios/2").get_data(as_text=True))
+        self.assertIn("Hacé la lección completa", self.c.get("/ejercicios/2").get_data(as_text=True))
+        self.assertNotIn("Hacé la lección completa", self.c.get("/repaso/todos/1?s=1", follow_redirects=True).get_data(as_text=True))
 
     def test_api_tortuga(self):
         r = self.post("/api/tortuga", {"codigo": "avanzar 10\ngirar_der 90"}).get_json()

@@ -114,10 +114,16 @@ class TestEstadoCamino(unittest.TestCase):
         p = {"ejercicios": {"0": {"completado": True, "estrellas": 3},
                             "1": {"completado": True, "estrellas": 1}}}
         planas = self.planas(p)
-        # la lección 1 tiene 6 pasos (formato nuevo): con su 'escribir' hecho cuenta como completada, no perfecta
+        # con su 'escribir' hecho, la lección cuenta como completada; perfecta solo si la hizo el motor
         self.assertEqual([l["estado"] for l in planas[:3]], ["hecha", "hecha", "actual"])
         p["ejercicios"]["1"]["estrellas"] = 3
-        self.assertEqual(self.planas(p)[1]["estado"], "perfecta")     # lección de solo 'escribir' con 3 estrellas
+        self.assertEqual(self.planas(p)[1]["estado"], "hecha")
+
+    def test_leccion_de_un_solo_paso_escribir_con_3_estrellas_es_perfecta(self):
+        curso = {"secciones": [{"nivel": 1, "titulo": "T", "lecciones": [
+            {"id": "x", "titulo": "1. Uno", "pasos": [{"tipo": "escribir"}]}]}]}
+        p = {"ejercicios": {"0": {"completado": True, "estrellas": 3}}}
+        self.assertEqual(leccion.estado_camino(curso, p, {"x": [0]})[0]["lecciones"][0]["estado"], "perfecta")
 
     def test_perfecta_desde_el_motor(self):
         p = {"lecciones": {"hola-mundo": {"completada": True, "perfecta": True}}}

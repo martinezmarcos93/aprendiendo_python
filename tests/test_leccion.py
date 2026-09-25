@@ -130,7 +130,7 @@ class TestNavegacion(unittest.TestCase):
     def test_indices_de_ejercicio_por_leccion(self):
         idx = contenido.indices_ejercicio("hola-mundo")
         self.assertEqual(idx, {5: 0})               # el paso 6 (índice 5) es el escribir → ejercicio 0
-        self.assertEqual(contenido.indices_ejercicio("texto-o-cuenta"), {0: 1})
+        self.assertEqual(contenido.indices_ejercicio("texto-o-cuenta"), {5: 1})
 
     def test_esta_completada_compatibilidad_con_progreso_viejo(self):
         viejo = {"ejercicios": {"0": {"completado": True, "estrellas": 2}}}
