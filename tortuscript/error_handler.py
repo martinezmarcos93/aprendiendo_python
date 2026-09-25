@@ -102,10 +102,25 @@ def _linea_del_error(excepcion, archivo):
     return linea
 
 
+_BLOQUES = ("if", "elif", "else", "for", "while", "def", "class", "try", "except", "finally", "with")
+
+
+def _falta_dos_puntos(excepcion):
+    """True si la línea con error abre un bloque (if, for, def...) y no termina en ':'."""
+    if "invalid syntax" not in (excepcion.msg or ""):
+        return False
+    texto = (excepcion.text or "").split("#")[0].strip()
+    primera = texto.split(" ", 1)[0].rstrip(":(")
+    return bool(texto) and primera in _BLOQUES and not texto.endswith(":")
+
+
 def armar_mensaje_error(excepcion, archivo="<tu código>"):
     tipo = type(excepcion).__name__
     detalle = excepcion.msg if isinstance(excepcion, SyntaxError) else str(excepcion)
-    partes = [_explicacion(tipo, detalle or "")]
+    aclarado = detalle
+    if isinstance(excepcion, SyntaxError) and _falta_dos_puntos(excepcion):
+        aclarado = "expected ':'"          # Python < 3.10 solo dice "invalid syntax"
+    partes = [_explicacion(tipo, aclarado or "")]
     linea = _linea_del_error(excepcion, archivo)
     if linea:
         partes.append(f"📍 Mirá la línea {linea}")

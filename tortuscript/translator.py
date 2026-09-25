@@ -84,6 +84,12 @@ def _tokens_de_linea(texto):
                 continue
             if t.start[0] != 1:   # solo nos interesa la primera línea física
                 break
+            if t.type == tokenize.ERRORTOKEN:   # Python < 3.12: no levanta, emite ERRORTOKEN
+                if t.string.isspace():
+                    continue
+                if t.string in ('"', "'"):      # comilla sin cerrar
+                    incompleta = True
+                    break
             tokens.append(t)
     except (tokenize.TokenError, SyntaxError):
         incompleta = True

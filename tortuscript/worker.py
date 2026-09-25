@@ -41,6 +41,8 @@ def atender(pedido):
 
 
 def main():
+    for flujo in (sys.stdin, sys.stdout):   # Windows abre los pipes en cp1252
+        flujo.reconfigure(encoding="utf-8")
     salida_real = sys.stdout            # el código del alumno escribe en otro buffer
     pedido = json.load(sys.stdin)
     respuesta = atender(pedido)
