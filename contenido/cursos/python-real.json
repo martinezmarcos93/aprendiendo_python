@@ -1,0 +1,464 @@
+{
+  "id": "python-real",
+  "titulo": "De TortuScript a Python real",
+  "icono": "🐍",
+  "descripcion": "Tus programas, escritos como los escriben los programadores de verdad.",
+  "version": 1,
+  "requiere": {
+    "leccion": "desafio-final"
+  },
+  "secciones": [
+    {
+      "id": "lo-que-ya-sabes",
+      "nivel": 1,
+      "titulo": "Lo que ya sabés, en Python",
+      "lecciones": [
+        {
+          "id": "py-print",
+          "titulo": "1. print y variables",
+          "pasos": [
+            {
+              "tipo": "explicacion",
+              "texto": "Python es el lenguaje de verdad, y se parece mucho a TortuScript. mostrar se escribe print, y los paréntesis son obligatorios.",
+              "tortu": "mostrar \"Hola mundo\"",
+              "codigo": "print(\"Hola mundo\")"
+            },
+            {
+              "tipo": "explicacion",
+              "texto": "es se escribe = para guardar en una variable. Lo demás queda igual.",
+              "tortu": "nombre es \"Ana\"\nmostrar nombre",
+              "codigo": "nombre = \"Ana\"\nprint(nombre)"
+            },
+            {
+              "tipo": "elegir",
+              "pregunta": "¿Cómo se muestra un texto en Python?",
+              "opciones": [
+                "print(\"Hola\")",
+                "mostrar \"Hola\"",
+                "print \"Hola\""
+              ],
+              "correcta": 0
+            },
+            {
+              "tipo": "predecir",
+              "codigo": "edad = 12\nprint(edad)",
+              "opciones": [
+                "12",
+                "edad",
+                "edad = 12"
+              ],
+              "correcta": 0
+            },
+            {
+              "tipo": "completar",
+              "consigna": "Completá el programa en Python.",
+              "codigo": "___(\"Hola\")",
+              "fichas": [
+                "print",
+                "mostrar",
+                "input"
+              ],
+              "respuesta": [
+                "print"
+              ],
+              "salida": "Hola"
+            },
+            {
+              "tipo": "completar",
+              "consigna": "Completá para guardar el texto en la variable.",
+              "codigo": "nombre ___ \"Leo\"\nprint(nombre)",
+              "fichas": [
+                "=",
+                "es",
+                "=="
+              ],
+              "respuesta": [
+                "="
+              ],
+              "salida": "Leo"
+            },
+            {
+              "tipo": "escribir",
+              "consigna": "Guardá el texto Lua en la variable nombre y mostralo con print.",
+              "solucion": "nombre = \"Lua\"\nprint(nombre)",
+              "lenguaje": "python",
+              "palabras_pista": [
+                "print",
+                "="
+              ],
+              "nota": "Escribilo en Python, como lo escriben los programadores."
+            }
+          ]
+        },
+        {
+          "id": "py-input",
+          "titulo": "2. input",
+          "pasos": [
+            {
+              "tipo": "explicacion",
+              "texto": "preguntar se escribe input. Lo que la persona escribe siempre llega como texto.",
+              "tortu": "nombre es preguntar(\"¿Cómo te llamás? \")\nmostrar \"Hola \" + nombre",
+              "codigo": "nombre = input(\"¿Cómo te llamás? \")\nprint(\"Hola \" + nombre)",
+              "entradas_prueba": [
+                "Ana"
+              ]
+            },
+            {
+              "tipo": "elegir",
+              "pregunta": "¿Qué hace input?",
+              "opciones": [
+                "Le pide un dato a la persona",
+                "Muestra un texto en pantalla",
+                "Guarda un número"
+              ],
+              "correcta": 0
+            },
+            {
+              "tipo": "predecir",
+              "codigo": "nombre = input(\"Nombre: \")\nprint(\"Hola \" + nombre)",
+              "opciones": [
+                "Hola Leo",
+                "Hola nombre",
+                "Leo"
+              ],
+              "correcta": 0,
+              "pregunta": "La persona escribe Leo. ¿Qué muestra este programa?",
+              "entradas_prueba": [
+                "Leo"
+              ]
+            },
+            {
+              "tipo": "explicacion",
+              "texto": "Para hacer cuentas con lo que escribe la persona hay que convertirlo con int(): un texto no se puede sumar.",
+              "tortu": "edad es int(preguntar(\"¿Cuántos años tenés? \"))\nmostrar edad + 1",
+              "codigo": "edad = int(input(\"¿Cuántos años tenés? \"))\nprint(edad + 1)",
+              "entradas_prueba": [
+                "11"
+              ]
+            },
+            {
+              "tipo": "predecir",
+              "codigo": "n = int(input(\"Número: \"))\nprint(n + 1)",
+              "opciones": [
+                "5",
+                "41",
+                "n + 1"
+              ],
+              "correcta": 0,
+              "pregunta": "La persona escribe 4. ¿Qué muestra este programa?",
+              "entradas_prueba": [
+                "4"
+              ]
+            },
+            {
+              "tipo": "completar",
+              "consigna": "Completá para preguntar el color.",
+              "codigo": "color = ___(\"¿Qué color? \")\nprint(color)",
+              "fichas": [
+                "input",
+                "print",
+                "preguntar"
+              ],
+              "respuesta": [
+                "input"
+              ],
+              "salida": "rojo",
+              "entradas_prueba": [
+                "rojo"
+              ]
+            },
+            {
+              "tipo": "escribir",
+              "consigna": "Pedí el nombre con input y mostrá Hola seguido del nombre.",
+              "solucion": "nombre = input(\"¿Cómo te llamás? \")\nprint(\"Hola \" + nombre)",
+              "lenguaje": "python",
+              "palabras_pista": [
+                "input",
+                "print",
+                "+"
+              ],
+              "nota": "Escribilo en Python, como lo escriben los programadores.",
+              "entradas_prueba": [
+                "Ana"
+              ]
+            }
+          ]
+        },
+        {
+          "id": "py-if",
+          "titulo": "3. if, elif y else",
+          "pasos": [
+            {
+              "tipo": "explicacion",
+              "texto": "si se escribe if y sino se escribe else. Igual que antes, lo de adentro va corrido 4 espacios y las líneas terminan en dos puntos.",
+              "tortu": "edad es 12\nsi edad > 10:\n    mostrar \"Grande\"\nsino:\n    mostrar \"Chico\"",
+              "codigo": "edad = 12\nif edad > 10:\n    print(\"Grande\")\nelse:\n    print(\"Chico\")"
+            },
+            {
+              "tipo": "explicacion",
+              "texto": "Para una tercera opción, sino si se escribe elif.",
+              "tortu": "n es 5\nsi n > 10:\n    mostrar \"Grande\"\nsino si n > 3:\n    mostrar \"Mediano\"\nsino:\n    mostrar \"Chico\"",
+              "codigo": "n = 5\nif n > 10:\n    print(\"Grande\")\nelif n > 3:\n    print(\"Mediano\")\nelse:\n    print(\"Chico\")"
+            },
+            {
+              "tipo": "elegir",
+              "pregunta": "¿Cómo se escribe sino en Python?",
+              "opciones": [
+                "else",
+                "elseif",
+                "otherwise"
+              ],
+              "correcta": 0
+            },
+            {
+              "tipo": "predecir",
+              "codigo": "n = 7\nif n % 2 == 0:\n    print(\"Par\")\nelse:\n    print(\"Impar\")",
+              "opciones": [
+                "Impar",
+                "Par",
+                "7"
+              ],
+              "correcta": 0
+            },
+            {
+              "tipo": "completar",
+              "consigna": "Completá para mostrar Menor.",
+              "codigo": "n = 3\n___ n > 5:\n    print(\"Mayor\")\nelse:\n    print(\"Menor\")",
+              "fichas": [
+                "if",
+                "si",
+                "elif"
+              ],
+              "respuesta": [
+                "if"
+              ],
+              "salida": "Menor"
+            },
+            {
+              "tipo": "ordenar",
+              "consigna": "Ordená las líneas del programa.",
+              "lineas": [
+                "n = 8",
+                "if n > 5:",
+                "    print(\"Mayor\")",
+                "else:",
+                "    print(\"Menor\")"
+              ]
+            },
+            {
+              "tipo": "escribir",
+              "consigna": "Guardá 4 en n y mostrá Par o Impar con if y else.",
+              "solucion": "n = 4\nif n % 2 == 0:\n    print(\"Par\")\nelse:\n    print(\"Impar\")",
+              "lenguaje": "python",
+              "palabras_pista": [
+                "if",
+                "else",
+                "%",
+                "=="
+              ],
+              "nota": "Escribilo en Python, como lo escriben los programadores."
+            }
+          ]
+        }
+      ]
+    },
+    {
+      "id": "mas-python",
+      "nivel": 2,
+      "titulo": "Más Python",
+      "lecciones": [
+        {
+          "id": "py-for",
+          "titulo": "4. for y while",
+          "pasos": [
+            {
+              "tipo": "explicacion",
+              "texto": "repetir 3 veces se escribe for _ in range(3). El guion bajo es un nombre que no vamos a usar.",
+              "tortu": "repetir 3 veces:\n    mostrar \"Hola\"",
+              "codigo": "for _ in range(3):\n    print(\"Hola\")"
+            },
+            {
+              "tipo": "explicacion",
+              "texto": "para x en lista se escribe for x in lista: recorre la lista de a un elemento. Y mientras se escribe while.",
+              "tortu": "para x en [1, 2, 3]:\n    mostrar x",
+              "codigo": "for x in [1, 2, 3]:\n    print(x)"
+            },
+            {
+              "tipo": "explicacion",
+              "texto": "while repite mientras la condición se cumpla, igual que mientras.",
+              "tortu": "n es 1\nmientras n <= 3:\n    mostrar n\n    n es n + 1",
+              "codigo": "n = 1\nwhile n <= 3:\n    print(n)\n    n = n + 1"
+            },
+            {
+              "tipo": "predecir",
+              "codigo": "for _ in range(2):\n    print(\"Ja\")",
+              "opciones": [
+                "Ja\nJa",
+                "Ja",
+                "JaJa"
+              ],
+              "correcta": 0
+            },
+            {
+              "tipo": "predecir",
+              "codigo": "for x in [4, 5]:\n    print(x)",
+              "opciones": [
+                "4\n5",
+                "45",
+                "x\nx"
+              ],
+              "correcta": 0
+            },
+            {
+              "tipo": "completar",
+              "consigna": "Completá para mostrar Hola 4 veces.",
+              "codigo": "for _ in ___(4):\n    print(\"Hola\")",
+              "fichas": [
+                "range",
+                "repetir",
+                "len"
+              ],
+              "respuesta": [
+                "range"
+              ],
+              "salida": "Hola\nHola\nHola\nHola"
+            },
+            {
+              "tipo": "escribir",
+              "consigna": "Mostrá los números del 1 al 3 usando while.",
+              "solucion": "n = 1\nwhile n <= 3:\n    print(n)\n    n = n + 1",
+              "lenguaje": "python",
+              "palabras_pista": [
+                "while",
+                "print"
+              ],
+              "nota": "Escribilo en Python, como lo escriben los programadores."
+            }
+          ]
+        },
+        {
+          "id": "py-def",
+          "titulo": "5. Funciones con def",
+          "pasos": [
+            {
+              "tipo": "explicacion",
+              "texto": "La palabra \"funcion\" se escribe def. Se define igual y se llama igual.",
+              "tortu": "funcion saludar(nombre):\n    mostrar \"Hola \" + nombre\n\nsaludar(\"Ana\")",
+              "codigo": "def saludar(nombre):\n    print(\"Hola \" + nombre)\n\nsaludar(\"Ana\")"
+            },
+            {
+              "tipo": "explicacion",
+              "texto": "devolver se escribe return.",
+              "tortu": "funcion doble(n):\n    devolver n * 2\n\nmostrar doble(5)",
+              "codigo": "def doble(n):\n    return n * 2\n\nprint(doble(5))"
+            },
+            {
+              "tipo": "elegir",
+              "pregunta": "¿Cómo se dice devolver en Python?",
+              "opciones": [
+                "return",
+                "give",
+                "back"
+              ],
+              "correcta": 0
+            },
+            {
+              "tipo": "predecir",
+              "codigo": "def triple(n):\n    return n * 3\n\nprint(triple(4))",
+              "opciones": [
+                "12",
+                "triple",
+                "34"
+              ],
+              "correcta": 0
+            },
+            {
+              "tipo": "completar",
+              "consigna": "Completá para definir la función.",
+              "codigo": "___ suma(a, b):\n    return a + b\n\nprint(suma(2, 3))",
+              "fichas": [
+                "def",
+                "funcion",
+                "fun"
+              ],
+              "respuesta": [
+                "def"
+              ],
+              "salida": "5"
+            },
+            {
+              "tipo": "escribir",
+              "consigna": "Escribí la función doble(n) que devuelva el doble y mostrá doble(6).",
+              "solucion": "def doble(n):\n    return n * 2\n\nprint(doble(6))",
+              "lenguaje": "python",
+              "palabras_pista": [
+                "def",
+                "return",
+                "print"
+              ],
+              "nota": "Escribilo en Python, como lo escriben los programadores."
+            }
+          ]
+        },
+        {
+          "id": "py-final",
+          "titulo": "6. Tu primer programa de Python",
+          "pasos": [
+            {
+              "tipo": "explicacion",
+              "texto": "Ya sabés leer Python. Este programa pregunta un número y dice si es par o impar.",
+              "tortu": "n es int(preguntar(\"Número: \"))\nsi n % 2 == 0:\n    mostrar \"Par\"\nsino:\n    mostrar \"Impar\"",
+              "codigo": "n = int(input(\"Número: \"))\nif n % 2 == 0:\n    print(\"Par\")\nelse:\n    print(\"Impar\")",
+              "entradas_prueba": [
+                "7"
+              ]
+            },
+            {
+              "tipo": "predecir",
+              "codigo": "total = 0\nfor n in [1, 2, 3]:\n    total = total + n\nprint(total)",
+              "opciones": [
+                "6",
+                "123",
+                "3"
+              ],
+              "correcta": 0,
+              "pista": "Va sumando: 0 + 1, después + 2, después + 3."
+            },
+            {
+              "tipo": "ordenar",
+              "consigna": "Ordená las líneas para mostrar el doble de un número.",
+              "lineas": [
+                "numero = int(input(\"Número: \"))",
+                "doble = numero * 2",
+                "print(doble)"
+              ],
+              "entradas_prueba": [
+                "4"
+              ]
+            },
+            {
+              "tipo": "escribir",
+              "consigna": "Pedí un número con input, convertilo con int y mostrá su doble.",
+              "solucion": "numero = int(input(\"Número: \"))\nprint(numero * 2)",
+              "lenguaje": "python",
+              "palabras_pista": [
+                "input",
+                "int",
+                "print"
+              ],
+              "nota": "Escribilo en Python, como lo escriben los programadores.",
+              "entradas_prueba": [
+                "4"
+              ]
+            },
+            {
+              "tipo": "explicacion",
+              "texto": "¡Ya escribís Python real! Probá lo que quieras en Experimentar: ahí también corre Python directo.",
+              "codigo": "print(\"¡Hola, Python!\")"
+            }
+          ]
+        }
+      ]
+    }
+  ]
+}

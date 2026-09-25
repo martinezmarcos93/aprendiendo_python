@@ -1,0 +1,1848 @@
+{
+  "id": "primeros-pasos",
+  "titulo": "Primeros pasos con TortuScript",
+  "icono": "🐢",
+  "descripcion": "Aprendé a programar en español: mostrar, variables, decisiones, repetir y funciones.",
+  "version": 2,
+  "secciones": [
+    {
+      "id": "mostrar",
+      "nivel": 1,
+      "titulo": "Mostrar",
+      "lecciones": [
+        {
+          "id": "hola-mundo",
+          "titulo": "1. Hola mundo",
+          "pasos": [
+            {
+              "tipo": "explicacion",
+              "texto": "Programar es darle órdenes a la computadora. La orden mostrar escribe algo en la pantalla. El texto va entre comillas.",
+              "codigo": "mostrar \"Hola mundo\""
+            },
+            {
+              "tipo": "elegir",
+              "pregunta": "¿Qué orden escribe un texto en la pantalla?",
+              "opciones": [
+                "mostrar",
+                "escribir",
+                "pantalla"
+              ],
+              "correcta": 0,
+              "pista": "Es la orden del ejemplo de recién."
+            },
+            {
+              "tipo": "completar",
+              "consigna": "Completá el programa para que muestre Hola.",
+              "codigo": "___ \"Hola\"",
+              "fichas": [
+                "mostrar",
+                "Hola",
+                "sumar"
+              ],
+              "respuesta": [
+                "mostrar"
+              ],
+              "salida": "Hola"
+            },
+            {
+              "tipo": "ordenar",
+              "consigna": "Ordená las líneas para que primero salga Hola y después Chau.",
+              "lineas": [
+                "mostrar \"Hola\"",
+                "mostrar \"Chau\""
+              ]
+            },
+            {
+              "tipo": "predecir",
+              "codigo": "mostrar \"Buen día\"",
+              "opciones": [
+                "Buen día",
+                "mostrar \"Buen día\"",
+                "\"Buen día\""
+              ],
+              "correcta": 0,
+              "pista": "Las comillas le dicen a la computadora dónde empieza y termina el texto, pero no se ven."
+            },
+            {
+              "tipo": "escribir",
+              "consigna": "Hacé que aparezca el texto Hola mundo.",
+              "forma": "mostrar \"tu texto\"",
+              "solucion": "mostrar \"Hola mundo\""
+            }
+          ]
+        },
+        {
+          "id": "texto-o-cuenta",
+          "titulo": "2. Texto o cuenta",
+          "pasos": [
+            {
+              "tipo": "explicacion",
+              "texto": "Con comillas, mostrar escribe el texto tal cual. Sin comillas, la computadora hace la cuenta.",
+              "codigo": "mostrar \"2 + 2\"\nmostrar 2 + 2"
+            },
+            {
+              "tipo": "predecir",
+              "codigo": "mostrar \"5 + 1\"",
+              "opciones": [
+                "5 + 1",
+                "6",
+                "51"
+              ],
+              "correcta": 0,
+              "pista": "Con comillas no se calcula nada: sale igual que lo escribiste."
+            },
+            {
+              "tipo": "predecir",
+              "codigo": "mostrar 5 + 1",
+              "opciones": [
+                "6",
+                "5 + 1",
+                "51"
+              ],
+              "correcta": 0,
+              "pista": "Sin comillas, la compu hace la cuenta."
+            },
+            {
+              "tipo": "elegir",
+              "pregunta": "¿Cómo hacés para que la compu calcule 4 + 4?",
+              "opciones": [
+                "mostrar 4 + 4",
+                "mostrar \"4 + 4\"",
+                "mostrar \"ocho\""
+              ],
+              "correcta": 0
+            },
+            {
+              "tipo": "completar",
+              "consigna": "Completá para que muestre 9.",
+              "codigo": "mostrar ___ + 4",
+              "fichas": [
+                "5",
+                "3",
+                "\"5\""
+              ],
+              "respuesta": [
+                "5"
+              ],
+              "salida": "9"
+            },
+            {
+              "tipo": "escribir",
+              "consigna": "Utiliza mostrar 7+3 con comillas y luego en el renglon de abajo sin comillas, veras la diferencia",
+              "solucion": "mostrar \"7 + 3\"\nmostrar 7 + 3"
+            }
+          ]
+        },
+        {
+          "id": "dos-lineas",
+          "titulo": "3. Dos líneas",
+          "pasos": [
+            {
+              "tipo": "explicacion",
+              "texto": "Cada mostrar escribe en una línea nueva. Así podés mostrar muchas cosas, una debajo de la otra.",
+              "codigo": "mostrar \"Uno\"\nmostrar \"Dos\""
+            },
+            {
+              "tipo": "predecir",
+              "codigo": "mostrar \"A\"\nmostrar \"B\"\nmostrar \"C\"",
+              "opciones": [
+                "A\nB\nC",
+                "ABC",
+                "A B C"
+              ],
+              "correcta": 0
+            },
+            {
+              "tipo": "completar",
+              "consigna": "Completá para mostrar Hola y después Chau.",
+              "codigo": "mostrar \"Hola\"\n___ \"Chau\"",
+              "fichas": [
+                "mostrar",
+                "Chau",
+                "sumar"
+              ],
+              "respuesta": [
+                "mostrar"
+              ],
+              "salida": "Hola\nChau"
+            },
+            {
+              "tipo": "ordenar",
+              "consigna": "Ordená las líneas para contar hasta tres.",
+              "lineas": [
+                "mostrar 1",
+                "mostrar 2",
+                "mostrar 3"
+              ]
+            },
+            {
+              "tipo": "escribir",
+              "consigna": "Mostrá Hola y, en la línea siguiente, Chau. Cada mostrar escribe una línea nueva.",
+              "solucion": "mostrar \"Hola\"\nmostrar \"Chau\""
+            }
+          ]
+        }
+      ]
+    },
+    {
+      "id": "variables",
+      "nivel": 2,
+      "titulo": "Variables",
+      "lecciones": [
+        {
+          "id": "tu-primera-variable",
+          "titulo": "4. Tu primera variable",
+          "pasos": [
+            {
+              "tipo": "explicacion",
+              "texto": "Una variable es una cajita con nombre donde guardás un dato. Con es le ponés valor: edad es 12.",
+              "codigo": "edad es 12\nmostrar edad"
+            },
+            {
+              "tipo": "elegir",
+              "pregunta": "¿Cómo guardás el número 7 en una variable llamada puntos?",
+              "opciones": [
+                "puntos es 7",
+                "7 es puntos",
+                "puntos 7 es"
+              ],
+              "correcta": 0
+            },
+            {
+              "tipo": "predecir",
+              "codigo": "edad es 12\nmostrar edad",
+              "opciones": [
+                "12",
+                "edad",
+                "\"edad\""
+              ],
+              "correcta": 0,
+              "pista": "Mostrar una variable escribe lo que guarda adentro."
+            },
+            {
+              "tipo": "predecir",
+              "codigo": "edad es 12\nmostrar \"edad\"",
+              "opciones": [
+                "edad",
+                "12",
+                "edad es 12"
+              ],
+              "correcta": 0,
+              "pista": "Con comillas es un texto, no la variable."
+            },
+            {
+              "tipo": "completar",
+              "consigna": "Completá para guardar 20 en la variable lugar y mostrarla.",
+              "codigo": "lugar ___ 20\nmostrar ___",
+              "fichas": [
+                "es",
+                "lugar",
+                "20"
+              ],
+              "respuesta": [
+                "es",
+                "lugar"
+              ],
+              "salida": "20"
+            },
+            {
+              "tipo": "escribir",
+              "consigna": "Guardá el número 12 en una variable llamada edad y mostrala.",
+              "forma": "edad es 12",
+              "nota": "Llama a la variable edad sin comillas",
+              "solucion": "edad es 12\nmostrar edad"
+            }
+          ]
+        },
+        {
+          "id": "variable-de-texto",
+          "titulo": "5. Variable de texto",
+          "pasos": [
+            {
+              "tipo": "explicacion",
+              "texto": "Una variable también puede guardar texto. El texto va entre comillas; el nombre de la variable, no.",
+              "codigo": "animal es \"gato\"\nmostrar animal"
+            },
+            {
+              "tipo": "elegir",
+              "pregunta": "¿Cuál guarda bien el texto Luna en la variable mascota?",
+              "opciones": [
+                "mascota es \"Luna\"",
+                "mascota es Luna",
+                "\"mascota\" es Luna"
+              ],
+              "correcta": 0
+            },
+            {
+              "tipo": "predecir",
+              "codigo": "animal es \"perro\"\nmostrar animal",
+              "opciones": [
+                "perro",
+                "animal",
+                "\"perro\""
+              ],
+              "correcta": 0
+            },
+            {
+              "tipo": "ordenar",
+              "consigna": "Ordená las líneas: primero guardás y después mostrás.",
+              "lineas": [
+                "comida es \"pizza\"",
+                "mostrar comida"
+              ]
+            },
+            {
+              "tipo": "completar",
+              "consigna": "Completá para guardar el texto frutilla y mostrarlo.",
+              "codigo": "sabor es ___\nmostrar sabor",
+              "fichas": [
+                "\"frutilla\"",
+                "frutilla",
+                "sabor"
+              ],
+              "respuesta": [
+                "\"frutilla\""
+              ],
+              "salida": "frutilla"
+            },
+            {
+              "tipo": "escribir",
+              "consigna": "Guardá el texto Juan en una variable llamada nombre y mostrala (el texto va con comillas).",
+              "solucion": "nombre es \"Juan\"\nmostrar nombre"
+            }
+          ]
+        },
+        {
+          "id": "dos-variables",
+          "titulo": "6. Dos variables",
+          "pasos": [
+            {
+              "tipo": "explicacion",
+              "texto": "Podés tener muchas variables, cada una con su nombre. Si le ponés otro valor a una, se olvida del anterior.",
+              "codigo": "a es 5\nb es 10\nmostrar b\nmostrar a"
+            },
+            {
+              "tipo": "predecir",
+              "codigo": "x es 3\ny es 4\nmostrar y",
+              "opciones": [
+                "4",
+                "3",
+                "7"
+              ],
+              "correcta": 0
+            },
+            {
+              "tipo": "predecir",
+              "codigo": "x es 3\ny es 4\nmostrar x\nmostrar y",
+              "opciones": [
+                "3\n4",
+                "4\n3",
+                "7"
+              ],
+              "correcta": 0
+            },
+            {
+              "tipo": "predecir",
+              "codigo": "n es 1\nn es 2\nmostrar n",
+              "opciones": [
+                "2",
+                "1",
+                "3"
+              ],
+              "correcta": 0,
+              "pista": "La variable se queda con el último valor que le pusiste."
+            },
+            {
+              "tipo": "ordenar",
+              "consigna": "Ordená las líneas para mostrar a y después b.",
+              "lineas": [
+                "a es 1",
+                "b es 2",
+                "mostrar a",
+                "mostrar b"
+              ]
+            },
+            {
+              "tipo": "escribir",
+              "consigna": "Creá a con 5 y b con 10, y mostrá cada una en su línea.",
+              "solucion": "a es 5\nb es 10\nmostrar a\nmostrar b"
+            }
+          ]
+        }
+      ]
+    },
+    {
+      "id": "preguntar",
+      "nivel": 3,
+      "titulo": "Preguntar",
+      "lecciones": [
+        {
+          "id": "pedir-el-nombre",
+          "titulo": "7. Pedir el nombre",
+          "pasos": [
+            {
+              "tipo": "explicacion",
+              "texto": "preguntar le hace una pregunta a la persona y espera lo que escriba. Lo que escriba se guarda en una variable.",
+              "codigo": "nombre es preguntar(\"¿Cómo te llamás? \")\nmostrar nombre",
+              "entradas_prueba": [
+                "Ana"
+              ]
+            },
+            {
+              "tipo": "elegir",
+              "pregunta": "¿Qué hace preguntar?",
+              "opciones": [
+                "Le pide un dato a la persona",
+                "Muestra un texto en pantalla",
+                "Guarda un número"
+              ],
+              "correcta": 0
+            },
+            {
+              "tipo": "predecir",
+              "codigo": "nombre es preguntar(\"¿Cómo te llamás? \")\nmostrar nombre",
+              "opciones": [
+                "Ana",
+                "nombre",
+                "¿Cómo te llamás?"
+              ],
+              "correcta": 0,
+              "pregunta": "La persona escribe Ana. ¿Qué muestra este programa?",
+              "entradas_prueba": [
+                "Ana"
+              ]
+            },
+            {
+              "tipo": "completar",
+              "consigna": "Completá para preguntar la edad y mostrarla.",
+              "codigo": "edad es ___(\"¿Cuántos años tenés? \")\nmostrar edad",
+              "fichas": [
+                "preguntar",
+                "mostrar",
+                "es"
+              ],
+              "respuesta": [
+                "preguntar"
+              ],
+              "salida": "11",
+              "entradas_prueba": [
+                "11"
+              ]
+            },
+            {
+              "tipo": "ordenar",
+              "consigna": "Ordená las líneas: primero preguntás y después mostrás.",
+              "lineas": [
+                "color es preguntar(\"¿Qué color te gusta? \")",
+                "mostrar color"
+              ],
+              "entradas_prueba": [
+                "rojo"
+              ]
+            },
+            {
+              "tipo": "escribir",
+              "consigna": "Pedí el nombre y mostralo.",
+              "forma": "nombre es preguntar(\"¿Cómo te llamás? \")",
+              "solucion": "nombre es preguntar(\"¿Cómo te llamás? \")\nmostrar nombre",
+              "entradas_prueba": [
+                "Ana"
+              ]
+            }
+          ]
+        },
+        {
+          "id": "saludo",
+          "titulo": "8. Saludo",
+          "pasos": [
+            {
+              "tipo": "explicacion",
+              "texto": "Con + pegás textos. mostrar \"Hola \" + nombre escribe Hola y después el nombre. Ojo con el espacio dentro de las comillas.",
+              "codigo": "nombre es \"Ana\"\nmostrar \"Hola \" + nombre"
+            },
+            {
+              "tipo": "predecir",
+              "codigo": "nombre es \"Leo\"\nmostrar \"Hola \" + nombre",
+              "opciones": [
+                "Hola Leo",
+                "Hola nombre",
+                "HolaLeo"
+              ],
+              "correcta": 0
+            },
+            {
+              "tipo": "predecir",
+              "codigo": "x es \"Buen\"\nmostrar x + \"día\"",
+              "opciones": [
+                "Buendía",
+                "Buen día",
+                "Buen + día"
+              ],
+              "correcta": 0,
+              "pista": "El + pega los textos tal cual: si no hay un espacio, no aparece."
+            },
+            {
+              "tipo": "completar",
+              "consigna": "Completá para pegar el saludo con el nombre.",
+              "codigo": "nombre es \"Lu\"\nmostrar \"Chau \" ___ nombre",
+              "fichas": [
+                "+",
+                "-",
+                "es"
+              ],
+              "respuesta": [
+                "+"
+              ],
+              "salida": "Chau Lu"
+            },
+            {
+              "tipo": "ordenar",
+              "consigna": "Ordená las líneas para preguntar el nombre y saludar.",
+              "lineas": [
+                "nombre es preguntar(\"¿Tu nombre? \")",
+                "mostrar \"Hola \" + nombre"
+              ],
+              "entradas_prueba": [
+                "Ana"
+              ]
+            },
+            {
+              "tipo": "escribir",
+              "consigna": "Pedí el nombre y mostrá Hola seguido del nombre (por ejemplo: Hola Juan). Los textos se pegan con +",
+              "solucion": "nombre es preguntar(\"¿Cómo te llamás? \")\nmostrar \"Hola \" + nombre",
+              "entradas_prueba": [
+                "Ana"
+              ]
+            }
+          ]
+        },
+        {
+          "id": "comida-favorita",
+          "titulo": "9. Comida favorita",
+          "pasos": [
+            {
+              "tipo": "explicacion",
+              "texto": "Podés juntar preguntar y + para armar frases con lo que escribe la persona.",
+              "codigo": "animal es preguntar(\"¿Qué animal te gusta? \")\nmostrar \"Me gusta el \" + animal",
+              "entradas_prueba": [
+                "gato"
+              ]
+            },
+            {
+              "tipo": "predecir",
+              "codigo": "comida es preguntar(\"¿Qué comés? \")\nmostrar \"Comés \" + comida",
+              "opciones": [
+                "Comés pizza",
+                "Comés comida",
+                "pizza"
+              ],
+              "correcta": 0,
+              "pregunta": "La persona escribe pizza. ¿Qué muestra?",
+              "entradas_prueba": [
+                "pizza"
+              ]
+            },
+            {
+              "tipo": "elegir",
+              "pregunta": "Querés que salga: Mi color es rojo. ¿Cómo escribís el texto de antes de la variable?",
+              "opciones": [
+                "\"Mi color es \"",
+                "\"Mi color es\"",
+                "Mi color es"
+              ],
+              "correcta": 0,
+              "pista": "Tiene que quedar un espacio antes de la variable, adentro de las comillas."
+            },
+            {
+              "tipo": "completar",
+              "consigna": "Completá para mostrar el sabor después del texto.",
+              "codigo": "sabor es preguntar(\"¿Qué sabor? \")\nmostrar \"Sabor: \" ___ sabor",
+              "fichas": [
+                "+",
+                "es",
+                "-"
+              ],
+              "respuesta": [
+                "+"
+              ],
+              "salida": "Sabor: menta",
+              "entradas_prueba": [
+                "menta"
+              ]
+            },
+            {
+              "tipo": "ordenar",
+              "consigna": "Ordená las líneas del programa.",
+              "lineas": [
+                "deporte es preguntar(\"¿Qué deporte? \")",
+                "mostrar \"Practicás \" + deporte",
+                "mostrar \"¡Muy bien!\""
+              ],
+              "entradas_prueba": [
+                "fútbol"
+              ]
+            },
+            {
+              "tipo": "escribir",
+              "consigna": "Pedí la comida favorita y mostrá: Mi comida favorita es: (y la comida)",
+              "solucion": "comida es preguntar(\"¿Cuál es tu comida favorita? \")\nmostrar \"Mi comida favorita es: \" + comida",
+              "entradas_prueba": [
+                "Ana"
+              ]
+            }
+          ]
+        }
+      ]
+    },
+    {
+      "id": "cuentas",
+      "nivel": 4,
+      "titulo": "Cuentas",
+      "lecciones": [
+        {
+          "id": "suma",
+          "titulo": "10. Suma",
+          "pasos": [
+            {
+              "tipo": "explicacion",
+              "texto": "La computadora hace cuentas: suma con + y resta con -. Si no ponés comillas, calcula.",
+              "codigo": "mostrar 2 + 2"
+            },
+            {
+              "tipo": "predecir",
+              "codigo": "mostrar 6 + 4",
+              "opciones": [
+                "10",
+                "64",
+                "6 + 4"
+              ],
+              "correcta": 0
+            },
+            {
+              "tipo": "elegir",
+              "pregunta": "¿Cuál muestra el resultado de 9 + 1?",
+              "opciones": [
+                "mostrar 9 + 1",
+                "mostrar \"9 + 1\"",
+                "mostrar 91"
+              ],
+              "correcta": 0
+            },
+            {
+              "tipo": "completar",
+              "consigna": "Completá para que muestre 9.",
+              "codigo": "mostrar 7 ___ 2",
+              "fichas": [
+                "+",
+                "-",
+                "es"
+              ],
+              "respuesta": [
+                "+"
+              ],
+              "salida": "9"
+            },
+            {
+              "tipo": "escribir",
+              "consigna": "Mostrá el resultado de 5 + 3 (sin comillas, así la cuenta la hace la compu).",
+              "solucion": "mostrar 5 + 3"
+            }
+          ]
+        },
+        {
+          "id": "resta-y-multiplicacion",
+          "titulo": "11. Resta y multiplicación",
+          "pasos": [
+            {
+              "tipo": "explicacion",
+              "texto": "Restás con -. Multiplicás con * (asterisco). Como en la calculadora.",
+              "codigo": "mostrar 8 - 5\nmostrar 3 * 3"
+            },
+            {
+              "tipo": "predecir",
+              "codigo": "mostrar 5 * 2",
+              "opciones": [
+                "10",
+                "7",
+                "52"
+              ],
+              "correcta": 0
+            },
+            {
+              "tipo": "predecir",
+              "codigo": "mostrar 9 - 4",
+              "opciones": [
+                "5",
+                "13",
+                "94"
+              ],
+              "correcta": 0
+            },
+            {
+              "tipo": "elegir",
+              "pregunta": "¿Qué símbolo usás para multiplicar?",
+              "opciones": [
+                "*",
+                "x",
+                "por"
+              ],
+              "correcta": 0
+            },
+            {
+              "tipo": "completar",
+              "consigna": "Completá para que muestre 18.",
+              "codigo": "mostrar 6 ___ 3",
+              "fichas": [
+                "*",
+                "+",
+                "-"
+              ],
+              "respuesta": [
+                "*"
+              ],
+              "salida": "18"
+            },
+            {
+              "tipo": "escribir",
+              "consigna": "Mostrá el resultado de 10 - 3 y, en la línea siguiente, el de 4 * 2 (el * es multiplicar).",
+              "solucion": "mostrar 10 - 3\nmostrar 4 * 2"
+            }
+          ]
+        },
+        {
+          "id": "sumar-variables",
+          "titulo": "12. Sumar variables",
+          "pasos": [
+            {
+              "tipo": "explicacion",
+              "texto": "También podés hacer cuentas con variables. La compu usa el valor que guardaste.",
+              "codigo": "x es 4\ny es 6\nmostrar x + y"
+            },
+            {
+              "tipo": "predecir",
+              "codigo": "a es 2\nb es 5\nmostrar a + b",
+              "opciones": [
+                "7",
+                "25",
+                "a + b"
+              ],
+              "correcta": 0
+            },
+            {
+              "tipo": "predecir",
+              "codigo": "n es 10\nmostrar n - 3",
+              "opciones": [
+                "7",
+                "13",
+                "n - 3"
+              ],
+              "correcta": 0
+            },
+            {
+              "tipo": "completar",
+              "consigna": "Completá para multiplicar las dos variables.",
+              "codigo": "a es 8\nb es 2\nmostrar a ___ b",
+              "fichas": [
+                "*",
+                "+",
+                "-"
+              ],
+              "respuesta": [
+                "*"
+              ],
+              "salida": "16"
+            },
+            {
+              "tipo": "escribir",
+              "consigna": "Guardá a con 5 y b con 7, y mostrá la suma de las dos variables.",
+              "solucion": "a es 5\nb es 7\nmostrar a + b"
+            }
+          ]
+        }
+      ]
+    },
+    {
+      "id": "condicionales",
+      "nivel": 5,
+      "titulo": "Condicionales",
+      "lecciones": [
+        {
+          "id": "si-es-grande",
+          "titulo": "13. Si es grande",
+          "pasos": [
+            {
+              "tipo": "explicacion",
+              "texto": "Con si la compu decide. Si la condición se cumple, hace lo que está abajo, corrido 4 espacios.",
+              "codigo": "edad es 12\nsi edad > 10:\n    mostrar \"Mayor de 10\""
+            },
+            {
+              "tipo": "predecir",
+              "codigo": "n es 3\nsi n > 5:\n    mostrar \"Sí\"\nmostrar \"Fin\"",
+              "opciones": [
+                "Fin",
+                "Sí\nFin",
+                "Sí"
+              ],
+              "correcta": 0,
+              "pista": "3 no es mayor que 5, así que el bloque del si no se ejecuta."
+            },
+            {
+              "tipo": "predecir",
+              "codigo": "n es 9\nsi n > 5:\n    mostrar \"Sí\"",
+              "opciones": [
+                "Sí",
+                "5",
+                "9"
+              ],
+              "correcta": 0
+            },
+            {
+              "tipo": "completar",
+              "consigna": "Completá para mostrar Grande.",
+              "codigo": "n es 20\n___ n > 10:\n    mostrar \"Grande\"",
+              "fichas": [
+                "si",
+                "sino",
+                "mostrar"
+              ],
+              "respuesta": [
+                "si"
+              ],
+              "salida": "Grande"
+            },
+            {
+              "tipo": "ordenar",
+              "consigna": "Ordená las líneas del programa.",
+              "lineas": [
+                "n es 15",
+                "si n > 10:",
+                "    mostrar \"Grande\""
+              ]
+            },
+            {
+              "tipo": "escribir",
+              "consigna": "Guardá n con 15. Si n es mayor que 10, mostrá Grande.",
+              "forma": "si n > 10:",
+              "nota": "(y abajo, corrido 4 espacios, lo que pasa)",
+              "solucion": "n es 15\nsi n > 10:\n    mostrar \"Grande\""
+            }
+          ]
+        },
+        {
+          "id": "par",
+          "titulo": "14. Par",
+          "pasos": [
+            {
+              "tipo": "explicacion",
+              "texto": "% da el resto de dividir. Un número es par si al dividirlo por 2 el resto es 0. Para comparar se usa ==.",
+              "codigo": "mostrar 7 % 2\nmostrar 8 % 2"
+            },
+            {
+              "tipo": "predecir",
+              "codigo": "mostrar 9 % 2",
+              "opciones": [
+                "1",
+                "4",
+                "0"
+              ],
+              "correcta": 0,
+              "pista": "9 dividido 2 da 4 y sobra 1."
+            },
+            {
+              "tipo": "predecir",
+              "codigo": "mostrar 10 % 5",
+              "opciones": [
+                "0",
+                "2",
+                "5"
+              ],
+              "correcta": 0
+            },
+            {
+              "tipo": "elegir",
+              "pregunta": "¿Cuál pregunta si n es par?",
+              "opciones": [
+                "si n % 2 == 0:",
+                "si n % 2 = 0:",
+                "si n + 2 == 0:"
+              ],
+              "correcta": 0
+            },
+            {
+              "tipo": "completar",
+              "consigna": "Completá para que diga Par.",
+              "codigo": "n es 6\nsi n % 2 ___ 0:\n    mostrar \"Par\"",
+              "fichas": [
+                "==",
+                "!=",
+                "+"
+              ],
+              "respuesta": [
+                "=="
+              ],
+              "salida": "Par"
+            },
+            {
+              "tipo": "escribir",
+              "consigna": "Guardá n con 4. Si n es par, mostrá Par. Un número es par si  n % 2 == 0  (el resto de dividir por 2 es 0).",
+              "solucion": "n es 4\nsi n % 2 == 0:\n    mostrar \"Par\""
+            }
+          ]
+        },
+        {
+          "id": "par-o-impar",
+          "titulo": "15. Par o impar",
+          "pasos": [
+            {
+              "tipo": "explicacion",
+              "texto": "sino es lo que pasa cuando la condición NO se cumple. Va a la misma altura que el si.",
+              "codigo": "edad es 8\nsi edad > 10:\n    mostrar \"Grande\"\nsino:\n    mostrar \"Chico\""
+            },
+            {
+              "tipo": "predecir",
+              "codigo": "n es 7\nsi n % 2 == 0:\n    mostrar \"Par\"\nsino:\n    mostrar \"Impar\"",
+              "opciones": [
+                "Impar",
+                "Par",
+                "Par\nImpar"
+              ],
+              "correcta": 0
+            },
+            {
+              "tipo": "predecir",
+              "codigo": "n es 12\nsi n > 10:\n    mostrar \"A\"\nsino:\n    mostrar \"B\"\nmostrar \"C\"",
+              "opciones": [
+                "A\nC",
+                "A",
+                "B\nC"
+              ],
+              "correcta": 0,
+              "pista": "La última línea no está dentro del si ni del sino: se muestra siempre."
+            },
+            {
+              "tipo": "completar",
+              "consigna": "Completá para mostrar Menor.",
+              "codigo": "n es 3\nsi n > 5:\n    mostrar \"Mayor\"\n___:\n    mostrar \"Menor\"",
+              "fichas": [
+                "sino",
+                "si",
+                "mostrar"
+              ],
+              "respuesta": [
+                "sino"
+              ],
+              "salida": "Menor"
+            },
+            {
+              "tipo": "ordenar",
+              "consigna": "Ordená las líneas del programa.",
+              "lineas": [
+                "n es 2",
+                "si n > 5:",
+                "    mostrar \"Mayor\"",
+                "sino:",
+                "    mostrar \"Menor\""
+              ]
+            },
+            {
+              "tipo": "escribir",
+              "consigna": "Guardá n con 5 y mostrá Par o Impar según corresponda.",
+              "forma": "sino:",
+              "nota": "(va a la misma altura que el si, y abajo lo que pasa si NO se cumple)",
+              "solucion": "n es 5\nsi n % 2 == 0:\n    mostrar \"Par\"\nsino:\n    mostrar \"Impar\""
+            }
+          ]
+        }
+      ]
+    },
+    {
+      "id": "repetir",
+      "nivel": 6,
+      "titulo": "Repetir",
+      "lecciones": [
+        {
+          "id": "repetir",
+          "titulo": "16. Repetir",
+          "pasos": [
+            {
+              "tipo": "explicacion",
+              "texto": "repetir hace lo mismo muchas veces. Escribís cuántas veces y abajo, corrido 4 espacios, lo que se repite.",
+              "codigo": "repetir 2 veces:\n    mostrar \"Hurra\""
+            },
+            {
+              "tipo": "predecir",
+              "codigo": "repetir 3 veces:\n    mostrar \"Ja\"",
+              "opciones": [
+                "Ja\nJa\nJa",
+                "Ja",
+                "JaJaJa"
+              ],
+              "correcta": 0
+            },
+            {
+              "tipo": "predecir",
+              "codigo": "repetir 2 veces:\n    mostrar \"A\"\nmostrar \"B\"",
+              "opciones": [
+                "A\nA\nB",
+                "A\nB\nA\nB",
+                "A\nB"
+              ],
+              "correcta": 0,
+              "pista": "Solo se repite lo que está corrido hacia la derecha."
+            },
+            {
+              "tipo": "completar",
+              "consigna": "Completá para mostrar Hola 4 veces.",
+              "codigo": "repetir ___ veces:\n    mostrar \"Hola\"",
+              "fichas": [
+                "4",
+                "2",
+                "10"
+              ],
+              "respuesta": [
+                "4"
+              ],
+              "salida": "Hola\nHola\nHola\nHola"
+            },
+            {
+              "tipo": "ordenar",
+              "consigna": "Ordená las líneas del programa.",
+              "lineas": [
+                "repetir 3 veces:",
+                "    mostrar \"Tortuga\""
+              ]
+            },
+            {
+              "tipo": "escribir",
+              "consigna": "Mostrá Hola 3 veces.",
+              "forma": "repetir 3 veces:",
+              "nota": "(y abajo, corrido 4 espacios, lo que se repite)",
+              "solucion": "repetir 3 veces:\n    mostrar \"Hola\""
+            }
+          ]
+        },
+        {
+          "id": "contador",
+          "titulo": "17. Contador",
+          "pasos": [
+            {
+              "tipo": "explicacion",
+              "texto": "Una variable puede cambiar en cada vuelta. n es n + 1 le suma 1 a n.",
+              "codigo": "n es 1\nrepetir 3 veces:\n    mostrar n\n    n es n + 1"
+            },
+            {
+              "tipo": "predecir",
+              "codigo": "n es 5\nrepetir 3 veces:\n    mostrar n\n    n es n + 1",
+              "opciones": [
+                "5\n6\n7",
+                "5\n5\n5",
+                "6\n7\n8"
+              ],
+              "correcta": 0
+            },
+            {
+              "tipo": "predecir",
+              "codigo": "n es 0\nrepetir 2 veces:\n    n es n + 10\nmostrar n",
+              "opciones": [
+                "20",
+                "10",
+                "0"
+              ],
+              "correcta": 0
+            },
+            {
+              "tipo": "completar",
+              "consigna": "Completá para contar 1, 2, 3.",
+              "codigo": "n es 1\nrepetir 3 veces:\n    mostrar n\n    n es ___ + 1",
+              "fichas": [
+                "n",
+                "mostrar",
+                "3"
+              ],
+              "respuesta": [
+                "n"
+              ],
+              "salida": "1\n2\n3"
+            },
+            {
+              "tipo": "elegir",
+              "pregunta": "¿Qué hace n es n + 1?",
+              "opciones": [
+                "Le suma 1 a n",
+                "Compara n con 1",
+                "Muestra n"
+              ],
+              "correcta": 0
+            },
+            {
+              "tipo": "escribir",
+              "consigna": "Contá del 1 al 5, un número por línea, usando repetir y una variable a la que le sumás 1 cada vuelta.",
+              "solucion": "contador es 1\nrepetir 5 veces:\n    mostrar contador\n    contador es contador + 1"
+            }
+          ]
+        },
+        {
+          "id": "sumar-en-un-bucle",
+          "titulo": "18. Sumar en un bucle",
+          "pasos": [
+            {
+              "tipo": "explicacion",
+              "texto": "Podés ir acumulando un total: empezás en 0 y en cada vuelta sumás algo. El total se muestra al final, afuera del repetir.",
+              "codigo": "total es 0\nrepetir 3 veces:\n    total es total + 2\nmostrar total"
+            },
+            {
+              "tipo": "predecir",
+              "codigo": "total es 0\nrepetir 4 veces:\n    total es total + 5\nmostrar total",
+              "opciones": [
+                "20",
+                "5",
+                "0"
+              ],
+              "correcta": 0
+            },
+            {
+              "tipo": "predecir",
+              "codigo": "total es 1\nrepetir 3 veces:\n    total es total * 2\nmostrar total",
+              "opciones": [
+                "8",
+                "6",
+                "2"
+              ],
+              "correcta": 0,
+              "pista": "Vuelta 1: 2. Vuelta 2: 4. Vuelta 3: 8."
+            },
+            {
+              "tipo": "completar",
+              "consigna": "Completá para mostrar el total.",
+              "codigo": "suma es 0\nrepetir 3 veces:\n    suma es suma + 1\nmostrar ___",
+              "fichas": [
+                "suma",
+                "3",
+                "repetir"
+              ],
+              "respuesta": [
+                "suma"
+              ],
+              "salida": "3"
+            },
+            {
+              "tipo": "elegir",
+              "pregunta": "¿Por qué mostrar total va sin corrimiento, después del repetir?",
+              "opciones": [
+                "Para mostrarlo una sola vez, al final",
+                "Porque es opcional",
+                "Porque va siempre primero"
+              ],
+              "correcta": 0
+            },
+            {
+              "tipo": "escribir",
+              "consigna": "Sumá los números del 1 al 5 con un bucle y mostrá solo el total al final.",
+              "solucion": "suma es 0\ncontador es 1\nrepetir 5 veces:\n    suma es suma + contador\n    contador es contador + 1\nmostrar suma"
+            }
+          ]
+        }
+      ]
+    },
+    {
+      "id": "funciones",
+      "nivel": 7,
+      "titulo": "Funciones",
+      "lecciones": [
+        {
+          "id": "tu-primera-funcion",
+          "titulo": "19. Tu primera función",
+          "pasos": [
+            {
+              "tipo": "explicacion",
+              "texto": "Una función es un grupo de órdenes con nombre. La definís una vez con la palabra \"funcion\" y la usás cuando quieras.",
+              "codigo": "funcion aplaudir():\n    mostrar \"Clap clap\"\n\naplaudir()\naplaudir()"
+            },
+            {
+              "tipo": "predecir",
+              "codigo": "funcion decir_hola():\n    mostrar \"Hola\"\n\ndecir_hola()",
+              "opciones": [
+                "Hola",
+                "decir_hola",
+                "Nada"
+              ],
+              "correcta": 0
+            },
+            {
+              "tipo": "predecir",
+              "codigo": "funcion decir_hola():\n    mostrar \"Hola\"\n\nmostrar \"Fin\"",
+              "opciones": [
+                "Fin",
+                "Hola\nFin",
+                "Hola"
+              ],
+              "correcta": 0,
+              "pista": "Definir una función no la ejecuta: hay que llamarla."
+            },
+            {
+              "tipo": "explicacion",
+              "texto": "Entre paréntesis va el dato que recibe la función. Cada vez que la llamás, le das un dato distinto.",
+              "codigo": "funcion saludar(nombre):\n    mostrar \"Hola \" + nombre\n\nsaludar(\"Leo\")"
+            },
+            {
+              "tipo": "completar",
+              "consigna": "Completá la llamada para saludar a Leo.",
+              "codigo": "funcion saludar(nombre):\n    mostrar \"Hola \" + nombre\n\nsaludar(___)",
+              "fichas": [
+                "\"Leo\"",
+                "nombre",
+                "funcion"
+              ],
+              "respuesta": [
+                "\"Leo\""
+              ],
+              "salida": "Hola Leo"
+            },
+            {
+              "tipo": "ordenar",
+              "consigna": "Ordená las líneas para saludar a Ana.",
+              "lineas": [
+                "funcion saludar(nombre):",
+                "    mostrar \"Hola \" + nombre",
+                "saludar(\"Ana\")"
+              ]
+            },
+            {
+              "tipo": "escribir",
+              "consigna": "Creá la función saludar(nombre) que muestre Hola + nombre, y llamala con \"Ana\".",
+              "forma": "funcion saludar(nombre):",
+              "solucion": "funcion saludar(nombre):\n    mostrar \"Hola \" + nombre\n\nsaludar(\"Ana\")"
+            }
+          ]
+        },
+        {
+          "id": "funcion-con-dos-datos",
+          "titulo": "20. Función con dos datos",
+          "pasos": [
+            {
+              "tipo": "explicacion",
+              "texto": "Una función puede recibir más de un dato. Los separás con coma.",
+              "codigo": "funcion sumar(a, b):\n    mostrar a + b\n\nsumar(2, 5)"
+            },
+            {
+              "tipo": "predecir",
+              "codigo": "funcion multiplicar(a, b):\n    mostrar a * b\n\nmultiplicar(3, 4)",
+              "opciones": [
+                "12",
+                "7",
+                "34"
+              ],
+              "correcta": 0
+            },
+            {
+              "tipo": "predecir",
+              "codigo": "funcion restar(a, b):\n    mostrar a - b\n\nrestar(9, 4)",
+              "opciones": [
+                "5",
+                "13",
+                "4"
+              ],
+              "correcta": 0,
+              "pista": "El primer dato es a y el segundo es b."
+            },
+            {
+              "tipo": "completar",
+              "consigna": "Completá la llamada para que muestre 30.",
+              "codigo": "funcion sumar(a, b):\n    mostrar a + b\n\nsumar(___, ___)",
+              "fichas": [
+                "10",
+                "20",
+                "30",
+                "sumar"
+              ],
+              "respuesta": [
+                "10",
+                "20"
+              ],
+              "salida": "30"
+            },
+            {
+              "tipo": "elegir",
+              "pregunta": "¿Qué separa los datos entre paréntesis?",
+              "opciones": [
+                "Una coma",
+                "Un punto",
+                "Un signo más"
+              ],
+              "correcta": 0
+            },
+            {
+              "tipo": "escribir",
+              "consigna": "Creá la función sumar(a, b) que muestre la suma, y llamala con 3 y 4.",
+              "solucion": "funcion sumar(a, b):\n    mostrar a + b\n\nsumar(3, 4)"
+            }
+          ]
+        },
+        {
+          "id": "funcion-que-devuelve",
+          "titulo": "21. Función que devuelve",
+          "pasos": [
+            {
+              "tipo": "explicacion",
+              "texto": "Una función también puede devolver un resultado con devolver. Después lo podés mostrar o guardar.",
+              "codigo": "funcion triple(n):\n    devolver n * 3\n\nmostrar triple(4)"
+            },
+            {
+              "tipo": "predecir",
+              "codigo": "funcion mas_uno(n):\n    devolver n + 1\n\nmostrar mas_uno(9)",
+              "opciones": [
+                "10",
+                "9",
+                "mas_uno"
+              ],
+              "correcta": 0
+            },
+            {
+              "tipo": "predecir",
+              "codigo": "funcion mas_uno(n):\n    devolver n + 1\n\nx es mas_uno(1)\nmostrar x",
+              "opciones": [
+                "2",
+                "1",
+                "x"
+              ],
+              "correcta": 0
+            },
+            {
+              "tipo": "elegir",
+              "pregunta": "¿Qué hace devolver?",
+              "opciones": [
+                "Entrega un resultado para usarlo afuera",
+                "Escribe el resultado en pantalla",
+                "Repite la función"
+              ],
+              "correcta": 0
+            },
+            {
+              "tipo": "completar",
+              "consigna": "Completá para que devuelva el doble.",
+              "codigo": "funcion doble(n):\n    ___ n * 2\n\nmostrar doble(6)",
+              "fichas": [
+                "devolver",
+                "mostrar",
+                "funcion"
+              ],
+              "respuesta": [
+                "devolver"
+              ],
+              "salida": "12"
+            },
+            {
+              "tipo": "escribir",
+              "consigna": "Creá la función doble(n) que DEVUELVA el doble, y mostrá doble(5).",
+              "forma": "devolver n * 2",
+              "solucion": "funcion doble(n):\n    devolver n * 2\n\nmostrar doble(5)"
+            }
+          ]
+        }
+      ]
+    },
+    {
+      "id": "desafios",
+      "nivel": 8,
+      "titulo": "Desafíos",
+      "lecciones": [
+        {
+          "id": "saludo-repetido",
+          "titulo": "22. Saludo repetido",
+          "pasos": [
+            {
+              "tipo": "explicacion",
+              "texto": "Podés combinar lo que aprendiste: una variable con un texto, dentro de un repetir.",
+              "codigo": "animal es \"gato\"\nrepetir 2 veces:\n    mostrar \"Un \" + animal"
+            },
+            {
+              "tipo": "predecir",
+              "codigo": "n es \"Lu\"\nrepetir 3 veces:\n    mostrar \"Hola \" + n",
+              "opciones": [
+                "Hola Lu\nHola Lu\nHola Lu",
+                "Hola Lu",
+                "Hola n\nHola n\nHola n"
+              ],
+              "correcta": 0
+            },
+            {
+              "tipo": "ordenar",
+              "consigna": "Ordená las líneas del programa.",
+              "lineas": [
+                "nombre es \"Ana\"",
+                "repetir 2 veces:",
+                "    mostrar \"Hola \" + nombre"
+              ]
+            },
+            {
+              "tipo": "completar",
+              "consigna": "Completá para mostrar Chau Leo 3 veces.",
+              "codigo": "nombre es \"Leo\"\nrepetir ___ veces:\n    mostrar \"Chau \" + nombre",
+              "fichas": [
+                "3",
+                "nombre",
+                "mostrar"
+              ],
+              "respuesta": [
+                "3"
+              ],
+              "salida": "Chau Leo\nChau Leo\nChau Leo"
+            },
+            {
+              "tipo": "escribir",
+              "consigna": "Guardá el nombre Ana y mostrá Hola Ana 3 veces (variable + repetir).",
+              "solucion": "nombre es \"Ana\"\nrepetir 3 veces:\n    mostrar \"Hola \" + nombre"
+            }
+          ]
+        },
+        {
+          "id": "el-mayor",
+          "titulo": "23. El mayor",
+          "pasos": [
+            {
+              "tipo": "explicacion",
+              "texto": "Con si y sino podés comparar dos variables y elegir una.",
+              "codigo": "x es 4\ny es 9\nsi x > y:\n    mostrar x\nsino:\n    mostrar y"
+            },
+            {
+              "tipo": "predecir",
+              "codigo": "a es 10\nb es 3\nsi a > b:\n    mostrar \"a gana\"\nsino:\n    mostrar \"b gana\"",
+              "opciones": [
+                "a gana",
+                "b gana",
+                "10"
+              ],
+              "correcta": 0
+            },
+            {
+              "tipo": "predecir",
+              "codigo": "a es 2\nb es 2\nsi a > b:\n    mostrar \"a\"\nsino:\n    mostrar \"b\"",
+              "opciones": [
+                "b",
+                "a",
+                "a\nb"
+              ],
+              "correcta": 0,
+              "pista": "2 no es mayor que 2: la condición es falsa y se ejecuta el sino."
+            },
+            {
+              "tipo": "completar",
+              "consigna": "Completá para mostrar el mayor.",
+              "codigo": "a es 6\nb es 1\nsi a ___ b:\n    mostrar a\nsino:\n    mostrar b",
+              "fichas": [
+                ">",
+                "<",
+                "+"
+              ],
+              "respuesta": [
+                ">"
+              ],
+              "salida": "6"
+            },
+            {
+              "tipo": "escribir",
+              "consigna": "Guardá a con 5 y b con 8, y mostrá el mayor de los dos usando si y sino.",
+              "solucion": "a es 5\nb es 8\nsi a > b:\n    mostrar a\nsino:\n    mostrar b"
+            }
+          ]
+        },
+        {
+          "id": "tabla-del-2",
+          "titulo": "24. Tabla del 2",
+          "pasos": [
+            {
+              "tipo": "explicacion",
+              "texto": "Las tablas salen con un contador: n * contador cambia en cada vuelta.",
+              "codigo": "n es 3\ncontador es 1\nrepetir 3 veces:\n    mostrar n * contador\n    contador es contador + 1"
+            },
+            {
+              "tipo": "predecir",
+              "codigo": "n es 5\nc es 1\nrepetir 3 veces:\n    mostrar n * c\n    c es c + 1",
+              "opciones": [
+                "5\n10\n15",
+                "5\n5\n5",
+                "5\n6\n7"
+              ],
+              "correcta": 0
+            },
+            {
+              "tipo": "completar",
+              "consigna": "Completá para mostrar la tabla del 4.",
+              "codigo": "n es 4\ncontador es 1\nrepetir 3 veces:\n    mostrar n * ___\n    contador es contador + 1",
+              "fichas": [
+                "contador",
+                "n",
+                "4"
+              ],
+              "respuesta": [
+                "contador"
+              ],
+              "salida": "4\n8\n12"
+            },
+            {
+              "tipo": "ordenar",
+              "consigna": "Ordená las líneas de la tabla del 2.",
+              "lineas": [
+                "n es 2",
+                "contador es 1",
+                "repetir 3 veces:",
+                "    mostrar n * contador",
+                "    contador es contador + 1"
+              ]
+            },
+            {
+              "tipo": "escribir",
+              "consigna": "Mostrá la tabla del 2 del 1 al 5: 2, 4, 6, 8 y 10, uno por línea (repetir + contador).",
+              "solucion": "n es 2\ncontador es 1\nrepetir 5 veces:\n    mostrar n * contador\n    contador es contador + 1"
+            }
+          ]
+        },
+        {
+          "id": "cuenta-regresiva",
+          "titulo": "25. Cuenta regresiva",
+          "pasos": [
+            {
+              "tipo": "explicacion",
+              "texto": "Para contar para atrás, en vez de sumar 1 restás 1 en cada vuelta.",
+              "codigo": "n es 3\nrepetir 3 veces:\n    mostrar n\n    n es n - 1\nmostrar \"Listo\""
+            },
+            {
+              "tipo": "predecir",
+              "codigo": "n es 4\nrepetir 2 veces:\n    mostrar n\n    n es n - 1",
+              "opciones": [
+                "4\n3",
+                "4\n4",
+                "3\n2"
+              ],
+              "correcta": 0
+            },
+            {
+              "tipo": "predecir",
+              "codigo": "n es 2\nrepetir 2 veces:\n    n es n - 1\nmostrar n",
+              "opciones": [
+                "0",
+                "2",
+                "1"
+              ],
+              "correcta": 0
+            },
+            {
+              "tipo": "completar",
+              "consigna": "Completá para contar 3, 2, 1.",
+              "codigo": "n es 3\nrepetir 3 veces:\n    mostrar n\n    n es n ___ 1",
+              "fichas": [
+                "-",
+                "+",
+                "*"
+              ],
+              "respuesta": [
+                "-"
+              ],
+              "salida": "3\n2\n1"
+            },
+            {
+              "tipo": "elegir",
+              "pregunta": "Querés mostrar \"Despegue\" una sola vez, al final. ¿Cómo lo escribís?",
+              "opciones": [
+                "Sin corrimiento, después del repetir",
+                "Corrido 4 espacios, dentro del repetir",
+                "No se puede"
+              ],
+              "correcta": 0
+            },
+            {
+              "tipo": "escribir",
+              "consigna": "Mostrá 5, 4, 3, 2 y 1 (uno por línea) y al final Despegue (repetir + restar 1).",
+              "solucion": "n es 5\nrepetir 5 veces:\n    mostrar n\n    n es n - 1\nmostrar \"Despegue\""
+            }
+          ]
+        },
+        {
+          "id": "texto-y-numeros",
+          "titulo": "26. Texto y números",
+          "pasos": [
+            {
+              "tipo": "explicacion",
+              "texto": "mostrar puede recibir varias cosas separadas por comas. Las escribe una al lado de la otra, con un espacio en el medio.",
+              "codigo": "animal es \"gato\"\npatas es 4\nmostrar animal, \"tiene\", patas, \"patas\""
+            },
+            {
+              "tipo": "predecir",
+              "codigo": "a es \"Lu\"\nb es 9\nmostrar a, \"tiene\", b",
+              "opciones": [
+                "Lu tiene 9",
+                "Lutiene9",
+                "a tiene b"
+              ],
+              "correcta": 0
+            },
+            {
+              "tipo": "predecir",
+              "codigo": "mostrar \"Suma:\", 2 + 3",
+              "opciones": [
+                "Suma: 5",
+                "5",
+                "Suma: 2 + 3"
+              ],
+              "correcta": 0
+            },
+            {
+              "tipo": "completar",
+              "consigna": "Completá para mostrar el texto y el número.",
+              "codigo": "n es 7\nmostrar \"El número es\" ___ n",
+              "fichas": [
+                ",",
+                "+",
+                "-"
+              ],
+              "respuesta": [
+                ","
+              ],
+              "salida": "El número es 7"
+            },
+            {
+              "tipo": "escribir",
+              "consigna": "Guardá nombre con Ana y edad con 11, y mostrá: Ana tiene 11 años. Tip: mostrar puede recibir varias cosas separadas por comas.",
+              "solucion": "nombre es \"Ana\"\nedad es 11\nmostrar nombre, \"tiene\", edad, \"años\""
+            }
+          ]
+        },
+        {
+          "id": "solo-los-pares",
+          "titulo": "27. Solo los pares",
+          "pasos": [
+            {
+              "tipo": "explicacion",
+              "texto": "Podés poner un si adentro de un repetir. Así, en cada vuelta, la compu decide qué hacer.",
+              "codigo": "n es 1\nrepetir 4 veces:\n    si n > 2:\n        mostrar n\n    n es n + 1"
+            },
+            {
+              "tipo": "predecir",
+              "codigo": "n es 1\nrepetir 3 veces:\n    si n == 2:\n        mostrar \"dos\"\n    n es n + 1",
+              "opciones": [
+                "dos",
+                "dos\ndos\ndos",
+                "1\n2\n3"
+              ],
+              "correcta": 0
+            },
+            {
+              "tipo": "predecir",
+              "codigo": "n es 1\nrepetir 4 veces:\n    si n % 2 == 0:\n        mostrar n\n    n es n + 1",
+              "opciones": [
+                "2\n4",
+                "1\n3",
+                "1\n2\n3\n4"
+              ],
+              "correcta": 0
+            },
+            {
+              "tipo": "completar",
+              "consigna": "Completá para mostrar los pares del 1 al 6.",
+              "codigo": "n es 1\nrepetir 6 veces:\n    si n % 2 == 0:\n        mostrar n\n    n es n ___ 1",
+              "fichas": [
+                "+",
+                "-",
+                "*"
+              ],
+              "respuesta": [
+                "+"
+              ],
+              "salida": "2\n4\n6"
+            },
+            {
+              "tipo": "ordenar",
+              "consigna": "Ordená las líneas del programa.",
+              "lineas": [
+                "n es 1",
+                "repetir 4 veces:",
+                "    si n % 2 == 0:",
+                "        mostrar n",
+                "    n es n + 1"
+              ]
+            },
+            {
+              "tipo": "escribir",
+              "consigna": "Del 1 al 10, mostrá solo los números pares, uno por línea (repetir + si).",
+              "solucion": "n es 1\nrepetir 10 veces:\n    si n % 2 == 0:\n        mostrar n\n    n es n + 1"
+            }
+          ]
+        },
+        {
+          "id": "contrasena",
+          "titulo": "28. Contraseña",
+          "pasos": [
+            {
+              "tipo": "explicacion",
+              "texto": "== compara dos cosas y dice si son iguales. Sirve también para textos, por ejemplo una contraseña.",
+              "codigo": "clave es \"sol\"\nsi clave == \"sol\":\n    mostrar \"Entrá\"\nsino:\n    mostrar \"No entrás\""
+            },
+            {
+              "tipo": "predecir",
+              "codigo": "clave es \"luna\"\nsi clave == \"sol\":\n    mostrar \"Entrá\"\nsino:\n    mostrar \"No entrás\"",
+              "opciones": [
+                "No entrás",
+                "Entrá",
+                "luna"
+              ],
+              "correcta": 0
+            },
+            {
+              "tipo": "predecir",
+              "codigo": "palabra es \"Sol\"\nsi palabra == \"sol\":\n    mostrar \"Igual\"\nsino:\n    mostrar \"Distinta\"",
+              "opciones": [
+                "Distinta",
+                "Igual",
+                "Sol"
+              ],
+              "correcta": 0,
+              "pista": "Las mayúsculas cuentan: Sol y sol son textos distintos."
+            },
+            {
+              "tipo": "completar",
+              "consigna": "Completá para que diga Correcto.",
+              "codigo": "clave es \"abc\"\nsi clave ___ \"abc\":\n    mostrar \"Correcto\"\nsino:\n    mostrar \"Incorrecto\"",
+              "fichas": [
+                "==",
+                "!=",
+                ">"
+              ],
+              "respuesta": [
+                "=="
+              ],
+              "salida": "Correcto"
+            },
+            {
+              "tipo": "elegir",
+              "pregunta": "¿Cuál compara si la clave es igual a \"pez\"?",
+              "opciones": [
+                "si clave == \"pez\":",
+                "si clave = \"pez\":",
+                "si \"pez\" clave:"
+              ],
+              "correcta": 0
+            },
+            {
+              "tipo": "escribir",
+              "consigna": "Guardá clave con \"tortuga\". Si la clave es tortuga, mostrá Correcto; si no, mostrá Incorrecto.",
+              "solucion": "clave es \"tortuga\"\nsi clave == \"tortuga\":\n    mostrar \"Correcto\"\nsino:\n    mostrar \"Incorrecto\""
+            }
+          ]
+        },
+        {
+          "id": "mientras",
+          "titulo": "29. Mientras",
+          "pasos": [
+            {
+              "tipo": "explicacion",
+              "texto": "mientras repite MIENTRAS la condición se cumpla. Adentro hay que cambiar la variable: si no, nunca termina.",
+              "codigo": "n es 1\nmientras n <= 2:\n    mostrar n\n    n es n + 1"
+            },
+            {
+              "tipo": "predecir",
+              "codigo": "n es 1\nmientras n <= 3:\n    mostrar \"Hola\"\n    n es n + 1",
+              "opciones": [
+                "Hola\nHola\nHola",
+                "Hola",
+                "Hola\nHola"
+              ],
+              "correcta": 0
+            },
+            {
+              "tipo": "predecir",
+              "codigo": "n es 10\nmientras n > 8:\n    mostrar n\n    n es n - 1",
+              "opciones": [
+                "10\n9",
+                "10\n9\n8",
+                "9\n8"
+              ],
+              "correcta": 0
+            },
+            {
+              "tipo": "completar",
+              "consigna": "Completá para mostrar 1, 2 y 3.",
+              "codigo": "n es 1\nmientras n ___ 3:\n    mostrar n\n    n es n + 1",
+              "fichas": [
+                "<=",
+                "<",
+                ">"
+              ],
+              "respuesta": [
+                "<="
+              ],
+              "salida": "1\n2\n3"
+            },
+            {
+              "tipo": "elegir",
+              "pregunta": "¿Qué pasa si te olvidás de cambiar n adentro del mientras?",
+              "opciones": [
+                "Nunca termina (hay que frenarlo)",
+                "Termina enseguida",
+                "Muestra un error de suma"
+              ],
+              "correcta": 0
+            },
+            {
+              "tipo": "escribir",
+              "consigna": "Mostrá los números del 1 al 3 usando mientras (repite MIENTRAS la condición se cumpla).",
+              "forma": "mientras n <= 3:",
+              "solucion": "n es 1\nmientras n <= 3:\n    mostrar n\n    n es n + 1"
+            }
+          ]
+        },
+        {
+          "id": "desafio-final",
+          "titulo": "30. Desafío final",
+          "pasos": [
+            {
+              "tipo": "explicacion",
+              "texto": "¡Último desafío! Vas a juntar todo: una función con un si y un sino adentro. Cada bloque va corrido 4 espacios más.",
+              "codigo": "funcion signo(n):\n    si n > 0:\n        mostrar \"Positivo\"\n    sino:\n        mostrar \"Cero o negativo\"\n\nsigno(5)\nsigno(0)"
+            },
+            {
+              "tipo": "predecir",
+              "codigo": "funcion signo(n):\n    si n > 0:\n        mostrar \"Positivo\"\n    sino:\n        mostrar \"Cero o negativo\"\n\nsigno(-3)",
+              "opciones": [
+                "Cero o negativo",
+                "Positivo",
+                "-3"
+              ],
+              "correcta": 0
+            },
+            {
+              "tipo": "ordenar",
+              "consigna": "Ordená las líneas para saber si 4 es par.",
+              "lineas": [
+                "funcion es_par(n):",
+                "    si n % 2 == 0:",
+                "        mostrar \"Sí\"",
+                "    sino:",
+                "        mostrar \"No\"",
+                "es_par(4)"
+              ]
+            },
+            {
+              "tipo": "completar",
+              "consigna": "Completá para que devuelva el doble.",
+              "codigo": "funcion doble(n):\n    devolver ___\n\nmostrar doble(4)",
+              "fichas": [
+                "n * 2",
+                "n",
+                "doble"
+              ],
+              "respuesta": [
+                "n * 2"
+              ],
+              "salida": "8"
+            },
+            {
+              "tipo": "escribir",
+              "consigna": "Creá la función par_o_impar(n) que muestre Par o Impar, y llamala con 7 y después con 10.",
+              "solucion": "funcion par_o_impar(n):\n    si n % 2 == 0:\n        mostrar \"Par\"\n    sino:\n        mostrar \"Impar\"\n\npar_o_impar(7)\npar_o_impar(10)"
+            }
+          ]
+        }
+      ]
+    }
+  ]
+}

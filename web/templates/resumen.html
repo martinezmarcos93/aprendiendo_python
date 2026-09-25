@@ -1,0 +1,82 @@
+{% extends "base.html" %}
+{% block titulo %}Resumen de hoy{% endblock %}
+{% block contenido %}
+<div class="columna-angosta">
+  <h1>📊 Resumen de hoy</h1>
+
+  <section class="tarjeta centrado">
+    <div class="tenue">{{ '🔥' if racha >= 3 else ('⭐' if racha >= 1 else '💤') }} Racha actual</div>
+    <div class="gigante {{ 'racha-alta' if racha >= 3 else ('racha-media' if racha >= 1 else 'tenue') }}">
+      {{ racha }} día{{ 's' if racha != 1 }}
+    </div>
+    <div class="tenue">Mejor racha: {{ racha_max }} día{{ 's' if racha_max != 1 }}</div>
+    {% if not jugo_hoy %}
+      <div class="aviso-racha">⚠️ Todavía no completaste ningún ejercicio hoy: ¡así mantenés tu racha!</div>
+    {% endif %}
+    <div class="calendario" aria-label="Últimos 7 días">
+      <span class="tenue">Últimos 7 días:</span>
+      {% for d in calendario %}
+        <span class="dia {{ 'activo' if d.activo }} {{ 'hoy' if d.hoy }} {{ 'congelado' if d.congelado }}" title="{{ d.fecha }}{{ ' (hoy)' if d.hoy }}{{ ' — programaste' if d.activo }}{{ ' — un congelador salvó este día' if d.congelado }}">{{ '❄' if d.congelado else d.dia }}</span>
+      {% endfor %}
+    </div>
+    <div class="reto-resumen">
+      <b>Reto de 7 días</b>
+      <div class="puntos-reto" role="img" aria-label="{{ estado.reto_dias }} de {{ estado.reto_total }} días">
+        {% for i in range(estado.reto_total) %}<span class="punto {{ 'lleno' if i < estado.reto_dias }}"></span>{% endfor %}
+      </div>
+      <span class="tenue">Cada {{ estado.reto_total }} días seguidos ganás un congelador ❄️ que salva tu racha si faltás un día.</span>
+      <div>❄️ Congeladores guardados: <b>{{ estado.congeladores }}</b> (máximo 2){% if estado.racha_protegida %} · <b class="verde-t">hoy tu racha está protegida</b>{% endif %}</div>
+    </div>
+  </section>
+
+  <section class="tarjeta centrado">
+    <h2 class="morado-t">{{ estado.titulo }} — Nivel {{ estado.nivel }}</h2>
+    <div class="tenue">{{ estado.xp }} XP totales ({{ estado.xp_actual }}/{{ estado.xp_max }} para el siguiente nivel)</div>
+    <div class="barra-larga"><span style="width: {{ (100 * estado.xp_actual / estado.xp_max)|round|int }}%"></span></div>
+  </section>
+
+  <section class="tarjeta meta-diaria" id="meta-diaria">
+    <div class="anillo" style="--pct: {{ estado.meta_pct }}" role="img" aria-label="Meta diaria: {{ estado.meta_pct }} por ciento"><span>{{ estado.meta_pct }}%</span></div>
+    <div>
+      <h2>🎯 Meta de hoy</h2>
+      <p class="tenue" style="margin:0 0 .5rem">{{ estado.xp_hoy }} / {{ estado.meta_xp }} XP{% if estado.meta_pct >= 100 %} · <b class="verde-t">¡cumplida!</b>{% endif %}</p>
+      <div class="metas" role="radiogroup" aria-label="Cambiar la meta diaria">
+        {% for m in metas %}<button type="button" class="boton chico {{ 'violeta' if m == estado.meta_min }}" data-meta="{{ m }}" role="radio" aria-checked="{{ 'true' if m == estado.meta_min else 'false' }}">{{ m }} min</button>{% endfor %}
+      </div>
+    </div>
+  </section>
+
+  <section class="tarjeta">
+    <div class="fila"><h2 style="margin:0">🏆 Logros</h2><span class="espacio"></span>
+      <a class="boton chico" href="{{ url_for('pagina_logros') }}">Ver todos ({{ estado.logros_ganados }}/{{ estado.logros_total }})</a></div>
+    {% if recientes %}
+      <div class="etiquetas">{% for l in recientes %}<span class="concepto">{{ l.icono }} {{ l.titulo }}</span>{% endfor %}</div>
+    {% else %}<p class="tenue">Todavía no ganaste ninguno: ¡el primero llega enseguida!</p>{% endif %}
+    <p style="margin:.4rem 0 0"><a href="{{ url_for('pagina_liga') }}">{{ estado.liga.icono }} Liga {{ estado.liga.liga }}: puesto {{ estado.liga.puesto }} de {{ estado.liga.tamano }}</a></p>
+  </section>
+
+  <section class="tarjeta">
+    <h2>📚 Conceptos practicados hoy</h2>
+    {% if not hoy.conceptos %}
+      <p class="tenue">Todavía no completaste ningún ejercicio hoy.</p>
+    {% else %}
+      <div class="etiquetas">{% for c in hoy.conceptos %}<span class="concepto">✓ {{ c }}</span>{% endfor %}</div>
+      <p class="verde-t"><b>+{{ hoy.xp_ganado_hoy }} XP ganados hoy</b></p>
+    {% endif %}
+  </section>
+
+  {% if hoy.completados %}
+  <section class="tarjeta">
+    <h2>🏅 Ejercicios de hoy ({{ hoy.completados|length }})</h2>
+    <ul class="filas">
+      {% for c in hoy.completados %}
+        <li><span>{{ c.titulo }}</span><span class="amarillo-t">{{ estrellas_texto(c.estrellas) }}</span><span class="tenue">+{{ c.xp }} XP</span></li>
+      {% endfor %}
+    </ul>
+  </section>
+  {% endif %}
+
+  <div class="acciones"><a class="boton verde grande" href="{{ url_for('ejercicios_siguiente') }}">▶ Seguir aprendiendo</a></div>
+</div>
+{% endblock %}
+{% block scripts %}<script src="{{ url_for('static', filename='js/resumen.js') }}"></script>{% endblock %}

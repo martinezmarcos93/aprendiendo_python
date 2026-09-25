@@ -1,0 +1,87 @@
+{% extends "base.html" %}
+{% block titulo %}Inicio{% endblock %}
+{% block contenido %}
+<section class="hero">
+  <div class="tarjeta">
+    <div class="fila">
+      <div class="mascota">🐢</div>
+      <div>
+        <h1>¡Hola, {{ estado.nombre }}!</h1>
+        <p class="tenue">Aprendé a programar de a poco, en español, y mirá cómo se convierte en Python de verdad.</p>
+      </div>
+    </div>
+    <div class="mini-stats">
+      <div><b>{{ estado.lecciones_hechas }}/{{ estado.lecciones_total }}</b><span class="tenue">lecciones</span></div>
+      <div><b>{{ estado.xp }}</b><span class="tenue">XP</span></div>
+      <div><b>🔥 {{ estado.racha }}</b><span class="tenue">días seguidos</span></div>
+    </div>
+    <div class="acciones">
+      {% if actual %}
+        <a class="boton verde grande" href="{{ url_for('leccion', leccion_id=actual.id) }}">▶ {{ 'Empezar' if estado.lecciones_hechas == 0 else 'Seguir' }}: {{ actual.nombre }}</a>
+      {% else %}
+        <a class="boton violeta grande" href="{{ url_for('repaso') }}">🎉 ¡Terminaste todo! Repasá</a>
+      {% endif %}
+    </div>
+  </div>
+  <div class="accesos">
+    <div class="tarjeta meta-diaria" id="meta-diaria">
+      <div class="anillo" style="--pct: {{ estado.meta_pct }}" role="img" aria-label="Meta diaria: {{ estado.meta_pct }} por ciento">
+        <span>{{ estado.meta_pct }}%</span>
+      </div>
+      <div>
+        <h3>Meta de hoy</h3>
+        <span class="tenue">{{ estado.xp_hoy }} / {{ estado.meta_xp }} XP · {{ estado.meta_min }} minutos</span>
+        {% if estado.meta_pct >= 100 %}<div class="verde-t"><b>✅ ¡Meta cumplida!</b></div>{% endif %}
+      </div>
+    </div>
+    <div class="tarjeta racha-card">
+      <h3>🔥 Reto de 7 días</h3>
+      <div class="puntos-reto" role="img" aria-label="{{ estado.reto_dias }} de {{ estado.reto_total }} días">
+        {% for i in range(estado.reto_total) %}<span class="punto {{ 'lleno' if i < estado.reto_dias }}"></span>{% endfor %}
+      </div>
+      <span class="tenue">{{ estado.reto_dias }}/{{ estado.reto_total }} · al llegar a {{ estado.reto_total }} ganás un congelador ❄️</span>
+      <div class="linea-cong">❄️ Congeladores: <b>{{ estado.congeladores }}</b>{% if estado.racha_protegida %} · <b class="verde-t">tu racha está protegida</b>{% endif %}</div>
+    </div>
+    <a class="tarjeta acceso" href="{{ url_for('practica') }}"><span class="icono">🧠</span><div><h3>Práctica del día</h3>
+      <span class="tenue">{% if estado.practica_pendientes %}{{ estado.practica_pendientes }} tarjeta{{ 's' if estado.practica_pendientes != 1 }} para repasar{% else %}¡Estás al día! Volvé mañana.{% endif %}</span></div></a>
+    <a class="tarjeta acceso" href="{{ url_for('pagina_liga') }}"><span class="icono">{{ estado.liga.icono }}</span><div><h3>Liga {{ estado.liga.liga }}</h3><span class="tenue">Puesto {{ estado.liga.puesto }} de {{ estado.liga.tamano }} · {{ estado.liga.xp }} XP esta semana</span></div></a>
+    <a class="tarjeta acceso" href="{{ url_for('experimentar') }}"><span class="icono">🧪</span><div><h3>Experimentar</h3><span class="tenue">Probá lo que quieras, sin ejercicios.</span></div></a>
+    <a class="tarjeta acceso" href="{{ url_for('tortuga') }}"><span class="icono">🎨</span><div><h3>Zona Tortuga</h3><span class="tenue">Dibujá dándole órdenes a la tortuga.</span></div></a>
+  </div>
+</section>
+
+<section class="camino-lecciones" aria-label="Camino de lecciones">
+  {% for curso in camino %}
+  {% if camino|length > 1 %}
+  <div class="banda-curso {{ '' if curso.abierto else 'cerrado' }}">
+    <span class="icono-curso">{{ curso.icono }}</span>
+    <div><h2>{{ curso.titulo }}</h2><span class="tenue">{{ curso.descripcion }}</span>
+      {% if not curso.abierto %}<div class="candado-curso">🔒 Se desbloquea al terminar «{{ curso.requiere }}»</div>{% endif %}
+      {% if curso.completo %}<div><a class="boton chico amarillo" href="{{ url_for('certificado', curso_id=curso.id) }}">🎓 Ver mi certificado</a></div>{% endif %}</div>
+  </div>
+  {% endif %}
+  {% for seccion in curso.secciones if curso.abierto %}
+  <div class="seccion-camino n{{ seccion.nivel }}">
+    <div class="banda-camino"><span class="etiqueta-nivel">NIVEL {{ seccion.nivel }}</span> <b>{{ seccion.titulo }}</b></div>
+    <ol class="senda">
+      {% for lec in seccion.lecciones %}
+      <li class="parada z{{ loop.index0 % 4 }} {{ lec.estado }}">
+        {% if lec.estado == 'bloqueada' %}
+          <span class="nodo-camino" title="{{ ('Primero terminá «' ~ lec.pide ~ '»') if lec.pide else 'Completá la lección anterior para desbloquearla' }}" aria-label="{{ lec.nombre }} (bloqueada)">🔒</span>
+        {% else %}
+          <a class="nodo-camino" href="{{ url_for('leccion', leccion_id=lec.id) }}" title="{{ lec.nombre }}">
+            {% if lec.estado == 'perfecta' %}⭐{% elif lec.estado == 'hecha' %}✓{% else %}▶{% endif %}
+          </a>
+        {% endif %}
+        <span class="nombre-camino"><span class="tenue">{{ lec.numero }}.</span> {{ lec.nombre }}
+          {% if lec.pasos > 1 %}<small class="tenue">· {{ lec.pasos }} pasos</small>{% endif %}
+          {% if lec.estado == 'actual' %}<span class="burbuja">¡Te toca!</span>{% endif %}
+          {% if lec.pide %}<small class="candado-curso">🔒 Primero terminá «{{ lec.pide }}»</small>{% endif %}</span>
+      </li>
+      {% endfor %}
+    </ol>
+  </div>
+  {% endfor %}
+  {% endfor %}
+</section>
+{% endblock %}

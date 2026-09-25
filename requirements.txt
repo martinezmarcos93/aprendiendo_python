@@ -1,0 +1,3 @@
+# TortuScript es una app web local (docs/decisions/ADR-001). Única dependencia: Flask.
+# Auditado 25/09/2026: Flask 3.1.3, BSD-3, deps de Pallets (BSD) + blinker (MIT). Requiere Python >= 3.9.
+Flask==3.1.3

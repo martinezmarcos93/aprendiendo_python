@@ -1,0 +1,39 @@
+{% extends "base.html" %}
+{% block titulo %}Mis proyectos{% endblock %}
+{% block contenido %}
+<div class="columna-ancha">
+  <section class="tarjeta">
+    <div class="fila">
+      <h1 style="margin:0">📂 Mis proyectos</h1>
+      <span class="espacio"></span>
+      <a class="boton violeta" href="{{ url_for('experimentar') }}">🧪 Proyecto nuevo</a>
+      <a class="boton" href="{{ url_for('tortuga') }}">🎨 Dibujo nuevo</a>
+    </div>
+    <p class="tenue">Lo que guardás desde Experimentar o desde la Zona Tortuga aparece acá. Podés tener hasta {{ maximo }}.</p>
+  </section>
+
+  {% if not proyectos %}
+    <section class="tarjeta centrado">
+      <div class="mascota gran">📂</div>
+      <p class="tenue">Todavía no guardaste nada. En Experimentar o en la Zona Tortuga tocá <b>💾 Guardar</b> y aparece acá.</p>
+    </section>
+  {% else %}
+  <div class="proyectos-grid">
+    {% for p in proyectos %}
+    <article class="tarjeta proyecto">
+      <h3><span aria-hidden="true">{{ '🎨' if p.tipo == 'tortuga' else '🧪' }}</span> {{ p.nombre }}</h3>
+      <span class="tenue">{{ 'Dibujo de la tortuga' if p.tipo == 'tortuga' else 'Experimento' }} · {{ p.actualizado }}</span>
+      <pre>{{ p.codigo[:220] }}</pre>
+      <div class="acciones">
+        <a class="boton verde chico" href="{{ url_for(p.tipo, proyecto=p.id) }}">▶ Abrir</a>
+        <button class="boton chico" type="button" data-accion="duplicar" data-id="{{ p.id }}" data-nombre="{{ p.nombre }}">📑 Duplicar</button>
+        <button class="boton chico" type="button" data-accion="borrar" data-id="{{ p.id }}" data-nombre="{{ p.nombre }}">🗑 Borrar</button>
+      </div>
+    </article>
+    {% endfor %}
+  </div>
+  {% endif %}
+</div>
+{% endblock %}
+{% block scripts %}<script src="{{ url_for('static', filename='js/proyectos.js') }}"></script>
+<script>Proyectos.iniciarLista();</script>{% endblock %}

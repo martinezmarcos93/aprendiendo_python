@@ -1,0 +1,31 @@
+{% extends "base.html" %}
+{% block titulo %}Referencia{% endblock %}
+{% block contenido %}
+<div class="columna-ancha">
+  <h1>📖 Referencia del lenguaje TortuScript</h1>
+  <section class="tarjeta"><p class="tenue" style="margin:0">{{ ref.intro }}</p></section>
+
+  <nav class="indice" aria-label="Secciones">
+    {% for s in ref.secciones %}<a class="boton chico" href="#sec-{{ loop.index }}">{{ s.icono }} {{ s.titulo }}</a>{% endfor %}
+  </nav>
+
+  {% for s in ref.secciones %}
+  <section class="seccion-ref" id="sec-{{ loop.index }}">
+    <h2 class="color-{{ s.color }}">{{ s.icono }} {{ s.titulo }}</h2>
+    {% for e in s.ejemplos %}
+    <div class="tarjeta ejemplo-ref">
+      <h3>{{ e.descripcion }}</h3>
+      <div class="dos-cols">
+        <div class="codigo-caja tortu-c"><span class="rotulo">TortuScript</span><pre>{{ e.tortu }}</pre></div>
+        <div class="codigo-caja py-c"><span class="rotulo">Python</span><pre>{{ e.python }}</pre></div>
+      </div>
+      {% if e.traducible != false %}
+      <a class="boton chico celeste probar" href="{{ url_for('tortuga' if s.titulo == 'Tortuga' else 'experimentar') }}?codigo={{ e.tortu|urlencode }}">▶ Probarlo</a>
+      {% endif %}
+    </div>
+    {% endfor %}
+  </section>
+  {% endfor %}
+  <p class="tenue centrado">⌨️ {{ ref.pie }}</p>
+</div>
+{% endblock %}

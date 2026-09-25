@@ -1,0 +1,709 @@
+{
+  "id": "tortuga",
+  "titulo": "Dibujá con la tortuga",
+  "icono": "🎨",
+  "descripcion": "Dale órdenes a la tortuga y dibujá figuras, colores y estrellas.",
+  "version": 1,
+  "requiere": {
+    "leccion": "dos-variables"
+  },
+  "secciones": [
+    {
+      "id": "primeros-trazos",
+      "nivel": 1,
+      "titulo": "Primeros trazos",
+      "lecciones": [
+        {
+          "id": "tortuga-avanzar",
+          "titulo": "1. Avanzar",
+          "pasos": [
+            {
+              "tipo": "explicacion",
+              "texto": "La tortuga empieza mirando hacia arriba. avanzar la hace caminar y deja una línea. El número dice cuánto camina.",
+              "codigo": "avanzar 100",
+              "lienzo": true
+            },
+            {
+              "tipo": "elegir",
+              "pregunta": "¿Qué orden hace caminar a la tortuga hacia adelante?",
+              "opciones": [
+                "avanzar",
+                "subir",
+                "mostrar"
+              ],
+              "correcta": 0
+            },
+            {
+              "tipo": "elegir",
+              "pregunta": "Si escribís avanzar 100 y después avanzar 50 (sin girar), ¿cuánto camina en total?",
+              "opciones": [
+                "150",
+                "100",
+                "50"
+              ],
+              "correcta": 0,
+              "pista": "Los dos avanzar siguen en la misma dirección: se suman."
+            },
+            {
+              "tipo": "completar",
+              "consigna": "Completá para que la tortuga dibuje una línea larga.",
+              "codigo": "avanzar ___",
+              "fichas": [
+                "150",
+                "20",
+                "0"
+              ],
+              "respuesta": [
+                "150"
+              ],
+              "tortuga": true
+            },
+            {
+              "tipo": "escribir",
+              "consigna": "Hacé que la tortuga dibuje una línea de 120.",
+              "solucion": "avanzar 120",
+              "tortuga": true,
+              "forma": "avanzar 50"
+            }
+          ]
+        },
+        {
+          "id": "tortuga-girar",
+          "titulo": "2. Girar",
+          "pasos": [
+            {
+              "tipo": "explicacion",
+              "texto": "girar_der gira a la tortuga hacia la derecha y girar_izq hacia la izquierda. El número son los grados: 90 es un cuarto de vuelta.",
+              "codigo": "avanzar 80\ngirar_der 90\navanzar 80\ngirar_izq 90\navanzar 80",
+              "lienzo": true
+            },
+            {
+              "tipo": "elegir",
+              "pregunta": "¿Cuántos grados es un cuarto de vuelta?",
+              "opciones": [
+                "90",
+                "45",
+                "360"
+              ],
+              "correcta": 0
+            },
+            {
+              "tipo": "elegir",
+              "pregunta": "¿Cuántos grados es una vuelta completa?",
+              "opciones": [
+                "360",
+                "180",
+                "100"
+              ],
+              "correcta": 0
+            },
+            {
+              "tipo": "completar",
+              "consigna": "Completá para dibujar una L: primero hacia arriba y después hacia la derecha.",
+              "codigo": "avanzar 100\ngirar_der ___\navanzar 100",
+              "fichas": [
+                "90",
+                "45",
+                "180"
+              ],
+              "respuesta": [
+                "90"
+              ],
+              "tortuga": true
+            },
+            {
+              "tipo": "ordenar",
+              "consigna": "Ordená las líneas para dibujar una L hacia la izquierda.",
+              "lineas": [
+                "avanzar 100",
+                "girar_izq 90",
+                "avanzar 100"
+              ],
+              "tortuga": true,
+              "pista": "El giro va entre las dos líneas."
+            },
+            {
+              "tipo": "escribir",
+              "consigna": "Dibujá una L hacia la derecha: avanzá 100, girá 90 a la derecha y avanzá 60.",
+              "solucion": "avanzar 100\ngirar_der 90\navanzar 60",
+              "tortuga": true,
+              "nota": "El giro va entre las dos líneas."
+            }
+          ]
+        },
+        {
+          "id": "cuadrado-a-mano",
+          "titulo": "3. Un cuadrado, paso a paso",
+          "pasos": [
+            {
+              "tipo": "explicacion",
+              "texto": "Un cuadrado tiene 4 lados iguales. La tortuga avanza, gira 90 y repite. Por ahora lo escribimos a mano.",
+              "codigo": "avanzar 60\ngirar_der 90\navanzar 60\ngirar_der 90\navanzar 60\ngirar_der 90\navanzar 60",
+              "lienzo": true
+            },
+            {
+              "tipo": "predecir",
+              "pregunta": "¿Cuántas líneas dibuja este programa?",
+              "codigo": "avanzar 50\ngirar_der 90\navanzar 50\ngirar_der 90\navanzar 50",
+              "opciones": [
+                "3",
+                "2",
+                "5"
+              ],
+              "correcta": 0,
+              "cuenta": "trazos",
+              "lienzo": true,
+              "pista": "Contá los avanzar: cada uno dibuja una línea."
+            },
+            {
+              "tipo": "elegir",
+              "pregunta": "En cada esquina de un cuadrado, ¿cuánto gira la tortuga?",
+              "opciones": [
+                "90 grados",
+                "45 grados",
+                "180 grados"
+              ],
+              "correcta": 0
+            },
+            {
+              "tipo": "completar",
+              "consigna": "Completá los giros para cerrar el cuadrado.",
+              "codigo": "avanzar 60\ngirar_der ___\navanzar 60\ngirar_der ___\navanzar 60\ngirar_der ___\navanzar 60",
+              "fichas": [
+                "90",
+                "90",
+                "90",
+                "45",
+                "60"
+              ],
+              "respuesta": [
+                "90",
+                "90",
+                "90"
+              ],
+              "tortuga": true
+            },
+            {
+              "tipo": "escribir",
+              "consigna": "Dibujá un cuadrado de lado 80 escribiendo cada avanzar y cada giro (todavía sin repetir).",
+              "solucion": "avanzar 80\ngirar_der 90\navanzar 80\ngirar_der 90\navanzar 80\ngirar_der 90\navanzar 80",
+              "tortuga": true
+            }
+          ]
+        }
+      ]
+    },
+    {
+      "id": "con-repetir",
+      "nivel": 2,
+      "titulo": "Con repetir",
+      "lecciones": [
+        {
+          "id": "cuadrado-repetir",
+          "titulo": "4. Cuadrado con repetir",
+          "pasos": [
+            {
+              "tipo": "explicacion",
+              "texto": "Con repetir escribís una sola vez lo que se repite. Este cuadrado repite 4 veces las mismas dos órdenes, corridas 4 espacios.",
+              "codigo": "repetir 4 veces:\n    avanzar 80\n    girar_der 90",
+              "lienzo": true
+            },
+            {
+              "tipo": "predecir",
+              "pregunta": "¿Cuántas líneas dibuja este programa?",
+              "codigo": "repetir 3 veces:\n    avanzar 40\n    girar_der 120",
+              "opciones": [
+                "3",
+                "4",
+                "120"
+              ],
+              "correcta": 0,
+              "cuenta": "trazos",
+              "lienzo": true
+            },
+            {
+              "tipo": "completar",
+              "consigna": "Completá para dibujar un cuadrado.",
+              "codigo": "repetir ___ veces:\n    avanzar 80\n    girar_der 90",
+              "fichas": [
+                "4",
+                "3",
+                "90"
+              ],
+              "respuesta": [
+                "4"
+              ],
+              "tortuga": true
+            },
+            {
+              "tipo": "ordenar",
+              "consigna": "Ordená las líneas para dibujar un cuadrado.",
+              "lineas": [
+                "repetir 4 veces:",
+                "    avanzar 60",
+                "    girar_der 90"
+              ],
+              "tortuga": true
+            },
+            {
+              "tipo": "escribir",
+              "consigna": "Dibujá un cuadrado de lado 100 usando repetir.",
+              "solucion": "repetir 4 veces:\n    avanzar 100\n    girar_der 90",
+              "tortuga": true,
+              "forma": "repetir 4 veces:",
+              "nota": "(y abajo, corrido 4 espacios, lo que se repite)"
+            }
+          ]
+        },
+        {
+          "id": "triangulo",
+          "titulo": "5. Triángulo",
+          "pasos": [
+            {
+              "tipo": "explicacion",
+              "texto": "Un triángulo tiene 3 lados. Para dar una vuelta completa (360 grados) en 3 esquinas, la tortuga gira 120 en cada una.",
+              "codigo": "repetir 3 veces:\n    avanzar 100\n    girar_der 120",
+              "lienzo": true
+            },
+            {
+              "tipo": "elegir",
+              "pregunta": "Para dar una vuelta completa en 3 esquinas, ¿cuánto gira en cada una?",
+              "opciones": [
+                "120",
+                "90",
+                "60"
+              ],
+              "correcta": 0,
+              "pista": "360 dividido 3."
+            },
+            {
+              "tipo": "completar",
+              "consigna": "Completá el giro para dibujar un triángulo.",
+              "codigo": "repetir 3 veces:\n    avanzar 90\n    girar_der ___",
+              "fichas": [
+                "120",
+                "90",
+                "60"
+              ],
+              "respuesta": [
+                "120"
+              ],
+              "tortuga": true
+            },
+            {
+              "tipo": "predecir",
+              "pregunta": "¿Cuántas líneas dibuja este programa?",
+              "codigo": "repetir 5 veces:\n    avanzar 30\n    girar_der 72",
+              "opciones": [
+                "5",
+                "72",
+                "3"
+              ],
+              "correcta": 0,
+              "cuenta": "trazos",
+              "lienzo": true
+            },
+            {
+              "tipo": "escribir",
+              "consigna": "Dibujá un triángulo de lado 120.",
+              "solucion": "repetir 3 veces:\n    avanzar 120\n    girar_der 120",
+              "tortuga": true
+            }
+          ]
+        },
+        {
+          "id": "mas-figuras",
+          "titulo": "6. Más figuras",
+          "pasos": [
+            {
+              "tipo": "explicacion",
+              "texto": "La regla es simple: girás 360 dividido la cantidad de lados. Un hexágono tiene 6 lados, así que gira 60 en cada esquina.",
+              "codigo": "repetir 6 veces:\n    avanzar 60\n    girar_der 60",
+              "lienzo": true
+            },
+            {
+              "tipo": "elegir",
+              "pregunta": "¿Cuánto gira un pentágono (5 lados) en cada esquina?",
+              "opciones": [
+                "72",
+                "60",
+                "90"
+              ],
+              "correcta": 0,
+              "pista": "360 dividido 5."
+            },
+            {
+              "tipo": "elegir",
+              "pregunta": "¿Cuánto gira un octógono (8 lados) en cada esquina?",
+              "opciones": [
+                "45",
+                "60",
+                "90"
+              ],
+              "correcta": 0,
+              "pista": "360 dividido 8."
+            },
+            {
+              "tipo": "completar",
+              "consigna": "Completá el giro del pentágono.",
+              "codigo": "repetir 5 veces:\n    avanzar 70\n    girar_der ___",
+              "fichas": [
+                "72",
+                "60",
+                "90"
+              ],
+              "respuesta": [
+                "72"
+              ],
+              "tortuga": true
+            },
+            {
+              "tipo": "escribir",
+              "consigna": "Dibujá un hexágono de lado 80.",
+              "solucion": "repetir 6 veces:\n    avanzar 80\n    girar_der 60",
+              "tortuga": true
+            }
+          ]
+        }
+      ]
+    },
+    {
+      "id": "colores-y-lapiz",
+      "nivel": 3,
+      "titulo": "Colores y lápiz",
+      "lecciones": [
+        {
+          "id": "colores",
+          "titulo": "7. Colores",
+          "pasos": [
+            {
+              "tipo": "explicacion",
+              "texto": "Con color cambiás el color de las líneas que vienen después. El nombre va entre comillas: color \"rojo\".",
+              "codigo": "color \"rojo\"\navanzar 100\ncolor \"azul\"\ngirar_der 90\navanzar 100",
+              "lienzo": true
+            },
+            {
+              "tipo": "elegir",
+              "pregunta": "¿Cómo pintás la línea de verde?",
+              "opciones": [
+                "color \"verde\"",
+                "color verde",
+                "pintar \"verde\""
+              ],
+              "correcta": 0
+            },
+            {
+              "tipo": "elegir",
+              "pregunta": "Si escribís color \"azul\" y después avanzar 100, ¿de qué color queda la línea?",
+              "opciones": [
+                "Azul",
+                "Verde",
+                "Negra"
+              ],
+              "correcta": 0
+            },
+            {
+              "tipo": "completar",
+              "consigna": "Completá para dibujar un cuadrado rojo.",
+              "codigo": "color ___\nrepetir 4 veces:\n    avanzar 80\n    girar_der 90",
+              "fichas": [
+                "\"rojo\"",
+                "\"azul\"",
+                "rojo"
+              ],
+              "respuesta": [
+                "\"rojo\""
+              ],
+              "tortuga": true
+            },
+            {
+              "tipo": "escribir",
+              "consigna": "Dibujá un cuadrado azul de lado 100.",
+              "solucion": "color \"azul\"\nrepetir 4 veces:\n    avanzar 100\n    girar_der 90",
+              "tortuga": true,
+              "forma": "color \"rojo\""
+            }
+          ]
+        },
+        {
+          "id": "lapiz",
+          "titulo": "8. Subir y bajar el lápiz",
+          "pasos": [
+            {
+              "tipo": "explicacion",
+              "texto": "subir_lapiz levanta el lápiz: la tortuga camina sin dibujar. bajar_lapiz lo vuelve a apoyar.",
+              "codigo": "avanzar 40\nsubir_lapiz\navanzar 40\nbajar_lapiz\navanzar 40",
+              "lienzo": true
+            },
+            {
+              "tipo": "predecir",
+              "pregunta": "¿Cuántas líneas dibuja este programa?",
+              "codigo": "avanzar 30\nsubir_lapiz\navanzar 30\nbajar_lapiz\navanzar 30",
+              "opciones": [
+                "2",
+                "3",
+                "1"
+              ],
+              "correcta": 0,
+              "cuenta": "trazos",
+              "lienzo": true,
+              "pista": "Con el lápiz levantado no se dibuja."
+            },
+            {
+              "tipo": "elegir",
+              "pregunta": "¿Qué orden hace que la tortuga camine sin dibujar?",
+              "opciones": [
+                "subir_lapiz",
+                "bajar_lapiz",
+                "color"
+              ],
+              "correcta": 0
+            },
+            {
+              "tipo": "completar",
+              "consigna": "Completá para dejar un espacio en el medio.",
+              "codigo": "avanzar 50\n___\navanzar 50\nbajar_lapiz\navanzar 50",
+              "fichas": [
+                "subir_lapiz",
+                "bajar_lapiz",
+                "avanzar"
+              ],
+              "respuesta": [
+                "subir_lapiz"
+              ],
+              "tortuga": true
+            },
+            {
+              "tipo": "escribir",
+              "consigna": "Dibujá dos rayitas de 50 con un espacio de 30 en el medio.",
+              "solucion": "avanzar 50\nsubir_lapiz\navanzar 30\nbajar_lapiz\navanzar 50",
+              "tortuga": true
+            }
+          ]
+        },
+        {
+          "id": "estrella",
+          "titulo": "9. Estrella",
+          "pasos": [
+            {
+              "tipo": "explicacion",
+              "texto": "Si girás 144 grados en vez de 72, la tortuga se cruza y forma una estrella de 5 puntas.",
+              "codigo": "repetir 5 veces:\n    avanzar 120\n    girar_der 144",
+              "lienzo": true
+            },
+            {
+              "tipo": "predecir",
+              "pregunta": "¿Cuántas líneas dibuja este programa?",
+              "codigo": "repetir 5 veces:\n    avanzar 100\n    girar_der 144",
+              "opciones": [
+                "5",
+                "144",
+                "10"
+              ],
+              "correcta": 0,
+              "cuenta": "trazos",
+              "lienzo": true
+            },
+            {
+              "tipo": "completar",
+              "consigna": "Completá el giro para dibujar la estrella.",
+              "codigo": "color \"naranja\"\nrepetir 5 veces:\n    avanzar 100\n    girar_der ___",
+              "fichas": [
+                "144",
+                "72",
+                "90"
+              ],
+              "respuesta": [
+                "144"
+              ],
+              "tortuga": true
+            },
+            {
+              "tipo": "ordenar",
+              "consigna": "Ordená las líneas para dibujar una estrella violeta.",
+              "lineas": [
+                "color \"violeta\"",
+                "repetir 5 veces:",
+                "    avanzar 90",
+                "    girar_der 144"
+              ],
+              "tortuga": true
+            },
+            {
+              "tipo": "escribir",
+              "consigna": "Dibujá una estrella de 5 puntas, de color naranja, con lados de 120.",
+              "solucion": "color \"naranja\"\nrepetir 5 veces:\n    avanzar 120\n    girar_der 144",
+              "tortuga": true
+            }
+          ]
+        }
+      ]
+    },
+    {
+      "id": "variables-y-funciones",
+      "nivel": 4,
+      "titulo": "Variables y funciones",
+      "lecciones": [
+        {
+          "id": "variable-lado",
+          "titulo": "10. Tamaño con variable",
+          "pasos": [
+            {
+              "tipo": "explicacion",
+              "texto": "Guardá el tamaño en una variable y usala. Si cambiás el número de arriba, cambia todo el cuadrado.",
+              "codigo": "lado es 60\nrepetir 4 veces:\n    avanzar lado\n    girar_der 90",
+              "lienzo": true
+            },
+            {
+              "tipo": "elegir",
+              "pregunta": "¿Qué pasa si cambiás lado es 60 por lado es 100?",
+              "opciones": [
+                "El cuadrado se hace más grande",
+                "Cambia el color",
+                "La tortuga gira más"
+              ],
+              "correcta": 0
+            },
+            {
+              "tipo": "completar",
+              "consigna": "Completá para usar la variable.",
+              "codigo": "lado es 50\nrepetir 4 veces:\n    avanzar ___\n    girar_der 90",
+              "fichas": [
+                "lado",
+                "50",
+                "4"
+              ],
+              "respuesta": [
+                "lado"
+              ],
+              "tortuga": true
+            },
+            {
+              "tipo": "ordenar",
+              "consigna": "Ordená las líneas del cuadrado con variable.",
+              "lineas": [
+                "lado es 90",
+                "repetir 4 veces:",
+                "    avanzar lado",
+                "    girar_der 90"
+              ],
+              "tortuga": true
+            },
+            {
+              "tipo": "escribir",
+              "consigna": "Guardá 70 en lado y dibujá un cuadrado usando esa variable.",
+              "solucion": "lado es 70\nrepetir 4 veces:\n    avanzar lado\n    girar_der 90",
+              "tortuga": true
+            }
+          ]
+        },
+        {
+          "id": "funcion-cuadrado",
+          "titulo": "11. Tu propia función",
+          "pasos": [
+            {
+              "tipo": "explicacion",
+              "texto": "Una función guarda un dibujo con nombre. Después lo pedís cuando quieras, con el tamaño que quieras.",
+              "codigo": "funcion cuadrado(lado):\n    repetir 4 veces:\n        avanzar lado\n        girar_der 90\n\ncuadrado(50)\ncuadrado(90)",
+              "lienzo": true
+            },
+            {
+              "tipo": "predecir",
+              "pregunta": "¿Cuántas líneas dibuja este programa?",
+              "codigo": "funcion cuadrado(lado):\n    repetir 4 veces:\n        avanzar lado\n        girar_der 90\n\ncuadrado(30)\ncuadrado(60)",
+              "opciones": [
+                "8",
+                "4",
+                "2"
+              ],
+              "correcta": 0,
+              "cuenta": "trazos",
+              "lienzo": true,
+              "pista": "Cada cuadrado tiene 4 líneas y hay dos cuadrados."
+            },
+            {
+              "tipo": "completar",
+              "consigna": "Completá la llamada para dibujar un cuadrado de 100.",
+              "codigo": "funcion cuadrado(lado):\n    repetir 4 veces:\n        avanzar lado\n        girar_der 90\n\ncuadrado(___)",
+              "fichas": [
+                "100",
+                "lado",
+                "4"
+              ],
+              "respuesta": [
+                "100"
+              ],
+              "tortuga": true
+            },
+            {
+              "tipo": "ordenar",
+              "consigna": "Ordená las líneas para dibujar un cuadrado con la función.",
+              "lineas": [
+                "funcion cuadrado(lado):",
+                "    repetir 4 veces:",
+                "        avanzar lado",
+                "        girar_der 90",
+                "cuadrado(80)"
+              ],
+              "tortuga": true
+            },
+            {
+              "tipo": "escribir",
+              "consigna": "Definí la función cuadrado(lado) y usala para dibujar un cuadrado de 40 y otro de 80.",
+              "solucion": "funcion cuadrado(lado):\n    repetir 4 veces:\n        avanzar lado\n        girar_der 90\n\ncuadrado(40)\ncuadrado(80)",
+              "tortuga": true,
+              "forma": "funcion cuadrado(lado):"
+            }
+          ]
+        },
+        {
+          "id": "espiral",
+          "titulo": "12. Reto: la espiral",
+          "pasos": [
+            {
+              "tipo": "explicacion",
+              "texto": "Si el lado crece en cada vuelta, el cuadrado se convierte en una espiral. lado es lado + 10 lo agranda de a 10.",
+              "codigo": "lado es 10\nrepetir 12 veces:\n    avanzar lado\n    girar_der 90\n    lado es lado + 10",
+              "lienzo": true
+            },
+            {
+              "tipo": "elegir",
+              "pregunta": "¿Qué hace lado es lado + 10 en cada vuelta?",
+              "opciones": [
+                "Agranda el lado",
+                "Achica el lado",
+                "Cambia el color"
+              ],
+              "correcta": 0
+            },
+            {
+              "tipo": "predecir",
+              "pregunta": "¿Cuántas líneas dibuja este programa?",
+              "codigo": "lado es 10\nrepetir 3 veces:\n    avanzar lado\n    girar_der 90\n    lado es lado + 10",
+              "opciones": [
+                "3",
+                "4",
+                "10"
+              ],
+              "correcta": 0,
+              "cuenta": "trazos",
+              "lienzo": true
+            },
+            {
+              "tipo": "escribir",
+              "consigna": "Dibujá una espiral cuadrada: empezá con lado 10, hacé 8 vueltas y en cada una sumale 10 al lado.",
+              "solucion": "lado es 10\nrepetir 8 veces:\n    avanzar lado\n    girar_der 90\n    lado es lado + 10",
+              "tortuga": true
+            },
+            {
+              "tipo": "explicacion",
+              "texto": "¡Terminaste! Ahora inventá tus propios dibujos en la Zona Tortuga: casas, flores, estrellas gigantes...",
+              "codigo": "color \"violeta\"\nrepetir 36 veces:\n    avanzar 10\n    girar_der 10",
+              "lienzo": true
+            }
+          ]
+        }
+      ]
+    }
+  ]
+}

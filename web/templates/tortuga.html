@@ -1,0 +1,41 @@
+{% extends "base.html" %}
+{% block titulo %}Zona Tortuga{% endblock %}
+{% block contenido %}
+<section class="tarjeta">
+  <div class="fila">
+    <h1>🎨 Zona Tortuga</h1>
+    <span class="tenue">Dale órdenes a la tortuga y mirá cómo dibuja.</span>
+  </div>
+  <div class="ejemplos" id="ejemplos" aria-label="Ejemplos"></div>
+  <div class="ordenes tenue">
+    Órdenes: <code>avanzar 100</code> · <code>retroceder 50</code> · <code>girar_der 90</code> ·
+    <code>girar_izq 90</code> · <code>color "rojo"</code> · <code>subir_lapiz</code> · <code>bajar_lapiz</code>
+  </div>
+</section>
+<section class="editores tortuga-grid">
+  <div class="panel-editor tortu"><h3>✏️ Tu código</h3><textarea id="editor"></textarea></div>
+  <div class="panel-editor lienzo-panel">
+    <h3>🖼️ Lienzo</h3>
+    <div class="lienzo-caja"><canvas id="lienzo" width="600" height="600" role="img" aria-label="Dibujo de la tortuga"></canvas></div>
+  </div>
+</section>
+<div class="acciones">
+  <button class="boton verde grande" id="btn-ejecutar" type="button">▶ Dibujar <span class="atajo">Ctrl+Enter</span></button>
+  <button class="boton amarillo" id="btn-detener" type="button" disabled>⏹ Detener</button>
+  <button class="boton" id="btn-limpiar" type="button">🗑 Limpiar todo</button>
+  <button class="boton violeta" id="btn-guardar" type="button">💾 Guardar</button>
+  <a class="boton chico" href="{{ url_for('proyectos') }}">📂 Mis proyectos</a>
+  <span class="tenue" id="proyecto-nombre">{% if proyecto %}Proyecto: <b>{{ proyecto.nombre }}</b>{% endif %}</span>
+  <label class="opcion"><input type="checkbox" id="chk-depurador" checked> Paso a paso (depurador)</label>
+  <label class="opcion">🐇 Velocidad
+    <input type="range" id="velocidad" min="1" max="10" value="5" aria-label="Velocidad de la tortuga">
+  </label>
+</div>
+<section class="resultado">
+  <pre class="consola" id="consola" aria-live="polite"><span class="tenue">Acá vas a ver lo que muestra tu programa.</span></pre>
+  <div id="veredicto"></div>
+</section>
+{% endblock %}
+{% block scripts %}<script type="application/json" id="proyecto-actual">{{ proyecto|tojson }}</script>
+<script src="{{ url_for('static', filename='js/proyectos.js') }}"></script>
+<script src="{{ url_for('static', filename='js/tortuga.js') }}"></script>{% endblock %}

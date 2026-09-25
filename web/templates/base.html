@@ -1,0 +1,131 @@
+<!doctype html>
+<html lang="es"{% for clave, valor in ajustes.items() %} data-{{ clave }}="{{ valor }}"{% endfor %}>
+<head>
+  <meta charset="utf-8">
+  <meta name="viewport" content="width=device-width, initial-scale=1">
+  <title>{% block titulo %}TortuScript{% endblock %} · TortuScript</title>
+  <link rel="icon" type="image/svg+xml" href="{{ url_for('static', filename='img/tortuscript.svg') }}">
+  <link rel="stylesheet" href="{{ url_for('static', filename='vendor/codemirror/codemirror.css') }}">
+  <link rel="stylesheet" href="{{ url_for('static', filename='css/tortu.css') }}">
+  <script>window.TORTU = { token: {{ token|tojson }}, avisos: {{ avisos_pendientes|tojson }} };</script>
+</head>
+<body>
+  <a class="saltar" href="#contenido">Saltar al contenido</a>
+  <header class="barra">
+    <a class="logo" href="{{ url_for('inicio') }}"><span class="tortu" aria-hidden="true">🐢</span> TortuScript</a>
+    <button class="menu-boton" id="btn-menu" type="button" aria-expanded="false" aria-controls="barra-menu" aria-label="Menú">☰ Menú</button>
+    <div class="barra-menu" id="barra-menu">
+    <nav class="nav" aria-label="Principal">
+      <a href="{{ url_for('inicio') }}" class="{{ 'activo' if request.endpoint == 'inicio' }}" {{ 'aria-current=page' if request.endpoint == 'inicio' }}>Inicio</a>
+      <a href="{{ url_for('aprender') }}" class="{{ 'activo' if request.endpoint in ('leccion', 'ejercicio') }}">Aprender</a>
+      <a href="{{ url_for('experimentar') }}" class="{{ 'activo' if request.endpoint == 'experimentar' }}">Experimentar</a>
+      <a href="{{ url_for('tortuga') }}" class="{{ 'activo' if request.endpoint == 'tortuga' }}">Tortuga</a>
+      <a href="{{ url_for('practica') }}" class="{{ 'activo' if request.endpoint == 'practica' }}">Practicar{% if estado.practica_pendientes %} <span class="insignia" aria-label="{{ estado.practica_pendientes }} pendientes">{{ estado.practica_pendientes }}</span>{% endif %}</a>
+      <details class="mas">
+        <summary class="{{ 'activo' if request.endpoint in ('mapa', 'referencia', 'pagina_logros', 'pagina_liga', 'resumen', 'proyectos') or request.endpoint.startswith('repaso') }}">Más ▾</summary>
+        <div class="mas-lista">
+          <a href="{{ url_for('proyectos') }}">📂 Mis proyectos</a>
+          <a href="{{ url_for('mapa') }}">🗺️ Mapa</a>
+          <a href="{{ url_for('repaso') }}">🔁 Repaso de ejercicios</a>
+          <a href="{{ url_for('pagina_logros') }}">🏆 Logros <small class="tenue">{{ estado.logros_ganados }}/{{ estado.logros_total }}</small></a>
+          <a href="{{ url_for('pagina_liga') }}">{{ estado.liga.icono }} Liga <small class="tenue">{{ estado.liga.liga }}</small></a>
+          <a href="{{ url_for('resumen') }}">📊 Resumen</a>
+          <a href="{{ url_for('referencia') }}">📖 Referencia</a>
+        </div>
+      </details>
+    </nav>
+    <div class="estadisticas">
+      <a class="chip racha" href="{{ url_for('resumen') }}" title="Días seguidos programando — ver el resumen de hoy">🔥 <span id="e-racha">{{ estado.racha }}</span><span id="e-cong">{{ (' ❄' ~ estado.congeladores) if estado.congeladores }}</span><span class="solo-lector"> días seguidos</span></a>
+      <span class="chip nivel" id="e-nivel">{{ estado.titulo }} · Nv.{{ estado.nivel }}</span>
+      <span class="xp" title="Experiencia">
+        <span id="e-xp">{{ estado.xp }} XP</span>
+        <span class="barra-xp" aria-hidden="true"><span id="e-barra" style="width: {{ (100 * estado.xp_actual / estado.xp_max)|round|int }}%"></span></span>
+      </span>
+      <button class="chip sonido" id="btn-sonido" type="button" aria-pressed="true" title="Sonido" aria-label="Sonido de los premios">🔊</button>
+      <button class="chip" id="btn-ajustes" type="button" title="Ajustes de accesibilidad" aria-haspopup="dialog" aria-label="Ajustes de accesibilidad">⚙️</button>
+      <button class="chip perfil" id="btn-perfil" type="button" title="Cambiar de perfil" aria-haspopup="dialog">👤 <span id="e-perfil">{{ perfil }}</span></button>
+    </div>
+    </div>
+  </header>
+
+  <main id="contenido" tabindex="-1">{% block contenido %}{% endblock %}</main>
+
+  <!-- Ventana de preguntar() -->
+  <div class="modal" id="modal-pregunta" hidden role="dialog" aria-modal="true" aria-labelledby="mp-texto">
+    <div class="caja">
+      <div class="quien">✏️ Tu programa pregunta:</div>
+      <div class="pregunta-texto" id="mp-texto"></div>
+      <input class="campo" id="mp-campo" autocomplete="off" spellcheck="false" aria-labelledby="mp-texto">
+      <div class="pie">
+        <span class="tenue atajo">Enter para responder · Esc para cancelar</span>
+        <span class="espacio"></span>
+        <button class="boton chico" id="mp-cancelar" type="button">Cancelar</button>
+        <button class="boton verde" id="mp-ok" type="button">✔ Responder</button>
+      </div>
+    </div>
+  </div>
+
+  <!-- Nombre de un proyecto -->
+  <div class="modal" id="modal-nombre" hidden role="dialog" aria-modal="true" aria-labelledby="nm-titulo">
+    <div class="caja">
+      <h2 id="nm-titulo">💾 ¿Cómo se llama tu proyecto?</h2>
+      <input class="campo" id="nm-campo" maxlength="40" autocomplete="off" placeholder="Por ejemplo: Mi estrella" aria-labelledby="nm-titulo">
+      <div class="tenue atajo" id="nm-error" role="alert"></div>
+      <div class="pie">
+        <button class="boton chico" id="nm-cancelar" type="button">Cancelar</button>
+        <button class="boton verde" id="nm-ok" type="button">💾 Guardar</button>
+      </div>
+    </div>
+  </div>
+
+  <!-- Cambiar de perfil -->
+  <div class="modal" id="modal-perfil" hidden role="dialog" aria-modal="true" aria-labelledby="pf-titulo">
+    <div class="caja">
+      <h2 id="pf-titulo">👤 ¿Quién programa hoy?</h2>
+      <div class="lista-perfiles" id="pf-lista"></div>
+      <input class="campo" id="pf-campo" placeholder="O escribí un nombre nuevo" autocomplete="off" aria-label="Nombre nuevo">
+      <div class="tenue atajo" id="pf-error" role="alert"></div>
+      <div class="pie">
+        <button class="boton chico" id="pf-cancelar" type="button">Cancelar</button>
+        <button class="boton violeta" id="pf-ok" type="button">Entrar</button>
+      </div>
+    </div>
+  </div>
+
+  <!-- Ajustes de accesibilidad (cada perfil tiene los suyos) -->
+  {% set grupos = [
+    ("tam", "Tamaño de letra", [("normal", "Normal"), ("grande", "Grande"), ("enorme", "Enorme")]),
+    ("contraste", "Colores", [("normal", "Normales"), ("alto", "Alto contraste")]),
+    ("letra", "Tipo de letra", [("normal", "Normal"), ("legible", "Fácil de leer")]),
+    ("movimiento", "Animaciones", [("normal", "Normales"), ("reducido", "Menos movimiento")]),
+    ("voz", "Leer las consignas en voz alta", [("no", "No"), ("si", "Sí, solas")]),
+    ("velocidad", "Velocidad de la voz", [("lenta", "Lenta"), ("normal", "Normal"), ("rapida", "Rápida")]),
+  ] %}
+  <div class="modal" id="modal-ajustes" hidden role="dialog" aria-modal="true" aria-labelledby="aj-titulo">
+    <div class="caja ancha">
+      <h2 id="aj-titulo">⚙️ Ajustes</h2>
+      {% for clave, titulo, opciones in grupos %}
+      <div class="ajuste" data-ajuste="{{ clave }}">
+        <span class="etiqueta-ajuste" id="aj-{{ clave }}">{{ titulo }}</span>
+        <div class="opciones-ajuste" role="radiogroup" aria-labelledby="aj-{{ clave }}">
+          {% for valor, texto in opciones %}<button type="button" class="opcion-ajuste" role="radio" data-valor="{{ valor }}" aria-checked="{{ 'true' if ajustes[clave] == valor else 'false' }}">{{ texto }}</button>{% endfor %}
+        </div>
+      </div>
+      {% endfor %}
+      <div class="tenue atajo" id="aj-aviso" role="status"></div>
+      <div class="pie">
+        <button class="boton chico" id="aj-probar" type="button">🔊 Probar la voz</button>
+        <span class="espacio"></span>
+        <button class="boton verde" id="aj-cerrar" type="button">Listo</button>
+      </div>
+    </div>
+  </div>
+
+  <script src="{{ url_for('static', filename='vendor/codemirror/codemirror.js') }}"></script>
+  <script src="{{ url_for('static', filename='vendor/codemirror/simple.js') }}"></script>
+  <script src="{{ url_for('static', filename='vendor/codemirror/python.js') }}"></script>
+  <script src="{{ url_for('static', filename='vendor/confetti/confetti.browser.js') }}"></script>
+  <script src="{{ url_for('static', filename='js/tortu.js') }}"></script>
+  {% block scripts %}{% endblock %}
+</body>
+</html>

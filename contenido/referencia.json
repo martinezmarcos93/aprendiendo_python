@@ -1,0 +1,209 @@
+{
+  "intro": "TortuScript se escribe en español y se traduce automáticamente a Python. Cada ejemplo muestra el código TortuScript (verde) y su equivalente en Python (azul).",
+  "pie": "Recordá: la indentación (los espacios al principio) es importante en los bloques si / sino / repetir / funcion.",
+  "secciones": [
+    {
+      "icono": "📺",
+      "titulo": "Mostrar en pantalla",
+      "color": "verde",
+      "ejemplos": [
+        {
+          "descripcion": "Mostrar un texto",
+          "tortu": "mostrar \"Hola mundo\"",
+          "python": "print(\"Hola mundo\")"
+        },
+        {
+          "descripcion": "Mostrar el valor de una variable",
+          "tortu": "mostrar edad",
+          "python": "print(edad)"
+        },
+        {
+          "descripcion": "Mostrar texto y variable juntos",
+          "tortu": "mostrar \"Hola \" + nombre",
+          "python": "print(\"Hola \" + nombre)"
+        }
+      ]
+    },
+    {
+      "icono": "📦",
+      "titulo": "Variables",
+      "color": "azul",
+      "ejemplos": [
+        {
+          "descripcion": "Guardar un número",
+          "tortu": "edad es 12",
+          "python": "edad = 12"
+        },
+        {
+          "descripcion": "Guardar un texto",
+          "tortu": "nombre es \"Ana\"",
+          "python": "nombre = \"Ana\""
+        },
+        {
+          "descripcion": "Guardar el resultado de una operación",
+          "tortu": "suma es 5 + 3",
+          "python": "suma = 5 + 3"
+        }
+      ]
+    },
+    {
+      "icono": "➕",
+      "titulo": "Operaciones matemáticas",
+      "color": "amarillo",
+      "ejemplos": [
+        {
+          "descripcion": "Suma, resta, multiplicación, división",
+          "tortu": "mostrar 10 + 3\nmostrar 10 - 3\nmostrar 10 * 3\nmostrar 10 / 3",
+          "python": "print(10 + 3)\nprint(10 - 3)\nprint(10 * 3)\nprint(10 / 3)"
+        },
+        {
+          "descripcion": "Resto (módulo)",
+          "tortu": "mostrar 10 % 3",
+          "python": "print(10 % 3)"
+        }
+      ]
+    },
+    {
+      "icono": "🤔",
+      "titulo": "Condicionales",
+      "color": "naranja",
+      "ejemplos": [
+        {
+          "descripcion": "Si una condición es verdadera",
+          "tortu": "si edad > 10:\n    mostrar \"Mayor\"",
+          "python": "if edad > 10:\n    print(\"Mayor\")"
+        },
+        {
+          "descripcion": "Si / sino",
+          "tortu": "si n % 2 == 0:\n    mostrar \"Par\"\nsino:\n    mostrar \"Impar\"",
+          "python": "if n % 2 == 0:\n    print(\"Par\")\nelse:\n    print(\"Impar\")"
+        },
+        {
+          "descripcion": "Comparadores disponibles",
+          "tortu": "== (igual)   != (distinto)\n>  (mayor)   <  (menor)\n>= (mayor o igual)   <= (menor o igual)",
+          "python": "# Igual en Python",
+          "traducible": false
+        }
+      ]
+    },
+    {
+      "icono": "🔄",
+      "titulo": "Bucles",
+      "color": "morado",
+      "ejemplos": [
+        {
+          "descripcion": "Repetir N veces",
+          "tortu": "repetir 5 veces:\n    mostrar \"Hola\"",
+          "python": "for _ in range(5):\n    print(\"Hola\")"
+        },
+        {
+          "descripcion": "Mientras una condición sea verdadera",
+          "tortu": "n es 0\nmientras n < 5:\n    mostrar n\n    n es n + 1",
+          "python": "n = 0\nwhile n < 5:\n    print(n)\n    n = n + 1"
+        }
+      ]
+    },
+    {
+      "icono": "🔧",
+      "titulo": "Funciones",
+      "color": "verde",
+      "ejemplos": [
+        {
+          "descripcion": "Definir una función",
+          "tortu": "funcion saludar(nombre):\n    mostrar \"Hola \" + nombre",
+          "python": "def saludar(nombre):\n    print(\"Hola \" + nombre)"
+        },
+        {
+          "descripcion": "Llamar a una función",
+          "tortu": "saludar(\"Ana\")",
+          "python": "saludar(\"Ana\")"
+        },
+        {
+          "descripcion": "Función que devuelve un valor",
+          "tortu": "funcion doble(n):\n    devolver n * 2\n\nresultado es doble(5)\nmostrar resultado",
+          "python": "def doble(n):\n    return n * 2\n\nresultado = doble(5)\nprint(resultado)"
+        }
+      ]
+    },
+    {
+      "icono": "🔀",
+      "titulo": "Lógica",
+      "color": "rojo",
+      "ejemplos": [
+        {
+          "descripcion": "Y (ambas condiciones verdaderas)",
+          "tortu": "si edad > 10 y edad < 18:\n    mostrar \"Adolescente\"",
+          "python": "if edad > 10 and edad < 18:\n    print(\"Adolescente\")"
+        },
+        {
+          "descripcion": "O (al menos una verdadera)",
+          "tortu": "si dia == \"sábado\" o dia == \"domingo\":\n    mostrar \"Fin de semana\"",
+          "python": "if dia == \"sábado\" or dia == \"domingo\":\n    print(\"Fin de semana\")"
+        },
+        {
+          "descripcion": "No (negar)",
+          "tortu": "si no nombre == \"\":\n    mostrar nombre",
+          "python": "if not nombre == \"\":\n    print(nombre)"
+        }
+      ]
+    },
+    {
+      "icono": "⌨️",
+      "titulo": "Preguntar",
+      "color": "celeste",
+      "ejemplos": [
+        {
+          "descripcion": "Pedir un dato",
+          "tortu": "nombre es preguntar(\"¿Cómo te llamás? \")\nmostrar \"Hola \" + nombre",
+          "python": "nombre = input(\"¿Cómo te llamás? \")\nprint(\"Hola \" + nombre)"
+        },
+        {
+          "descripcion": "Pedir un número",
+          "tortu": "edad es int(preguntar(\"¿Cuántos años tenés? \"))\nmostrar edad + 1",
+          "python": "edad = int(input(\"¿Cuántos años tenés? \"))\nprint(edad + 1)"
+        }
+      ]
+    },
+    {
+      "icono": "🧺",
+      "titulo": "Listas",
+      "color": "amarillo",
+      "ejemplos": [
+        {
+          "descripcion": "Recorrer una lista",
+          "tortu": "frutas es [\"pera\", \"uva\"]\npara fruta en frutas:\n    mostrar fruta",
+          "python": "frutas = [\"pera\", \"uva\"]\nfor fruta in frutas:\n    print(fruta)"
+        }
+      ]
+    },
+    {
+      "icono": "🐢",
+      "titulo": "Tortuga",
+      "color": "verde",
+      "ejemplos": [
+        {
+          "descripcion": "Avanzar y girar",
+          "tortu": "avanzar 100\ngirar_der 90\nretroceder 50\ngirar_izq 45",
+          "python": "avanzar(100)\ngirar_der(90)\nretroceder(50)\ngirar_izq(45)"
+        },
+        {
+          "descripcion": "Color y lápiz",
+          "tortu": "color \"rojo\"\nsubir_lapiz\navanzar 20\nbajar_lapiz",
+          "python": "color(\"rojo\")\nsubir_lapiz()\navanzar(20)\nbajar_lapiz()"
+        }
+      ]
+    },
+    {
+      "icono": "📋",
+      "titulo": "Valores especiales",
+      "color": "gris",
+      "ejemplos": [
+        {
+          "descripcion": "Booleanos",
+          "tortu": "activo es Verdadero\nsi activo:\n    mostrar \"Sí\"",
+          "python": "activo = True\nif activo:\n    print(\"Sí\")"
+        }
+      ]
+    }
+  ]
+}

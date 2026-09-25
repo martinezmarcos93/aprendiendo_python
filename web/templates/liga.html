@@ -1,0 +1,37 @@
+{% extends "base.html" %}
+{% block titulo %}Liga{% endblock %}
+{% block contenido %}
+<div class="columna-angosta">
+  <section class="tarjeta centrado">
+    <div class="mascota gran" aria-hidden="true">{{ liga.icono }}</div>
+    <h1>Liga {{ liga.liga }}</h1>
+    <p class="tenue">Compiten los perfiles de esta compu y unos rivales de mentira. Los {{ liga.ascienden }} primeros suben de liga. Nadie baja.</p>
+    <div class="ligas" aria-label="Todas las ligas">
+      {% for nombre, icono in ligas %}<span class="liga-chip {{ 'actual' if loop.index0 == liga.nivel }} {{ 'superada' if loop.index0 < liga.nivel }}" title="{{ nombre }}">{{ icono }}</span>{% endfor %}
+    </div>
+  </section>
+
+  <section class="tarjeta">
+    <h2>Esta semana <small class="tenue">· termina {{ 'hoy' if liga.dias_restantes == 0 else ('en ' ~ liga.dias_restantes ~ (' día' if liga.dias_restantes == 1 else ' días')) }}</small></h2>
+    <ol class="tabla-liga">
+      {% for f in liga.filas %}
+      <li class="{{ 'yo' if f.yo }} {{ 'sube' if f.puesto <= liga.ascienden }}">
+        <span class="puesto">{{ f.puesto }}</span>
+        <span class="icono-liga" aria-hidden="true">{{ f.icono }}</span>
+        <span class="nombre-liga">{{ f.nombre }}{% if f.yo %} <small>(vos)</small>{% endif %}</span>
+        <span class="xp-liga">{{ f.xp }} XP</span>
+        {% if f.puesto <= liga.ascienden %}<span class="flecha-sube" title="Sube de liga">⬆️</span>{% endif %}
+      </li>
+      {% endfor %}
+    </ol>
+    {% if liga.xp == 0 %}
+      <p class="tenue">Todavía no sumaste XP esta semana: ¡una lección y estás adentro!</p>
+    {% elif liga.asciende %}
+      <p class="verde-t"><b>Vas para arriba: si terminás la semana así, subís de liga.</b></p>
+    {% else %}
+      <p class="tenue">Sumá más XP para meterte entre los {{ liga.ascienden }} primeros.</p>
+    {% endif %}
+    {% if liga.ultima %}<p class="tenue">Ya estás en la liga más alta. 👑</p>{% endif %}
+  </section>
+</div>
+{% endblock %}

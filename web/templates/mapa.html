@@ -1,0 +1,52 @@
+{% extends "base.html" %}
+{% block titulo %}Mapa{% endblock %}
+{% block contenido %}
+<section class="tarjeta">
+  <div class="fila">
+    <h1>🗺️ Mapa de progreso</h1>
+    <span class="espacio"></span>
+    <div class="mini-stats mapa-stats">
+      <div><b>{{ estado.completados }}/{{ estado.total }}</b><span class="tenue">Ejercicios</span></div>
+      <div><b>{{ tres_estrellas }}</b><span class="tenue">3 estrellas</span></div>
+      <div><b>{{ estado.xp }}</b><span class="tenue">XP total</span></div>
+      <div><b>Nv.{{ estado.nivel }}</b><span class="tenue">{{ estado.titulo }}</span></div>
+    </div>
+  </div>
+</section>
+
+{% for nivel, fichas in niveles.items() %}
+<section class="nivel-mapa n{{ nivel }}">
+  <h2><span class="etiqueta-nivel">NIVEL {{ nivel }} — {{ nombres.get(nivel, '')|upper }}</span>
+    <span class="tenue">{{ fichas|selectattr('completado')|list|length }}/{{ fichas|length }} completados</span></h2>
+  <div class="fichas">
+    {% for f in fichas %}
+      {% set clase = 'perfecto' if f.estrellas == 3 else ('bien' if f.estrellas == 2 else ('intentado' if f.completado else '')) %}
+      {% if f.abierto %}
+      <a class="ficha {{ clase }}" href="{{ url_for('leccion', leccion_id=f.leccion) }}">
+      {% else %}
+      <span class="ficha bloqueada" title="Completá los ejercicios anteriores para desbloquear este">
+      {% endif %}
+        <span class="ficha-num">#{{ f.numero }}</span>
+        <span class="ficha-nombre">{{ f.nombre }}</span>
+        {% if f.completado %}
+          <span class="ficha-estrellas">{{ '⭐' * f.estrellas }}{{ '☆' * (3 - f.estrellas) }}</span>
+          <span class="tenue ficha-xp">+{{ f.xp }} XP</span>
+        {% elif f.abierto %}
+          <span class="ficha-estrellas">▶ ¡Te toca!</span>
+        {% else %}
+          <span class="ficha-estrellas">🔒</span>
+        {% endif %}
+      {% if f.abierto %}</a>{% else %}</span>{% endif %}
+    {% endfor %}
+  </div>
+</section>
+{% endfor %}
+
+<section class="tarjeta leyenda">
+  <b class="tenue">Leyenda:</b>
+  <span class="verde-t">⭐⭐⭐ Perfecto</span>
+  <span class="celeste-t">⭐⭐ Completo</span>
+  <span class="amarillo-t">⭐ Intentado</span>
+  <span class="tenue">🔒 Sin desbloquear</span>
+</section>
+{% endblock %}

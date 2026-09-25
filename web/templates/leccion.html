@@ -1,0 +1,30 @@
+{% extends "base.html" %}
+{% block titulo %}{{ titulo }}{% endblock %}
+{% block contenido %}
+<div class="leccion" id="leccion">
+  <div class="leccion-cab">
+    <a class="cerrar" href="{{ url_for('inicio') }}" title="Salir de la lección" aria-label="Salir de la lección">✕</a>
+    <div class="progreso-leccion" role="progressbar" aria-valuemin="0" aria-valuemax="{{ datos.pasos|length }}" aria-valuenow="0" id="lec-progreso">
+      <span id="lec-barra"></span>
+    </div>
+    <span class="tenue" id="lec-contador"></span>
+  </div>
+  <div class="leccion-titulo">
+    {% if datos.modo == 'practica' %}<span class="etiqueta repaso-e">🧠 Práctica</span>{% else %}<span class="etiqueta">Nivel {{ datos.nivel }}</span>{% endif %}
+    <b>{{ datos.titulo }}</b>
+  </div>
+
+  <section class="tarjeta paso-caja" id="lec-paso" aria-live="polite"></section>
+
+  <div class="pie-leccion" id="lec-pie" hidden>
+    <div class="pie-mensaje" id="lec-mensaje" role="status" aria-live="polite"></div>
+    <div class="pie-botones">
+      <button class="boton chico" id="lec-ver" type="button" hidden>👀 Ver respuesta</button>
+      <button class="boton" id="lec-principal" type="button">Continuar</button>
+    </div>
+  </div>
+</div>
+<script type="application/json" id="datos-leccion">{{ datos|tojson }}</script>
+{% endblock %}
+{% block scripts %}<script src="{{ url_for('static', filename='js/tortuga.js') }}"></script>
+<script src="{{ url_for('static', filename='js/leccion.js') }}"></script>{% endblock %}

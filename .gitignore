@@ -1,0 +1,19 @@
+# Python
+__pycache__/
+*.pyc
+.venv/
+venv/
+
+# Progreso local de cada chico (se crea solo)
+progreso_*.json
+progreso_*.json.bak
+progreso_*.corrupto-*
+
+# Logs
+logs/
+
+.claude/
+config_tortuscript.json
+
+# Paquetes generados por herramientas/crear_paquete.py
+dist/
