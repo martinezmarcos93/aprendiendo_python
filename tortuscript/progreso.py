@@ -27,7 +27,7 @@ logger = logging.getLogger("tortuscript.progreso")
 # Los archivos viven en la carpeta raíz del proyecto (no en la carpeta desde donde se
 # lo abre, ni dentro del paquete tortuscript/).
 DIRECTORIO = Path(__file__).resolve().parent.parent
-VERSION_ESQUEMA = 7
+VERSION_ESQUEMA = 8
 
 PERFIL_ACTUAL = "default"
 
@@ -107,7 +107,10 @@ PROGRESO_INICIAL = {
     # Lecciones (v3): {leccion_id: {"pasos": {"0": {"xp": 5, "perfecto": true}}, "completada": bool, "perfecta": bool}}
     "lecciones": {},
     # Configuración del chico (v4): se completa en el onboarding y se cambia desde el resumen.
-    "config": {"onboarding": False, "nombre": None, "experiencia": None, "meta_min": 10},
+    "config": {"onboarding": False, "nombre": None, "experiencia": None, "meta_min": 10,
+               # Accesibilidad (v8): la elige cada chico y la aplica el servidor al dibujar cada página
+               "ajustes": {"tam": "normal", "contraste": "normal", "movimiento": "normal",
+                           "letra": "normal", "voz": "no", "velocidad": "normal"}},
     # XP ganado por día (últimos 30), para la meta diaria.
     "xp_por_dia": {},
     # Gamificación amable (v5): sin vidas ni compras; todo se gana jugando.
@@ -141,7 +144,9 @@ def _migrar(data):
         if campo not in data:
             data[campo] = copy.deepcopy(valor)
     for clave, valor in PROGRESO_INICIAL["config"].items():      # config de versiones anteriores, a medias
-        data["config"].setdefault(clave, valor)
+        data["config"].setdefault(clave, copy.deepcopy(valor))
+    for clave, valor in PROGRESO_INICIAL["config"]["ajustes"].items():
+        data["config"]["ajustes"].setdefault(clave, valor)
     data["version"] = VERSION_ESQUEMA
     return data
 
@@ -257,6 +262,37 @@ def necesita_onboarding(progreso):
         return False
     hay_avance = progreso.get("xp_total", 0) > 0 or progreso.get("ejercicios") or progreso.get("lecciones")
     return not hay_avance
+
+
+# Cada ajuste y sus valores válidos (el primero es el de fábrica).
+AJUSTES = {
+    "tam": ("normal", "grande", "enorme"),          # tamaño de letra
+    "contraste": ("normal", "alto"),
+    "movimiento": ("normal", "reducido"),           # animaciones
+    "letra": ("normal", "legible"),                 # tipografía sencilla y más espaciada
+    "voz": ("no", "si"),                            # leer las consignas en voz alta automáticamente
+    "velocidad": ("lenta", "normal", "rapida"),     # de la voz
+}
+
+
+def guardar_ajustes(progreso, **cambios):
+    """Cambia ajustes de accesibilidad. Devuelve False (sin cambiar nada) si algún valor no es válido."""
+    for nombre, valor in cambios.items():
+        if valor is not None and valor not in AJUSTES.get(nombre, ()):
+            return False
+    ajustes = progreso.setdefault("config", copy.deepcopy(PROGRESO_INICIAL["config"])).setdefault(
+        "ajustes", copy.deepcopy(PROGRESO_INICIAL["config"]["ajustes"]))
+    for nombre, valor in cambios.items():
+        if valor is not None:
+            ajustes[nombre] = valor
+    return guardar_progreso(progreso)
+
+
+def ajustes_de(progreso):
+    """Los ajustes vigentes (con los de fábrica donde falte alguno)."""
+    base = copy.deepcopy(PROGRESO_INICIAL["config"]["ajustes"])
+    base.update({k: v for k, v in (progreso.get("config", {}).get("ajustes") or {}).items() if v in AJUSTES.get(k, ())})
+    return base
 
 
 def guardar_config(progreso, experiencia=None, meta_min=None, nombre=None, onboarding=None):
