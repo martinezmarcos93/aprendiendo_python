@@ -1,3 +1,4 @@
+import re
 import tkinter as tk
 from tkinter import scrolledtext
 from ejercicios import EJERCICIOS
@@ -221,9 +222,17 @@ class VentanaEjercicios(tk.Toplevel):
 
     @staticmethod
     def _normalizar_salida(texto):
-        # Tolerante con espacios al final de cada línea y líneas vacías al final;
-        # estricto con el contenido (mayúsculas y tildes cuentan).
-        return "\n".join(l.rstrip() for l in texto.strip().split("\n"))
+        """Compara lo que importa, no el tipeo:
+        - ignora espacios al principio/final de línea y líneas vacías al final;
+        - varios espacios seguidos cuentan como uno;
+        - ignora espacios alrededor de signos: "7+3" == "7 + 3", "es:pizza" == "es: pizza".
+        Sigue siendo estricto con palabras, mayúsculas y tildes ("Holamundo" != "Hola mundo")."""
+        lineas = []
+        for linea in texto.strip().split("\n"):
+            linea = re.sub(r"\s+", " ", linea.strip())
+            linea = re.sub(r"\s*([^\w\s])\s*", r"\1", linea)
+            lineas.append(linea)
+        return "\n".join(lineas)
 
     def _evaluar(self, detalles):
         ej  = EJERCICIOS[self.indice]
