@@ -21,6 +21,7 @@ if str(RAIZ) not in sys.path:
 
 from tortuscript import contenido, evaluacion, leccion as motor, liga, logros, progreso  # noqa: E402
 from tortuscript import practica as espaciado  # noqa: E402
+from tortuscript import proyectos as mis_proyectos  # noqa: E402
 from tortuscript.ejercicios import EJERCICIOS  # noqa: E402
 from tortuscript.proceso import correr  # noqa: E402
 from tortuscript.referencia import cargar_referencia  # noqa: E402
@@ -359,13 +360,32 @@ def create_app(token=None):
             "modo": MODOS[modo][1], "pos": pos, "total": len(cola),
             "anterior": anterior, "siguiente": siguiente, "ultimo": pos == len(cola)})
 
+    def _proyecto_pedido(tipo):
+        """El proyecto de ?proyecto=<id>: (proyecto|None, redirección|None). Si es de otro tipo, va a su página."""
+        pedido = request.args.get("proyecto")
+        if not pedido:
+            return None, None
+        p = mis_proyectos.obtener(progreso.cargar_progreso(), pedido)
+        if p is None:
+            return None, redirect(url_for(tipo))
+        if p["tipo"] != tipo:
+            return None, redirect(url_for(p["tipo"], proyecto=pedido))
+        return p, None
+
     @app.get("/experimentar")
     def experimentar():
-        return render_template("experimentar.html")
+        proyecto, otra = _proyecto_pedido("experimentar")
+        return otra or render_template("experimentar.html", proyecto=proyecto)
 
     @app.get("/tortuga")
     def tortuga():
-        return render_template("tortuga.html")
+        proyecto, otra = _proyecto_pedido("tortuga")
+        return otra or render_template("tortuga.html", proyecto=proyecto)
+
+    @app.get("/proyectos")
+    def proyectos():
+        return render_template("proyectos.html", proyectos=mis_proyectos.listar(progreso.cargar_progreso()),
+                               maximo=mis_proyectos.MAX_PROYECTOS)
 
     # ─────────────── API ───────────────
     @app.post("/api/traducir")
@@ -561,6 +581,31 @@ def create_app(token=None):
         intentos.pop(clave, None)
         return jsonify(respuesta=motor.respuesta_correcta(paso), leccion={"siguiente": None},
                        estado_juego=_estado(), avisos=_avisos_tras(p))
+
+    def _con_proyectos(accion):
+        """Aplica `accion(p)` al progreso; los errores que el chico puede corregir vuelven como 400."""
+        p = progreso.cargar_progreso()
+        try:
+            resultado = accion(p)
+        except mis_proyectos.ErrorProyecto as e:
+            return jsonify(ok=False, mensaje=str(e)), 400
+        progreso.guardar_progreso(p)
+        return jsonify(ok=True, id=resultado, total=len(p.get("proyectos", {})), avisos=_avisos_tras(p),
+                       estado_juego=_estado())
+
+    @app.post("/api/proyectos")
+    def api_proyecto_guardar():
+        d = request.get_json(silent=True) or {}
+        return _con_proyectos(lambda p: mis_proyectos.guardar(p, d.get("nombre"), d.get("tipo"), d.get("codigo"),
+                                                              proyecto_id=d.get("id")))
+
+    @app.post("/api/proyectos/<proyecto_id>/duplicar")
+    def api_proyecto_duplicar(proyecto_id):
+        return _con_proyectos(lambda p: mis_proyectos.duplicar(p, proyecto_id))
+
+    @app.post("/api/proyectos/<proyecto_id>/borrar")
+    def api_proyecto_borrar(proyecto_id):
+        return _con_proyectos(lambda p: mis_proyectos.borrar(p, proyecto_id))
 
     @app.post("/api/onboarding")
     def api_onboarding():

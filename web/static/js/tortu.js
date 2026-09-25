@@ -9,7 +9,12 @@ const Tortu = (() => {
       headers: { "Content-Type": "application/json", "X-Tortu-Token": window.TORTU.token },
       body: datos === undefined ? undefined : JSON.stringify(datos),
     });
-    if (!r.ok) throw new Error(`Error ${r.status} en ${ruta}`);
+    if (!r.ok) {
+      const error = new Error(`Error ${r.status} en ${ruta}`);
+      error.estado = r.status;
+      try { error.datos = await r.json(); } catch (e) { error.datos = null; }   // el servidor explica lo que se puede corregir
+      throw error;
+    }
     return r.json();
   }
 
@@ -192,6 +197,7 @@ const Tortu = (() => {
       case "congelador_ganado": return ["❄️ ¡Ganaste un congelador de racha!", "Te protege si un día no podés programar."];
       case "congelador_usado": return ["❄️ Tu congelador salvó tu racha", `Ya llevás ${a.racha} días seguidos.`];
       case "meta_cumplida": return ["🎯 ¡Cumpliste la meta de hoy!", `${a.xp} XP en el día.`];
+      case "mensaje": return [a.titulo, a.detalle];
       case "liga_asciende": return [`${a.icono} ¡Subiste a la liga de ${a.liga}!`, `Terminaste la semana en el puesto ${a.puesto}.`];
       default: return null;
     }

@@ -11,6 +11,7 @@
     ["Función", 'funcion saludar(nombre):\n    mostrar "Hola " + nombre\n\nsaludar("Lua")'],
   ];
   const { editor, python } = Tortu.crearEditores(ejecutar);
+  Proyectos.iniciar("experimentar", editor);
   const btn = document.getElementById("btn-ejecutar");
   const caja = document.getElementById("ejemplos");
   for (const [nombre, codigo] of EJEMPLOS) {

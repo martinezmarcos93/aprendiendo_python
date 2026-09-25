@@ -172,6 +172,7 @@ const Lienzo = (() => {
   const lienzo = Lienzo.crear(canvas);
   window.lienzoTortuga = lienzo;
   const { editor } = Tortu.crearEditores(dibujar);
+  Proyectos.iniciar("tortuga", editor);
   const btn = document.getElementById("btn-ejecutar");
   const btnDetener = document.getElementById("btn-detener");
   const chkDepurador = document.getElementById("chk-depurador");

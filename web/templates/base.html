@@ -19,8 +19,9 @@
       <a href="{{ url_for('tortuga') }}" class="{{ 'activo' if request.endpoint == 'tortuga' }}">Tortuga</a>
       <a href="{{ url_for('practica') }}" class="{{ 'activo' if request.endpoint == 'practica' }}">Practicar{% if estado.practica_pendientes %} <span class="insignia">{{ estado.practica_pendientes }}</span>{% endif %}</a>
       <details class="mas">
-        <summary class="{{ 'activo' if request.endpoint in ('mapa', 'referencia', 'pagina_logros', 'pagina_liga', 'resumen') or request.endpoint.startswith('repaso') }}">Más ▾</summary>
+        <summary class="{{ 'activo' if request.endpoint in ('mapa', 'referencia', 'pagina_logros', 'pagina_liga', 'resumen', 'proyectos') or request.endpoint.startswith('repaso') }}">Más ▾</summary>
         <div class="mas-lista">
+          <a href="{{ url_for('proyectos') }}">📂 Mis proyectos</a>
           <a href="{{ url_for('mapa') }}">🗺️ Mapa</a>
           <a href="{{ url_for('repaso') }}">🔁 Repaso de ejercicios</a>
           <a href="{{ url_for('pagina_logros') }}">🏆 Logros <small class="tenue">{{ estado.logros_ganados }}/{{ estado.logros_total }}</small></a>
@@ -55,6 +56,19 @@
         <span class="espacio"></span>
         <button class="boton chico" id="mp-cancelar" type="button">Cancelar</button>
         <button class="boton verde" id="mp-ok" type="button">✔ Responder</button>
+      </div>
+    </div>
+  </div>
+
+  <!-- Nombre de un proyecto -->
+  <div class="modal" id="modal-nombre" hidden role="dialog" aria-modal="true" aria-labelledby="nm-titulo">
+    <div class="caja">
+      <h2 id="nm-titulo">💾 ¿Cómo se llama tu proyecto?</h2>
+      <input class="campo" id="nm-campo" maxlength="40" autocomplete="off" placeholder="Por ejemplo: Mi estrella">
+      <div class="tenue atajo" id="nm-error" role="alert"></div>
+      <div class="pie">
+        <button class="boton chico" id="nm-cancelar" type="button">Cancelar</button>
+        <button class="boton verde" id="nm-ok" type="button">💾 Guardar</button>
       </div>
     </div>
   </div>

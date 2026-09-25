@@ -23,6 +23,9 @@
   <button class="boton verde grande" id="btn-ejecutar" type="button">▶ Dibujar <span class="atajo">Ctrl+Enter</span></button>
   <button class="boton amarillo" id="btn-detener" type="button" disabled>⏹ Detener</button>
   <button class="boton" id="btn-limpiar" type="button">🗑 Limpiar todo</button>
+  <button class="boton violeta" id="btn-guardar" type="button">💾 Guardar</button>
+  <a class="boton chico" href="{{ url_for('proyectos') }}">📂 Mis proyectos</a>
+  <span class="tenue" id="proyecto-nombre">{% if proyecto %}Proyecto: <b>{{ proyecto.nombre }}</b>{% endif %}</span>
   <label class="opcion"><input type="checkbox" id="chk-depurador" checked> Paso a paso (depurador)</label>
   <label class="opcion">🐇 Velocidad
     <input type="range" id="velocidad" min="1" max="10" value="5" aria-label="Velocidad de la tortuga">
@@ -33,4 +36,6 @@
   <div id="veredicto"></div>
 </section>
 {% endblock %}
-{% block scripts %}<script src="{{ url_for('static', filename='js/tortuga.js') }}"></script>{% endblock %}
+{% block scripts %}<script type="application/json" id="proyecto-actual">{{ proyecto|tojson }}</script>
+<script src="{{ url_for('static', filename='js/proyectos.js') }}"></script>
+<script src="{{ url_for('static', filename='js/tortuga.js') }}"></script>{% endblock %}

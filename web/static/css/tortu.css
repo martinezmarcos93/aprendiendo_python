@@ -477,6 +477,14 @@ a.nodo-camino:hover { transform: translateY(-3px) scale(1.05); }
 .aviso.saliendo { opacity: 0; transform: translateX(30px); }
 .aviso span { color: var(--texto-suave); font-size: .9rem; }
 
+/* ───────── mis proyectos ───────── */
+.proyectos-grid { display: grid; grid-template-columns: repeat(auto-fill, minmax(280px, 1fr)); gap: 1rem; }
+.proyecto { display: grid; gap: .5rem; }
+.proyecto h3 { margin: 0; display: flex; gap: .5rem; align-items: center; }
+.proyecto pre { margin: 0; max-height: 6.5rem; overflow: hidden; padding: .6rem .8rem; border-radius: 10px; background: var(--editor);
+  font-size: .85rem; white-space: pre-wrap; color: var(--texto-suave); }
+.proyecto .acciones { margin-top: .2rem; }
+
 /* ───────── modales ───────── */
 .modal {
   position: fixed; inset: 0; z-index: 50; display: grid; place-items: center;

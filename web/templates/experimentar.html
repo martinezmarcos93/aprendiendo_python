@@ -15,10 +15,15 @@
 <div class="acciones">
   <button class="boton verde grande" id="btn-ejecutar" type="button">▶ Ejecutar <span class="atajo">Ctrl+Enter</span></button>
   <button class="boton" id="btn-limpiar" type="button">🗑 Limpiar</button>
+  <button class="boton violeta" id="btn-guardar" type="button">💾 Guardar</button>
+  <a class="boton chico" href="{{ url_for('proyectos') }}">📂 Mis proyectos</a>
+  <span class="tenue" id="proyecto-nombre">{% if proyecto %}Proyecto: <b>{{ proyecto.nombre }}</b>{% endif %}</span>
 </div>
 <section class="resultado">
   <pre class="consola" id="consola" aria-live="polite"><span class="tenue">Acá vas a ver lo que muestra tu programa.</span></pre>
   <div id="veredicto"></div>
 </section>
 {% endblock %}
-{% block scripts %}<script src="{{ url_for('static', filename='js/experimentar.js') }}"></script>{% endblock %}
+{% block scripts %}<script type="application/json" id="proyecto-actual">{{ proyecto|tojson }}</script>
+<script src="{{ url_for('static', filename='js/proyectos.js') }}"></script>
+<script src="{{ url_for('static', filename='js/experimentar.js') }}"></script>{% endblock %}
