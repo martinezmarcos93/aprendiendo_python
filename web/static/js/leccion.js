@@ -123,11 +123,14 @@
 
   // ───────── llamadas al servidor ─────────
   const rutaPaso = (i, que) => `/api/lecciones/${datos.id}/pasos/${i}/${que}`;
+  const practica = datos.modo === "practica";
 
   async function comprobar(paso, respuesta) {
     btnPrincipal.disabled = true;
     try {
-      const r = await Tortu.api(rutaPaso(paso.indice, "comprobar"), { respuesta });
+      const r = practica
+        ? await Tortu.api("/api/practica/comprobar", { leccion: paso.leccion, paso: paso.indice, respuesta })
+        : await Tortu.api(rutaPaso(paso.indice, "comprobar"), { respuesta });
       Tortu.actualizarEstado(r.estado_juego);
       Tortu.avisos(r.avisos);
       if (r.ok) {
@@ -154,7 +157,9 @@
   async function verRespuesta() {
     const paso = pasos[actual];
     try {
-      const r = await Tortu.api(rutaPaso(paso.indice, "respuesta"), {});
+      const r = practica
+        ? await Tortu.api("/api/practica/respuesta", { leccion: paso.leccion, paso: paso.indice })
+        : await Tortu.api(rutaPaso(paso.indice, "respuesta"), {});
       Tortu.actualizarEstado(r.estado_juego);
       Tortu.avisos(r.avisos);
       hechos += 1; resultadoFinal = r.leccion;
@@ -432,19 +437,19 @@
   function pantallaFinal() {
     cont.textContent = "";
     hechos = pasos.length; pintarProgreso();
-    const perfecta = resultadoFinal ? resultadoFinal.perfecta : perfectos === pasos.length;
+    const perfecta = practica ? perfectos === pasos.length : (resultadoFinal ? resultadoFinal.perfecta : perfectos === pasos.length);
     cont.appendChild(el("div", "mascota gran", perfecta ? "🏆" : "🎉"));
-    cont.appendChild(el("h2", "centrado", perfecta ? "¡Lección perfecta!" : "¡Lección completada!"));
-    cont.appendChild(el("p", "tenue centrado", perfecta
-      ? "Todo salió al primer intento. ¡Sos un crack!"
-      : "Podés repetirla cuando quieras para lograr la lección perfecta."));
+    cont.appendChild(el("h2", "centrado", practica ? "¡Práctica terminada!" : (perfecta ? "¡Lección perfecta!" : "¡Lección completada!")));
+    cont.appendChild(el("p", "tenue centrado", practica
+      ? (perfecta ? "Todo al primer intento: esas tarjetas vuelven más tarde." : "Lo que falló vuelve mañana, para que se quede.")
+      : (perfecta ? "Todo salió al primer intento. ¡Sos un crack!" : "Podés repetirla cuando quieras para lograr la lección perfecta.")));
     const stats = el("div", "mini-stats");
-    for (const [valor, rotulo] of [[`${perfectos}/${pasos.length}`, "pasos al primer intento"], [`+${xpTotal}`, "XP en esta lección"]]) {
+    for (const [valor, rotulo] of [[`${perfectos}/${pasos.length}`, "al primer intento"], [`+${xpTotal}`, practica ? "XP de práctica" : "XP en esta lección"]]) {
       const d = el("div"); d.appendChild(el("b", "", valor)); d.appendChild(el("span", "tenue", rotulo)); stats.appendChild(d);
     }
     cont.appendChild(stats);
     const acciones = el("div", "acciones"); acciones.style.justifyContent = "center";
-    const sig = resultadoFinal && resultadoFinal.siguiente;
+    const sig = !practica && resultadoFinal && resultadoFinal.siguiente;
     if (sig) {
       const a = el("a", "boton verde grande", `▶ ${resultadoFinal.titulo_siguiente}`);
       a.href = `/leccion/${sig}`; acciones.appendChild(a);

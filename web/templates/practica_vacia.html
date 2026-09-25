@@ -1,0 +1,15 @@
+{% extends "base.html" %}
+{% block titulo %}Práctica del día{% endblock %}
+{% block contenido %}
+<div class="columna-angosta">
+  <section class="tarjeta centrado">
+    <div class="mascota gran">🧠</div>
+    <h1>¡Estás al día!</h1>
+    <p class="tenue">No hay tarjetas para repasar ahora. Cada paso que hacés en una lección vuelve a aparecer acá más adelante (mañana, en 2 días, en 4...), justo antes de que se te olvide.</p>
+    <div class="acciones" style="justify-content:center">
+      <a class="boton verde" href="{{ url_for('aprender') }}">▶ Seguir aprendiendo</a>
+      <a class="boton" href="{{ url_for('repaso') }}">🔁 Repasar ejercicios</a>
+    </div>
+  </section>
+</div>
+{% endblock %}

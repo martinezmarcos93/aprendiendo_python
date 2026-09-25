@@ -42,6 +42,8 @@
       <span class="tenue">{{ estado.reto_dias }}/{{ estado.reto_total }} · al llegar a {{ estado.reto_total }} ganás un congelador ❄️</span>
       <div class="linea-cong">❄️ Congeladores: <b>{{ estado.congeladores }}</b>{% if estado.racha_protegida %} · <b class="verde-t">tu racha está protegida</b>{% endif %}</div>
     </div>
+    <a class="tarjeta acceso" href="{{ url_for('practica') }}"><span class="icono">🧠</span><div><h3>Práctica del día</h3>
+      <span class="tenue">{% if estado.practica_pendientes %}{{ estado.practica_pendientes }} tarjeta{{ 's' if estado.practica_pendientes != 1 }} para repasar{% else %}¡Estás al día! Volvé mañana.{% endif %}</span></div></a>
     <a class="tarjeta acceso" href="{{ url_for('pagina_liga') }}"><span class="icono">{{ estado.liga.icono }}</span><div><h3>Liga {{ estado.liga.liga }}</h3><span class="tenue">Puesto {{ estado.liga.puesto }} de {{ estado.liga.tamano }} · {{ estado.liga.xp }} XP esta semana</span></div></a>
     <a class="tarjeta acceso" href="{{ url_for('experimentar') }}"><span class="icono">🧪</span><div><h3>Experimentar</h3><span class="tenue">Probá lo que quieras, sin ejercicios.</span></div></a>
     <a class="tarjeta acceso" href="{{ url_for('tortuga') }}"><span class="icono">🎨</span><div><h3>Zona Tortuga</h3><span class="tenue">Dibujá dándole órdenes a la tortuga.</span></div></a>

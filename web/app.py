@@ -20,6 +20,7 @@ if str(RAIZ) not in sys.path:
     sys.path.insert(0, str(RAIZ))
 
 from tortuscript import contenido, evaluacion, leccion as motor, liga, logros, progreso  # noqa: E402
+from tortuscript import practica as espaciado  # noqa: E402
 from tortuscript.ejercicios import EJERCICIOS  # noqa: E402
 from tortuscript.proceso import correr  # noqa: E402
 from tortuscript.referencia import cargar_referencia  # noqa: E402
@@ -40,6 +41,7 @@ def create_app(token=None):
     for i, e in enumerate(EJERCICIOS):
         INDICES_POR_LECCION.setdefault(e["leccion_id"], []).append(i)
     intentos = {}    # errores y respuesta vista por (perfil, lección, paso); se reinicia al abrir la lección
+    practicas = {}   # sesión de práctica del día por perfil: {"dia", "pasos": [(lección, paso)]}
     colas = {}       # colas de repaso fijadas al empezar: (perfil, modo, semilla) -> [índices]
 
     # ─────────────── seguridad ───────────────
@@ -98,6 +100,7 @@ def create_app(token=None):
             "congeladores": p.get("congeladores", 0), "racha_protegida": progreso.racha_protegida(p),
             "reto_dias": reto[0], "reto_total": reto[1],
             "logros_ganados": len(p.get("logros", {})), "logros_total": len(logros.LOGROS),
+            "practica_pendientes": espaciado.pendientes(p, _cursos(), date.today()),
             "liga": {k: tabla_liga[k] for k in ("liga", "icono", "puesto", "tamano", "xp", "dias_restantes", "asciende")},
             "lecciones_hechas": sum(1 for lec in planas if lec["estado"] in ("hecha", "perfecta")),
             "lecciones_total": len(planas),
@@ -282,6 +285,25 @@ def create_app(token=None):
             jugo_hoy=p.get("ultimo_dia") == str(date.today()), calendario=progreso.calendario_semana(p),
             estrellas_texto=progreso.estrellas_texto, metas=progreso.METAS_MIN,
             recientes=sorted((c for c in logros.catalogo(p) if c["ganado"]), key=lambda c: c["fecha"], reverse=True)[:4])
+
+    @app.get("/practica")
+    def practica():
+        """Práctica del día: hasta 6 tarjetas que ya tocan, de lecciones distintas (repaso espaciado)."""
+        p = progreso.cargar_progreso()
+        elegidas = espaciado.elegir(p, _cursos(), date.today())
+        if not elegidas:
+            return render_template("practica_vacia.html")
+        practicas[progreso.PERFIL_ACTUAL] = {"dia": str(date.today()), "pasos": elegidas}
+        pasos = []
+        for leccion_id, i in elegidas:
+            _, _, lec = _leccion_o_404(leccion_id)
+            intentos.pop((progreso.PERFIL_ACTUAL, "practica", leccion_id, i), None)
+            publico = _publico(lec["pasos"][i], leccion_id, i)
+            publico["leccion"] = leccion_id
+            pasos.append(publico)
+        datos = {"id": "practica", "modo": "practica", "titulo": "Práctica del día", "seccion": "Repaso espaciado",
+                 "nivel": None, "pasos": pasos, "ya_completada": False}
+        return render_template("leccion.html", datos=datos, titulo="Práctica del día")
 
     @app.get("/logros")
     def pagina_logros():
@@ -491,6 +513,54 @@ def create_app(token=None):
     def api_pista(n):
         leccion_id, i, paso = _ejercicio_como_paso(n)
         return _dar_pista(leccion_id, i, paso)
+
+    def _tarjeta_de_la_sesion(datos):
+        """(leccion_id, indice, paso) si la tarjeta es de la sesión de hoy; si no, 403."""
+        try:
+            leccion_id, i = str(datos.get("leccion", "")), int(datos.get("paso"))
+        except (TypeError, ValueError):
+            abort(400)
+        sesion = practicas.get(progreso.PERFIL_ACTUAL)
+        if not sesion or (leccion_id, i) not in sesion["pasos"]:
+            abort(403)
+        _, _, lec = _leccion_o_404(leccion_id)
+        return leccion_id, i, lec["pasos"][i]
+
+    @app.post("/api/practica/comprobar")
+    def api_practica_comprobar():
+        datos = request.get_json(silent=True) or {}
+        leccion_id, i, paso = _tarjeta_de_la_sesion(datos)
+        clave = (progreso.PERFIL_ACTUAL, "practica", leccion_id, i)
+        estado_paso = intentos.setdefault(clave, {"errores": 0, "revelado": False})
+        r = motor.comprobar(paso, datos.get("respuesta"), _ejecutar_para_motor(paso))
+        if not r["ok"]:
+            estado_paso["errores"] += 1
+            return jsonify(ok=False, pista=r["pista"], malos=r["malos"],
+                           puede_ver_respuesta=motor.puede_ver_respuesta(estado_paso["errores"]))
+        p = progreso.cargar_progreso()
+        nivel_antes = progreso.calcular_nivel(p.get("xp_total", 0))[0]
+        acierto = estado_paso["errores"] == 0
+        ganado = progreso.registrar_practica(p, leccion_id, i, acierto)
+        intentos.pop(clave, None)
+        avisos = _avisos_tras(p)
+        return jsonify(ok=True, xp=ganado, perfecto=acierto,
+                       sube_nivel=progreso.calcular_nivel(p["xp_total"])[0] > nivel_antes,
+                       leccion={"siguiente": None}, estado_juego=_estado(), avisos=avisos)
+
+    @app.post("/api/practica/respuesta")
+    def api_practica_respuesta():
+        datos = request.get_json(silent=True) or {}
+        leccion_id, i, paso = _tarjeta_de_la_sesion(datos)
+        clave = (progreso.PERFIL_ACTUAL, "practica", leccion_id, i)
+        estado_paso = intentos.setdefault(clave, {"errores": 0, "revelado": False})
+        if not motor.puede_ver_respuesta(estado_paso["errores"]):
+            abort(403)
+        estado_paso["revelado"] = True
+        p = progreso.cargar_progreso()
+        progreso.registrar_practica(p, leccion_id, i, False)
+        intentos.pop(clave, None)
+        return jsonify(respuesta=motor.respuesta_correcta(paso), leccion={"siguiente": None},
+                       estado_juego=_estado(), avisos=_avisos_tras(p))
 
     @app.post("/api/onboarding")
     def api_onboarding():

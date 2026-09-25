@@ -335,6 +335,79 @@ class TestWebCamino(Base):
         self.assertEqual(progreso.cargar_progreso()["liga"], {"nivel": 1, "semana": liga.clave_semana(hoy)})
         self.assertNotIn("liga_asciende", self.c.get("/").get_data(as_text=True))       # el aviso se cuenta una sola vez
 
+    # ── práctica del día ──
+    def _con_pasos_viejos(self):
+        """hola-mundo con sus 4 pasos rápidos hechos hace una semana."""
+        self.post("/api/onboarding", {"meta_min": 10})
+        p = progreso.cargar_progreso()
+        for i in (1, 2, 3, 4):
+            progreso.registrar_paso_leccion(p, "hola-mundo", i, 5, True, 6)
+            p["lecciones"]["hola-mundo"]["pasos"][str(i)]["fecha"] = "2026-01-01"
+        progreso.guardar_progreso(p)
+
+    def _practica(self, i, respuesta):
+        return self.post("/api/practica/comprobar", {"leccion": "hola-mundo", "paso": i, "respuesta": respuesta}).get_json()
+
+    def test_sin_nada_para_repasar_se_dice_que_esta_al_dia(self):
+        self.post("/api/onboarding", {"meta_min": 10})
+        self.assertIn("¡Estás al día!", self.c.get("/practica").get_data(as_text=True))
+        est = self.c.get("/api/estado", headers=self.h).get_json()
+        self.assertEqual(est["practica_pendientes"], 0)
+        self.assertIn("¡Estás al día! Volvé mañana.", self.c.get("/").get_data(as_text=True))
+
+    def test_la_practica_lista_las_tarjetas_vencidas_sin_filtrar_respuestas(self):
+        self._con_pasos_viejos()
+        self.assertEqual(self.c.get("/api/estado", headers=self.h).get_json()["practica_pendientes"], 4)
+        html = self.c.get("/practica").get_data(as_text=True)
+        self.assertIn('"modo": "practica"', html)
+        self.assertIn("Práctica del día", html)
+        self.assertNotIn('"correcta"', html)
+        self.assertNotIn('"respuesta"', html)
+        self.assertIn('"leccion": "hola-mundo"', html)
+
+    def test_acertar_sube_la_tarjeta_da_xp_y_la_saca_de_las_pendientes(self):
+        self._con_pasos_viejos()
+        self.c.get("/practica")
+        antes = progreso.cargar_progreso()["xp_total"]
+        r = self._practica(1, "mostrar")
+        self.assertEqual((r["ok"], r["xp"], r["perfecto"]), (True, 2, True))
+        p = progreso.cargar_progreso()
+        self.assertEqual(p["xp_total"], antes + 2)
+        self.assertEqual(p["repaso"]["hola-mundo:1"]["caja"], 1)
+        self.assertEqual(self.c.get("/api/estado", headers=self.h).get_json()["practica_pendientes"], 3)
+
+    def test_errar_pide_pista_y_el_acierto_posterior_no_da_xp_ni_sube_de_caja(self):
+        self._con_pasos_viejos()
+        self.c.get("/practica")
+        r = self._practica(1, "escribir")
+        self.assertFalse(r["ok"])
+        self.assertTrue(r["pista"])
+        self.assertFalse(r["puede_ver_respuesta"])
+        r = self._practica(1, "mostrar")
+        self.assertEqual((r["ok"], r["xp"], r["perfecto"]), (True, 0, False))
+        self.assertEqual(progreso.cargar_progreso()["repaso"]["hola-mundo:1"]["fallos"], 1)
+
+    def test_ver_la_respuesta_de_una_tarjeta_solo_tras_dos_errores(self):
+        self._con_pasos_viejos()
+        self.c.get("/practica")
+        pedir = lambda: self.post("/api/practica/respuesta", {"leccion": "hola-mundo", "paso": 1})   # noqa: E731
+        self.assertEqual(pedir().status_code, 403)
+        self._practica(1, "pantalla"); self._practica(1, "escribir")
+        r = pedir().get_json()
+        self.assertEqual(r["respuesta"], "mostrar")
+        self.assertEqual(progreso.cargar_progreso()["repaso"]["hola-mundo:1"]["fallos"], 1)
+
+    def test_solo_se_pueden_comprobar_tarjetas_de_la_sesion(self):
+        self._con_pasos_viejos()
+        self.assertEqual(self._practica_status(1), 403)                                # todavía no se abrió /practica
+        self.c.get("/practica")
+        self.assertEqual(self.post("/api/practica/comprobar", {"leccion": "hola-mundo", "paso": 0, "respuesta": True}).status_code, 403)
+        self.assertEqual(self.post("/api/practica/comprobar", {"leccion": "hola-mundo", "paso": "x"}).status_code, 400)
+        self.assertEqual(self.c.post("/api/practica/comprobar", json={}).status_code, 403)   # sin token
+
+    def _practica_status(self, i):
+        return self.post("/api/practica/comprobar", {"leccion": "hola-mundo", "paso": i, "respuesta": "mostrar"}).status_code
+
     # ── curso de Python real ──
     def test_ejercicio_en_python_se_evalua_y_da_pistas_sin_traducir(self):
         self.post("/api/onboarding", {"meta_min": 10})

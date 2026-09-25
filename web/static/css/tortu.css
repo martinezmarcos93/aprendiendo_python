@@ -361,6 +361,8 @@ a.ficha:hover { transform: translateY(-3px); background: var(--superficie-2); }
 .par-codigo { display: grid; grid-template-columns: 1fr 1fr; gap: .7rem; margin: .5rem 0 1rem; }
 .par-codigo pre { margin: .3rem 0 0; white-space: pre-wrap; font-size: 1.02rem; }
 @media (max-width: 700px) { .par-codigo { grid-template-columns: 1fr; } }
+.insignia { display: inline-block; min-width: 1.4rem; padding: 0 .4rem; border-radius: 999px; background: var(--naranja); color: #2a1300;
+  font-size: .75rem; font-weight: 900; text-align: center; }
 /* pasos con tortuga */
 .lienzo-paso { display: block; width: 100%; height: auto; aspect-ratio: 1; background: #fff; border-radius: var(--radio-chico); border: 2px solid var(--borde); }
 .objetivo-caja { min-width: 0; }

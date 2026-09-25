@@ -17,11 +17,12 @@
       <a href="{{ url_for('aprender') }}" class="{{ 'activo' if request.endpoint in ('leccion', 'ejercicio') }}">Aprender</a>
       <a href="{{ url_for('experimentar') }}" class="{{ 'activo' if request.endpoint == 'experimentar' }}">Experimentar</a>
       <a href="{{ url_for('tortuga') }}" class="{{ 'activo' if request.endpoint == 'tortuga' }}">Tortuga</a>
-      <a href="{{ url_for('repaso') }}" class="{{ 'activo' if request.endpoint.startswith('repaso') }}">Repaso</a>
+      <a href="{{ url_for('practica') }}" class="{{ 'activo' if request.endpoint == 'practica' }}">Practicar{% if estado.practica_pendientes %} <span class="insignia">{{ estado.practica_pendientes }}</span>{% endif %}</a>
       <details class="mas">
-        <summary class="{{ 'activo' if request.endpoint in ('mapa', 'referencia', 'pagina_logros', 'pagina_liga', 'resumen') }}">Más ▾</summary>
+        <summary class="{{ 'activo' if request.endpoint in ('mapa', 'referencia', 'pagina_logros', 'pagina_liga', 'resumen') or request.endpoint.startswith('repaso') }}">Más ▾</summary>
         <div class="mas-lista">
           <a href="{{ url_for('mapa') }}">🗺️ Mapa</a>
+          <a href="{{ url_for('repaso') }}">🔁 Repaso de ejercicios</a>
           <a href="{{ url_for('pagina_logros') }}">🏆 Logros <small class="tenue">{{ estado.logros_ganados }}/{{ estado.logros_total }}</small></a>
           <a href="{{ url_for('pagina_liga') }}">{{ estado.liga.icono }} Liga <small class="tenue">{{ estado.liga.liga }}</small></a>
           <a href="{{ url_for('resumen') }}">📊 Resumen</a>

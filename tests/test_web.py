@@ -202,7 +202,9 @@ class TestWeb(unittest.TestCase):
         r = self.post("/api/lecciones/hola-mundo/pasos/1/respuesta").get_json()
         self.assertEqual(r["respuesta"], "mostrar")
         p = progreso.cargar_progreso()
-        self.assertEqual(p["lecciones"]["hola-mundo"]["pasos"]["1"], {"xp": 0, "perfecto": False})
+        paso = p["lecciones"]["hola-mundo"]["pasos"]["1"]
+        self.assertEqual((paso["xp"], paso["perfecto"]), (0, False))
+        self.assertIn("fecha", paso)                                                        # desde acá parte la práctica del día
 
     def test_leccion_completa_paso_a_paso(self):
         r = self.comprobar(0, True).get_json()                                     # explicación

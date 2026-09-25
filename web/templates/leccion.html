@@ -9,7 +9,10 @@
     </div>
     <span class="tenue" id="lec-contador"></span>
   </div>
-  <div class="leccion-titulo"><span class="etiqueta">Nivel {{ datos.nivel }}</span> <b>{{ datos.titulo }}</b></div>
+  <div class="leccion-titulo">
+    {% if datos.modo == 'practica' %}<span class="etiqueta repaso-e">🧠 Práctica</span>{% else %}<span class="etiqueta">Nivel {{ datos.nivel }}</span>{% endif %}
+    <b>{{ datos.titulo }}</b>
+  </div>
 
   <section class="tarjeta paso-caja" id="lec-paso" aria-live="polite"></section>
 
