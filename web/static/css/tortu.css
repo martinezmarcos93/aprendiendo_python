@@ -236,6 +236,79 @@ a.nodo:hover { transform: translateY(-3px) scale(1.04); }
 .opcion input[type=range] { accent-color: var(--violeta); }
 .CodeMirror .linea-actual { background: #33407a; box-shadow: inset 4px 0 0 var(--amarillo); }
 
+/* ───────── páginas de contenido ───────── */
+.columna-angosta { max-width: 640px; margin: 0 auto; display: grid; gap: 1rem; }
+.columna-ancha { max-width: 980px; margin: 0 auto; display: grid; gap: 1rem; }
+.centrado { text-align: center; }
+.verde-t { color: var(--verde); } .celeste-t { color: var(--celeste); } .amarillo-t { color: var(--amarillo); }
+.morado-t { color: #b9a6ff; } .naranja-t { color: var(--naranja); }
+.color-verde { color: var(--verde); } .color-azul, .color-celeste { color: var(--celeste); }
+.color-amarillo { color: var(--amarillo); } .color-naranja { color: var(--naranja); }
+.color-morado { color: #b9a6ff; } .color-rojo { color: var(--rojo); } .color-gris { color: var(--texto-suave); }
+
+/* ───────── mapa ───────── */
+.mapa-stats { margin-top: 0; grid-template-columns: repeat(4, minmax(90px, 1fr)); }
+.nivel-mapa { --c: var(--violeta); --c-fondo: #2a2170; margin-top: 1.4rem; }
+.nivel-mapa.n1 { --c: #ffc53d; --c-fondo: #4a3508; } .nivel-mapa.n2 { --c: #6cb0ff; --c-fondo: #14315a; }
+.nivel-mapa.n3 { --c: #b39bff; --c-fondo: #2f1f66; } .nivel-mapa.n4 { --c: #3fe0a4; --c-fondo: #08402f; }
+.nivel-mapa.n5 { --c: #ff7b8f; --c-fondo: #5c1626; } .nivel-mapa.n6 { --c: #ff9b4a; --c-fondo: #5c2a0c; }
+.nivel-mapa.n7 { --c: #f08cff; --c-fondo: #5a1466; } .nivel-mapa.n8 { --c: #4cc9ff; --c-fondo: #0b3c5c; }
+.nivel-mapa h2 { display: flex; align-items: center; gap: .8rem; flex-wrap: wrap; font-size: 1rem; }
+.etiqueta-nivel { background: var(--c-fondo); color: var(--c); padding: .3rem .9rem; border-radius: 8px; font-family: var(--fuente-codigo); font-weight: 700; }
+.fichas { display: grid; grid-template-columns: repeat(auto-fill, minmax(150px, 1fr)); gap: .8rem; }
+.ficha {
+  display: flex; flex-direction: column; align-items: center; gap: .15rem; text-align: center; text-decoration: none;
+  min-height: 120px; padding: .8rem .6rem; border-radius: var(--radio-chico);
+  background: var(--superficie); border: 2px solid var(--borde); transition: transform .12s, background .15s;
+}
+a.ficha:hover { transform: translateY(-3px); background: var(--superficie-2); }
+.ficha-num { font-family: var(--fuente-codigo); font-weight: 700; color: var(--texto-suave); }
+.ficha-nombre { font-size: .9rem; font-weight: 700; line-height: 1.2; }
+.ficha-estrellas { margin-top: auto; font-size: 1.05rem; color: var(--amarillo); font-weight: 800; }
+.ficha-xp { font-size: .75rem; }
+.ficha.perfecto { background: #0f3324; border-color: var(--verde); } .ficha.perfecto .ficha-num { color: var(--verde); }
+.ficha.bien { background: #14224a; border-color: #6cb0ff; } .ficha.bien .ficha-num { color: #6cb0ff; }
+.ficha.intentado { background: #3a3010; border-color: var(--amarillo); } .ficha.intentado .ficha-num { color: var(--amarillo); }
+.ficha.bloqueada { opacity: .55; cursor: not-allowed; }
+.leyenda { margin-top: 1.4rem; display: flex; gap: 1.4rem; flex-wrap: wrap; align-items: center; font-weight: 800; }
+
+/* ───────── resumen ───────── */
+.gigante { font-size: 3rem; font-weight: 900; line-height: 1.1; }
+.racha-alta { color: var(--naranja); } .racha-media { color: var(--amarillo); }
+.aviso-racha { margin-top: .6rem; color: var(--rojo); font-weight: 800; }
+.calendario { display: flex; gap: .4rem; justify-content: center; align-items: center; margin-top: .9rem; flex-wrap: wrap; }
+.dia { width: 2rem; height: 2rem; border-radius: 50%; display: grid; place-items: center; font-weight: 900; font-size: .85rem;
+  background: var(--superficie-2); color: var(--texto-tenue); border: 2px solid var(--superficie-2); }
+.dia.activo { background: var(--verde); color: #06240f; border-color: var(--verde); }
+.dia.hoy { border-color: var(--amarillo); }
+.barra-larga { height: 14px; background: var(--superficie-2); border-radius: 999px; overflow: hidden; margin-top: .6rem; }
+.barra-larga > span { display: block; height: 100%; background: linear-gradient(90deg, #8b6cff, #c9a6ff); border-radius: 999px; }
+.etiquetas { display: flex; gap: .5rem; flex-wrap: wrap; margin: .6rem 0; }
+.concepto { background: #0f2a3a; color: var(--celeste); padding: .3rem .8rem; border-radius: 999px; font-weight: 800; }
+.filas { list-style: none; margin: 0; padding: 0; display: grid; gap: .4rem; }
+.filas li { display: flex; gap: 1rem; align-items: center; background: var(--fondo-2); border-radius: 10px; padding: .5rem .8rem; }
+.filas li > span:first-child { flex: 1; }
+
+/* ───────── referencia ───────── */
+.indice { display: flex; flex-wrap: wrap; gap: .5rem; }
+.seccion-ref { display: grid; gap: .8rem; margin-top: .8rem; }
+.ejemplo-ref h3 { font-size: 1rem; }
+.dos-cols { display: grid; grid-template-columns: 1fr 1fr; gap: .8rem; }
+.codigo-caja { background: var(--editor); border-radius: var(--radio-chico); padding: .6rem .9rem .8rem; min-width: 0; }
+.codigo-caja .rotulo { font-size: .7rem; font-weight: 900; letter-spacing: .05em; text-transform: uppercase; }
+.codigo-caja pre { margin: .3rem 0 0; white-space: pre-wrap; word-break: break-word; font-size: .98rem; }
+.tortu-c .rotulo, .tortu-c pre { color: #a6f09a; }
+.py-c { background: #0a1330; } .py-c .rotulo, .py-c pre { color: #7ec8ff; }
+.probar { margin-top: .7rem; }
+
+/* ───────── repaso ───────── */
+.modos { display: grid; gap: .8rem; margin-top: 1rem; }
+.modo { display: flex; align-items: center; gap: 1rem; text-decoration: none; padding: 1rem 1.2rem;
+  background: var(--fondo-2); border: 2px solid var(--borde); border-radius: var(--radio); transition: transform .12s, border-color .15s; }
+.modo:hover { transform: translateY(-2px); border-color: var(--naranja); }
+.modo .icono { font-size: 2rem; }
+.repaso-e { background: var(--naranja); color: #2a1300; }
+
 /* ───────── modales ───────── */
 .modal {
   position: fixed; inset: 0; z-index: 50; display: grid; place-items: center;
@@ -261,7 +334,8 @@ a.nodo:hover { transform: translateY(-3px) scale(1.04); }
 
 /* ───────── responsive ───────── */
 @media (max-width: 900px) {
-  .hero, .editores, .tortuga-grid { grid-template-columns: 1fr; }
+  .hero, .editores, .tortuga-grid, .dos-cols { grid-template-columns: 1fr; }
+  .mapa-stats { grid-template-columns: repeat(2, 1fr); }
   .estadisticas { margin-left: 0; }
 }
 @media (prefers-reduced-motion: reduce) {

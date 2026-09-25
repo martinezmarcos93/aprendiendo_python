@@ -1,0 +1,18 @@
+{% extends "base.html" %}
+{% block titulo %}Repaso{% endblock %}
+{% block contenido %}
+<div class="columna-angosta">
+  <section class="tarjeta">
+    <h1>🔁 ¿Qué querés repasar?</h1>
+    <p class="tenue">{{ completados }} ejercicios completados · {{ imperfectos }} sin 3 estrellas</p>
+    <div class="modos">
+      {% for clave, m in modos.items() %}
+      <a class="modo" href="{{ url_for('repaso_modo', modo=clave) }}">
+        <span class="icono">{{ m[0] }}</span>
+        <span><b>{{ m[1] }}</b><br><span class="tenue">{{ m[2] }}</span></span>
+      </a>
+      {% endfor %}
+    </div>
+  </section>
+</div>
+{% endblock %}

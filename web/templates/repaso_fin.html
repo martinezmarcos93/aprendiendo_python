@@ -1,0 +1,21 @@
+{% extends "base.html" %}
+{% block titulo %}Repaso{% endblock %}
+{% block contenido %}
+<div class="columna-angosta">
+  <section class="tarjeta centrado">
+    {% if total %}
+      <div class="mascota">🎉</div>
+      <h1>¡Terminaste el repaso!</h1>
+      <p class="tenue">Repasaste {{ total }} ejercicio{{ 's' if total != 1 }} ({{ modos[modo][1] }}).</p>
+    {% else %}
+      <div class="mascota">🤔</div>
+      <h1>No hay ejercicios para repasar en este modo</h1>
+      <p class="tenue">Completá algunos ejercicios primero y volvé.</p>
+    {% endif %}
+    <div class="acciones" style="justify-content:center">
+      <a class="boton amarillo" href="{{ url_for('repaso') }}">🔁 Otro repaso</a>
+      <a class="boton verde" href="{{ url_for('ejercicios_siguiente') }}">▶ Seguir aprendiendo</a>
+    </div>
+  </section>
+</div>
+{% endblock %}

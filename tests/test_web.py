@@ -101,6 +101,78 @@ class TestWeb(unittest.TestCase):
         self.assertTrue(r["error"])
         self.assertIn("«x»", r["mensaje"])
 
+    # ── mapa, resumen, referencia y repaso ──
+    def _completar(self, *indices_estrellas):
+        p = progreso.cargar_progreso()
+        for i, e in indices_estrellas:
+            progreso.registrar_ejercicio(p, i, e, {1: 5, 2: 20, 3: 30}[e])
+
+    def test_paginas_nuevas(self):
+        for ruta in ("/mapa", "/resumen", "/referencia", "/repaso"):
+            with self.subTest(ruta=ruta):
+                self.assertEqual(self.c.get(ruta).status_code, 200)
+
+    def test_mapa_refleja_progreso(self):
+        self._completar((0, 3), (1, 1))
+        html = self.c.get("/mapa").get_data(as_text=True)
+        self.assertIn("NIVEL 1", html)
+        self.assertIn("2/30", html)                      # ejercicios completados
+        self.assertIn("ficha perfecto", html)
+        self.assertIn("ficha intentado", html)
+        self.assertIn("ficha bloqueada", html)           # los que aún no se desbloquean
+        self.assertIn("¡Te toca!", html)                 # el siguiente pendiente
+        self.assertIn('href="/ejercicios/3"', html)
+
+    def test_resumen_hoy(self):
+        html = self.c.get("/resumen").get_data(as_text=True)
+        self.assertIn("Todavía no completaste ningún ejercicio hoy", html)
+        self.assertEqual(html.count('class="dia'), 7)
+        self._completar((0, 3))
+        html = self.c.get("/resumen").get_data(as_text=True)
+        self.assertIn("1 día", html)
+        self.assertIn("Ejercicios de hoy (1)", html)
+        self.assertIn("Mostrar texto", html)
+
+    def test_referencia_tiene_todo_y_escapa(self):
+        html = self.c.get("/referencia").get_data(as_text=True)
+        for texto in ("Mostrar en pantalla", "Preguntar", "Tortuga", "TortuScript", "Python"):
+            self.assertIn(texto, html)
+        self.assertNotIn("<script>alert", html)
+
+    def test_repaso_sin_completados(self):
+        r = self.c.get("/repaso/todos", follow_redirects=True)
+        self.assertIn("No hay ejercicios para repasar", r.get_data(as_text=True))
+        self.assertEqual(self.c.get("/repaso/inventado").status_code, 404)
+
+    def test_repaso_recorre_la_cola(self):
+        self._completar((0, 3), (1, 1), (2, 2))
+        r = self.c.get("/repaso/dificiles?s=1")
+        self.assertEqual(r.status_code, 302)
+        html = self.c.get(r.headers["Location"]).get_data(as_text=True)
+        self.assertIn("🔁 1/3", html)
+        self.assertIn("Nivel 1", html)
+        self.assertIn('href="/repaso/dificiles/2?s=1"', html)     # siguiente
+        # El más difícil (1 estrella) es el ejercicio 2 → su consigna aparece primero
+        self.assertIn("2. Texto o cuenta", html)
+        ultimo = self.c.get("/repaso/dificiles/3?s=1").get_data(as_text=True)
+        self.assertIn("Terminar repaso", ultimo)
+        fin = self.c.get("/repaso/dificiles/4?s=1").get_data(as_text=True)
+        self.assertIn("¡Terminaste el repaso!", fin)
+
+    def test_repaso_conserva_la_cola_si_mejoran_las_estrellas(self):
+        self._completar((0, 1), (1, 1))
+        self.c.get("/repaso/imperfectos?s=5")
+        self._completar((0, 3))                                   # a mitad del repaso pasa a 3 estrellas
+        html = self.c.get("/repaso/imperfectos/2?s=5").get_data(as_text=True)
+        self.assertIn("🔁 2/2", html)                             # la cola no se achicó
+
+    def test_ejercicio_de_repaso_se_puede_evaluar(self):
+        self._completar((0, 1))
+        r = self.post("/api/ejercicios/1/evaluar", {"codigo": 'mostrar "Hola mundo"'}).get_json()
+        self.assertEqual(r["evaluacion"]["estado"], "correcto")
+        self.assertEqual(r["premio"]["estrellas"], 3)
+        self.assertTrue(r["premio"]["mejora"])
+
     def test_api_tortuga(self):
         r = self.post("/api/tortuga", {"codigo": "avanzar 10\ngirar_der 90"}).get_json()
         self.assertEqual([o["o"] for o in r["ordenes"]], ["avanzar", "girar_der"])

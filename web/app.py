@@ -10,6 +10,7 @@ Seguridad de una app local:
 import logging
 import secrets
 import sys
+from datetime import date
 from pathlib import Path
 
 from flask import Flask, abort, jsonify, redirect, render_template, request, url_for
@@ -18,9 +19,11 @@ RAIZ = Path(__file__).resolve().parent.parent
 if str(RAIZ) not in sys.path:
     sys.path.insert(0, str(RAIZ))
 
-from tortuscript import evaluacion, progreso  # noqa: E402
+from tortuscript import contenido, evaluacion, progreso  # noqa: E402
 from tortuscript.ejercicios import EJERCICIOS  # noqa: E402
 from tortuscript.proceso import correr  # noqa: E402
+from tortuscript.referencia import cargar_referencia  # noqa: E402
+from tortuscript.repaso import MODOS, cola_repaso, contar  # noqa: E402
 from tortuscript.translator import TraductorTortuScript, detectar_tipo  # noqa: E402
 
 logger = logging.getLogger("tortuscript.web")
@@ -33,6 +36,7 @@ def create_app(token=None):
     app.config["JSON_AS_ASCII"] = False
     # Pistas vistas por (perfil, ejercicio): se reinician al abrir el ejercicio.
     pistas_vistas = {}
+    colas = {}       # colas de repaso fijadas al empezar: (perfil, modo, semilla) -> [índices]
 
     # ─────────────── seguridad ───────────────
     @app.before_request
@@ -77,6 +81,14 @@ def create_app(token=None):
             abort(404)
         return EJERCICIOS[n]
 
+    def _niveles():
+        return {s["nivel"]: s["titulo"] for s in contenido.cargar_curso()["secciones"]}
+
+    def _pagina_ejercicio(indice, repaso=None):
+        ej = _ejercicio_o_404(indice)
+        pistas_vistas[(progreso.PERFIL_ACTUAL, indice)] = 0
+        return render_template("ejercicio.html", ej=ej, n=indice + 1, total=len(EJERCICIOS), repaso=repaso)
+
     # ─────────────── páginas ───────────────
     @app.get("/")
     def inicio():
@@ -92,8 +104,75 @@ def create_app(token=None):
         ej = _ejercicio_o_404(indice)
         if not _desbloqueado(indice):
             return redirect(url_for("ejercicio", n=_siguiente_pendiente() + 1))
-        pistas_vistas[(progreso.PERFIL_ACTUAL, indice)] = 0
-        return render_template("ejercicio.html", ej=ej, n=n, total=len(EJERCICIOS))
+        return _pagina_ejercicio(indice)
+
+    @app.get("/mapa")
+    def mapa():
+        p = progreso.cargar_progreso()
+        datos = p["ejercicios"]
+        niveles = {}
+        for i, ej in enumerate(EJERCICIOS):
+            d = datos.get(str(i), {})
+            numero, _, nombre = ej["titulo"].partition(". ")
+            niveles.setdefault(ej["nivel"], []).append({
+                "n": i + 1, "numero": numero, "nombre": nombre or ej["titulo"],
+                "completado": bool(d.get("completado")), "estrellas": d.get("estrellas", 0),
+                "xp": d.get("xp", 0), "abierto": bool(_desbloqueado(i, p)),
+            })
+        tres = sum(1 for d in datos.values() if d.get("estrellas", 0) == 3)
+        return render_template("mapa.html", niveles=niveles, nombres=_niveles(), tres_estrellas=tres)
+
+    @app.get("/resumen")
+    def resumen():
+        p = progreso.cargar_progreso()
+        hoy = progreso.resumen_sesion_hoy(p, EJERCICIOS)
+        return render_template(
+            "resumen.html", hoy=hoy, racha=progreso.racha_vigente(p), racha_max=p.get("racha_max", 0),
+            jugo_hoy=p.get("ultimo_dia") == str(date.today()), calendario=progreso.calendario_semana(p),
+            estrellas_texto=progreso.estrellas_texto)
+
+    @app.get("/referencia")
+    def referencia():
+        return render_template("referencia.html", ref=cargar_referencia())
+
+    @app.get("/repaso")
+    def repaso():
+        completados, imperfectos = contar(progreso.cargar_progreso(), len(EJERCICIOS))
+        return render_template("repaso.html", modos=MODOS, completados=completados, imperfectos=imperfectos)
+
+    def _cola_o_404(modo, semilla, nueva=False):
+        """La cola se fija al empezar el repaso: si un ejercicio pasa a 3 estrellas a mitad
+        de camino, no desaparece de la lista ni se corren los lugares."""
+        if modo not in MODOS:
+            abort(404)
+        clave = (progreso.PERFIL_ACTUAL, modo, semilla)
+        if nueva or clave not in colas:
+            colas[clave] = cola_repaso(progreso.cargar_progreso(), modo, len(EJERCICIOS), semilla)
+        return colas[clave]
+
+    @app.get("/repaso/<modo>")
+    def repaso_modo(modo):
+        semilla = request.args.get("s", type=int)
+        if semilla is None:
+            semilla = secrets.randbelow(10**6)
+        _cola_o_404(modo, semilla, nueva=True)
+        return redirect(url_for("repaso_paso", modo=modo, pos=1, s=semilla))
+
+    @app.get("/repaso/<modo>/<int:pos>")
+    def repaso_paso(modo, pos):
+        semilla = request.args.get("s", 0, type=int)
+        cola = _cola_o_404(modo, semilla)
+        if not cola:
+            return render_template("repaso_fin.html", modo=modo, modos=MODOS, total=0)
+        if pos > len(cola):
+            return render_template("repaso_fin.html", modo=modo, modos=MODOS, total=len(cola))
+        if pos < 1:
+            abort(404)
+        anterior = url_for("repaso_paso", modo=modo, pos=pos - 1, s=semilla) if pos > 1 else None
+        siguiente = url_for("repaso_paso", modo=modo, pos=pos + 1, s=semilla)
+        return _pagina_ejercicio(cola[pos - 1], repaso={
+            "modo": MODOS[modo][1], "pos": pos, "total": len(cola),
+            "anterior": anterior, "siguiente": siguiente, "ultimo": pos == len(cola)})
 
     @app.get("/experimentar")
     def experimentar():

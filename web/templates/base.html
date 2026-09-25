@@ -17,14 +17,18 @@
       <a href="{{ url_for('ejercicios_siguiente') }}" class="{{ 'activo' if request.endpoint == 'ejercicio' }}">Ejercicios</a>
       <a href="{{ url_for('experimentar') }}" class="{{ 'activo' if request.endpoint == 'experimentar' }}">Experimentar</a>
       <a href="{{ url_for('tortuga') }}" class="{{ 'activo' if request.endpoint == 'tortuga' }}">Tortuga</a>
+      <a href="{{ url_for('mapa') }}" class="{{ 'activo' if request.endpoint == 'mapa' }}">Mapa</a>
+      <a href="{{ url_for('repaso') }}" class="{{ 'activo' if request.endpoint.startswith('repaso') }}">Repaso</a>
+      <a href="{{ url_for('referencia') }}" class="{{ 'activo' if request.endpoint == 'referencia' }}">Referencia</a>
     </nav>
     <div class="estadisticas">
-      <span class="chip racha" title="Días seguidos programando">🔥 <span id="e-racha">{{ estado.racha }}</span></span>
+      <a class="chip racha" href="{{ url_for('resumen') }}" title="Días seguidos programando — ver el resumen de hoy">🔥 <span id="e-racha">{{ estado.racha }}</span></a>
       <span class="chip nivel" id="e-nivel">{{ estado.titulo }} · Nv.{{ estado.nivel }}</span>
       <span class="xp" title="Experiencia">
         <span id="e-xp">{{ estado.xp }} XP</span>
         <span class="barra-xp"><span id="e-barra" style="width: {{ (100 * estado.xp_actual / estado.xp_max)|round|int }}%"></span></span>
       </span>
+      <button class="chip sonido" id="btn-sonido" type="button" aria-pressed="true" title="Sonido">🔊</button>
       <button class="chip perfil" id="btn-perfil" type="button" title="Cambiar de perfil">👤 <span id="e-perfil">{{ perfil }}</span></button>
     </div>
   </header>

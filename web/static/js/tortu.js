@@ -51,6 +51,9 @@ const Tortu = (() => {
         catch (e) { console.warn(e); }
       }, 250);
     });
+    // ?codigo=... precarga el editor (lo usa "Probarlo" de la Referencia)
+    const precarga = new URLSearchParams(location.search).get("codigo");
+    if (precarga) editor.setValue(precarga.slice(0, 5000));
     return { editor, python };
   }
 
@@ -136,6 +139,52 @@ const Tortu = (() => {
     document.getElementById("veredicto").textContent = "";
   }
 
+  // ───────── sonidos (WebAudio; mismas melodías que la app de escritorio) ─────────
+  const MELODIAS = {
+    success: [[523, 100], [659, 100], [784, 150], [1046, 300]],
+    error: [[300, 200], [200, 400]],
+    level_up: [[440, 150], [554, 150], [659, 150], [880, 400]],
+  };
+  const sonido = {
+    activo: (() => { try { return localStorage.getItem("tortu-sonido") !== "no"; } catch (e) { return true; } })(),
+    ctx: null,
+  };
+  function tocar(tipo) {
+    if (!sonido.activo || !MELODIAS[tipo]) return;
+    try {
+      const AC = window.AudioContext || window.webkitAudioContext;
+      if (!AC) return;
+      sonido.ctx = sonido.ctx || new AC();
+      if (sonido.ctx.state === "suspended") sonido.ctx.resume();
+      let t = sonido.ctx.currentTime;
+      for (const [hz, ms] of MELODIAS[tipo]) {
+        const osc = sonido.ctx.createOscillator(), vol = sonido.ctx.createGain();
+        osc.type = tipo === "error" ? "sawtooth" : "triangle";
+        osc.frequency.value = hz;
+        vol.gain.setValueAtTime(0.0001, t);
+        vol.gain.exponentialRampToValueAtTime(0.18, t + 0.01);
+        vol.gain.exponentialRampToValueAtTime(0.0001, t + ms / 1000);
+        osc.connect(vol).connect(sonido.ctx.destination);
+        osc.start(t); osc.stop(t + ms / 1000 + 0.02);
+        t += ms / 1000;
+      }
+    } catch (e) { console.warn(e); }
+  }
+  function pintarSonido() {
+    const b = document.getElementById("btn-sonido");
+    if (!b) return;
+    b.textContent = sonido.activo ? "🔊" : "🔇";
+    b.setAttribute("aria-pressed", String(sonido.activo));
+    b.title = sonido.activo ? "Sonido activado (tocá para silenciar)" : "Sonido silenciado (tocá para activar)";
+  }
+  document.getElementById("btn-sonido").addEventListener("click", () => {
+    sonido.activo = !sonido.activo;
+    try { localStorage.setItem("tortu-sonido", sonido.activo ? "si" : "no"); } catch (e) { /* sin almacenamiento */ }
+    pintarSonido();
+    tocar("success");
+  });
+  pintarSonido();
+
   // ───────── barra superior ─────────
   function actualizarEstado(e) {
     if (!e) return;
@@ -186,5 +235,5 @@ const Tortu = (() => {
   document.getElementById("btn-perfil").addEventListener("click", abrirPerfiles);
 
   return { api, crearEditores, ejecutarConPreguntas, mostrarConsola, veredicto,
-           limpiarResultado, actualizarEstado, celebrar };
+           limpiarResultado, actualizarEstado, celebrar, tocar };
 })();

@@ -1,0 +1,53 @@
+{% extends "base.html" %}
+{% block titulo %}Resumen de hoy{% endblock %}
+{% block contenido %}
+<div class="columna-angosta">
+  <h1>📊 Resumen de hoy</h1>
+
+  <section class="tarjeta centrado">
+    <div class="tenue">{{ '🔥' if racha >= 3 else ('⭐' if racha >= 1 else '💤') }} Racha actual</div>
+    <div class="gigante {{ 'racha-alta' if racha >= 3 else ('racha-media' if racha >= 1 else 'tenue') }}">
+      {{ racha }} día{{ 's' if racha != 1 }}
+    </div>
+    <div class="tenue">Mejor racha: {{ racha_max }} día{{ 's' if racha_max != 1 }}</div>
+    {% if not jugo_hoy %}
+      <div class="aviso-racha">⚠️ Todavía no completaste ningún ejercicio hoy: ¡así mantenés tu racha!</div>
+    {% endif %}
+    <div class="calendario" aria-label="Últimos 7 días">
+      <span class="tenue">Últimos 7 días:</span>
+      {% for d in calendario %}
+        <span class="dia {{ 'activo' if d.activo }} {{ 'hoy' if d.hoy }}" title="{{ d.fecha }}{{ ' (hoy)' if d.hoy }}{{ ' — programaste' if d.activo }}">{{ d.dia }}</span>
+      {% endfor %}
+    </div>
+  </section>
+
+  <section class="tarjeta centrado">
+    <h2 class="morado-t">{{ estado.titulo }} — Nivel {{ estado.nivel }}</h2>
+    <div class="tenue">{{ estado.xp }} XP totales ({{ estado.xp_actual }}/{{ estado.xp_max }} para el siguiente nivel)</div>
+    <div class="barra-larga"><span style="width: {{ (100 * estado.xp_actual / estado.xp_max)|round|int }}%"></span></div>
+  </section>
+
+  <section class="tarjeta">
+    <h2>📚 Conceptos practicados hoy</h2>
+    {% if not hoy.conceptos %}
+      <p class="tenue">Todavía no completaste ningún ejercicio hoy.</p>
+    {% else %}
+      <div class="etiquetas">{% for c in hoy.conceptos %}<span class="concepto">✓ {{ c }}</span>{% endfor %}</div>
+      <p class="verde-t"><b>+{{ hoy.xp_ganado_hoy }} XP ganados hoy</b></p>
+    {% endif %}
+  </section>
+
+  {% if hoy.completados %}
+  <section class="tarjeta">
+    <h2>🏅 Ejercicios de hoy ({{ hoy.completados|length }})</h2>
+    <ul class="filas">
+      {% for c in hoy.completados %}
+        <li><span>{{ c.titulo }}</span><span class="amarillo-t">{{ estrellas_texto(c.estrellas) }}</span><span class="tenue">+{{ c.xp }} XP</span></li>
+      {% endfor %}
+    </ul>
+  </section>
+  {% endif %}
+
+  <div class="acciones"><a class="boton verde grande" href="{{ url_for('ejercicios_siguiente') }}">▶ Seguir aprendiendo</a></div>
+</div>
+{% endblock %}

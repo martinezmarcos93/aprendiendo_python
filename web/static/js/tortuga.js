@@ -183,8 +183,8 @@ const Lienzo = (() => {
       });
       marcarLinea(null);
       if (!terminó) Tortu.veredicto("info", "⏹ Frenaste el dibujo", []);
-      else if (r.error) Tortu.veredicto("error", "🔧 Hay algo para arreglar", [["mensaje", r.mensaje]]);
-      else Tortu.veredicto("bien", "✅ ¡Dibujo completado!", []);
+      else if (r.error) { Tortu.veredicto("error", "🔧 Hay algo para arreglar", [["mensaje", r.mensaje]]); Tortu.tocar("error"); }
+      else { Tortu.veredicto("bien", "✅ ¡Dibujo completado!", []); Tortu.tocar("success"); }
     } catch (e) {
       Tortu.veredicto("error", "😵 No pude comunicarme con TortuScript", [["mensaje", String(e)]]);
     } finally {

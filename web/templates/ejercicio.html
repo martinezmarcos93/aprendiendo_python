@@ -8,7 +8,8 @@
     <h1>{{ ej.titulo }}</h1>
     <span class="espacio"></span>
     <span class="estrellas" id="estrellas-ej" title="Tu mejor resultado">{{ '⭐' * e }}{{ '☆' * (3 - e) }}</span>
-    <span class="tenue">{{ n }} / {{ total }}</span>
+    {% if repaso %}<span class="etiqueta repaso-e">🔁 {{ repaso.pos }}/{{ repaso.total }} · {{ repaso.modo }}</span>
+    {% else %}<span class="tenue">{{ n }} / {{ total }}</span>{% endif %}
   </div>
   <div class="consigna">📋 {{ ej.descripcion }}</div>
 </section>
@@ -29,8 +30,13 @@
   <button class="boton amarillo" id="btn-pista" type="button">💡 Pista <span id="pista-n">(1/3)</span></button>
   <button class="boton" id="btn-limpiar" type="button">🗑 Limpiar</button>
   <span class="espacio"></span>
-  {% if n > 1 %}<a class="boton" href="{{ url_for('ejercicio', n=n-1) }}">⬅ Anterior</a>{% endif %}
-  {% if n < total %}<a class="boton violeta" id="btn-siguiente" href="{{ url_for('ejercicio', n=n+1) }}">Siguiente ➡</a>{% endif %}
+  {% if repaso %}
+    {% if repaso.anterior %}<a class="boton" href="{{ repaso.anterior }}">⬅ Anterior</a>{% endif %}
+    <a class="boton violeta" id="btn-siguiente" href="{{ repaso.siguiente }}">{{ 'Terminar repaso ✔' if repaso.ultimo else 'Siguiente ➡' }}</a>
+  {% else %}
+    {% if n > 1 %}<a class="boton" href="{{ url_for('ejercicio', n=n-1) }}">⬅ Anterior</a>{% endif %}
+    {% if n < total %}<a class="boton violeta" id="btn-siguiente" href="{{ url_for('ejercicio', n=n+1) }}">Siguiente ➡</a>{% endif %}
+  {% endif %}
 </div>
 
 <section class="resultado">

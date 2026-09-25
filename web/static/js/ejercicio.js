@@ -32,6 +32,7 @@
     }
     if (r.error) {
       Tortu.veredicto("error", "🔧 Hay algo para arreglar", [["mensaje", r.mensaje]]);
+      Tortu.tocar("error");
       return;
     }
     const ev = r.evaluacion || {};
@@ -40,6 +41,7 @@
     } else if (ev.estado === "sin_salida") {
       Tortu.veredicto("info", "🤫 Tu programa no mostró nada", [["mensaje", "Recordá usar mostrar para ver el resultado."]]);
     } else if (ev.estado === "incorrecto") {
+      Tortu.tocar("error");
       Tortu.veredicto("casi", "🤔 ¡Casi! Tu programa corre, pero muestra otra cosa", [
         ["mensaje", "Se esperaba:"], ["codigo", ev.esperado],
         ["mensaje", "Compará línea por línea con lo que mostró tu programa (arriba). Mayúsculas, tildes y espacios entre palabras cuentan."],
@@ -55,6 +57,7 @@
       if (p.mejora) {
         document.getElementById("estrellas-ej").textContent = "⭐".repeat(p.estrellas) + "☆".repeat(3 - p.estrellas);
         Tortu.celebrar(p.sube_nivel);
+        Tortu.tocar(p.sube_nivel ? "level_up" : "success");
       }
       completado = true;
     }

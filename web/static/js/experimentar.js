@@ -28,7 +28,7 @@
       Tortu.mostrarConsola(r);
       if (r.python) python.setValue(r.python);
       if (r.cancelado) Tortu.veredicto("info", "✋ Cancelaste la pregunta", []);
-      else if (r.error) Tortu.veredicto("error", "🔧 Hay algo para arreglar", [["mensaje", r.mensaje]]);
+      else if (r.error) { Tortu.veredicto("error", "🔧 Hay algo para arreglar", [["mensaje", r.mensaje]]); Tortu.tocar("error"); }
       else if (r.tipo === "python") Tortu.veredicto("info", "🐍 Detecté Python directo: lo ejecuté sin traducir", []);
     } catch (e) {
       Tortu.veredicto("error", "😵 No pude comunicarme con TortuScript", [["mensaje", String(e)]]);
