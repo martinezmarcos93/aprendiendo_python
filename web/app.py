@@ -10,10 +10,11 @@ Seguridad de una app local:
 import logging
 import secrets
 import sys
+import threading
 from datetime import date
 from pathlib import Path
 
-from flask import Flask, abort, jsonify, redirect, render_template, request, url_for
+from flask import Flask, abort, g, jsonify, redirect, render_template, request, url_for
 
 RAIZ = Path(__file__).resolve().parent.parent
 if str(RAIZ) not in sys.path:
@@ -44,6 +45,7 @@ def create_app(token=None):
     intentos = {}    # errores y respuesta vista por (perfil, lección, paso); se reinicia al abrir la lección
     practicas = {}   # sesión de práctica del día por perfil: {"dia", "pasos": [(lección, paso)]}
     colas = {}       # colas de repaso fijadas al empezar: (perfil, modo, semilla) -> [índices]
+    turno = threading.RLock()     # los pedidos van de a uno: cargar → modificar → guardar el progreso no se pisa
 
     # ─────────────── seguridad ───────────────
     @app.before_request
@@ -53,6 +55,21 @@ def create_app(token=None):
         if request.path.startswith("/api/") and \
                 request.headers.get("X-Tortu-Token") != app.config["TOKEN"]:
             abort(403)
+
+    @app.before_request
+    def _de_a_uno():
+        """Dos pestañas (o dos toques seguidos) no pueden leer el mismo progreso y pisarse al guardar.
+        Todo pedido de página o de API espera su turno; los archivos estáticos no."""
+        if request.endpoint in (None, "static"):
+            return None
+        turno.acquire()
+        g.con_turno = True
+        return None
+
+    @app.teardown_request
+    def _soltar_turno(_error):
+        if g.pop("con_turno", False):
+            turno.release()
 
     @app.before_request
     def _bienvenida():
