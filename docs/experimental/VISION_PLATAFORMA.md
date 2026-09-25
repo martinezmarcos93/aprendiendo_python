@@ -7,6 +7,8 @@
 
 > Continúa en [ACADEMIA_DE_JUEGOS_E_INTERESES.md](ACADEMIA_DE_JUEGOS_E_INTERESES.md): rama de desarrollo de juegos (RPG, estrategia) y sistema de intereses.
 
+> Secuencia completa vista por el usuario: [RECORRIDO_DEL_USUARIO.md](RECORRIDO_DEL_USUARIO.md).
+
 ## 1. Punto de partida
 
 **La idea:** llevar el proyecto a un siguiente nivel: un curso de programación para chicos, **gratis hasta cierto punto**
