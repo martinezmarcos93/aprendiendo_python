@@ -116,7 +116,7 @@ proyecto/
 
 - **El contenido es dato, no código.** Los cursos están en `contenido/cursos/*.json` y los revisa un **validador automático** que corre cada respuesta, cada fragmento y cada salida esperada: nunca llega a la pantalla un ejercicio roto. Guía completa en [`docs/CONTENIDO.md`](docs/CONTENIDO.md).
 - **Un solo servidor local.** Flask escucha solo en `127.0.0.1`; toda la API exige un token secreto de la sesión (una página ajena abierta en el navegador no puede usarla) y se rechazan `Host` que no sean locales.
-- **El código del chico nunca corre dentro del servidor.** Va a un subproceso con límite de tiempo (y de CPU y memoria en Linux/macOS), validación previa con AST (sin `import` ni nombres que empiecen con `_`), builtins limitados, tope de 50.000 pasos y de 20.000 caracteres de salida. **No es un sandbox para código hostil**: protege al chico de errores y de copiar/pegar cosas peligrosas.
+- **El código del chico nunca corre dentro del servidor.** Va a un subproceso con límite de tiempo y de memoria (512 MB: `resource` en Linux/macOS, un Job Object en Windows; el de CPU es solo Linux/macOS), validación previa con AST (sin `import` ni nombres que empiecen con `_`), builtins limitados, tope de 50.000 pasos y de 20.000 caracteres de salida. **No es un sandbox para código hostil**: protege al chico de errores y de copiar/pegar cosas peligrosas.
 - **`preguntar()`** se resuelve re-ejecutando el programa con las respuestas acumuladas; la tortuga es un registro de órdenes que el navegador anima en un `<canvas>`.
 - **Todo offline**: CodeMirror, confeti y las fuentes están en `web/static/`; no se pide nada a internet.
 

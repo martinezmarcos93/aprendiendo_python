@@ -30,6 +30,9 @@ Rama `feature/migracion-web-paridad`. Fases F0 a F9 del roadmap (`docs/ROADMAP_M
 - Documentación: `docs/CONTENIDO.md`, ADR-001 (migración) y ADR-002 (cursos como datos).
 
 ### Cambiado
+- **Límite de memoria** del subproceso también en Windows (Job Object vía `ctypes`, sin dependencias): una bomba de
+  memoria termina con un mensaje claro en vez de congelar la compu. Los pedidos web van de a uno para que el
+  progreso no se pise entre pestañas.
 - El código del chico corre en un **subproceso** con límites (antes, dentro de la app).
 - Los niveles se recalibraron (80/180/300/440/600/780/980/1200/1350 XP) porque el XP máximo pasó
   de 900 a 1460. El XP guardado no cambia.

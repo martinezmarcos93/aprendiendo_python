@@ -15,6 +15,7 @@ import json
 import sys
 
 from .evaluacion import evaluar, evaluar_dibujo
+from .limites import limitar_memoria_windows
 from .executor import ejecutar_codigo
 from .tortuga import Registro
 from .translator import TraductorTortuScript, detectar_tipo
@@ -53,6 +54,7 @@ def atender(pedido):
 
 
 def main():
+    limitar_memoria_windows()               # en Linux/macOS lo pone el padre (proceso.py)
     for flujo in (sys.stdin, sys.stdout):   # Windows abre los pipes en cp1252
         flujo.reconfigure(encoding="utf-8")
     salida_real = sys.stdout            # el código del alumno escribe en otro buffer
