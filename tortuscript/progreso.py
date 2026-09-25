@@ -20,12 +20,14 @@ import tempfile
 from datetime import date, datetime, timedelta
 from pathlib import Path
 
+from . import practica
+
 logger = logging.getLogger("tortuscript.progreso")
 
 # Los archivos viven en la carpeta raíz del proyecto (no en la carpeta desde donde se
 # lo abre, ni dentro del paquete tortuscript/).
 DIRECTORIO = Path(__file__).resolve().parent.parent
-VERSION_ESQUEMA = 5
+VERSION_ESQUEMA = 6
 
 PERFIL_ACTUAL = "default"
 
@@ -116,6 +118,9 @@ PROGRESO_INICIAL = {
     "liga": {"nivel": 0, "semana": None},
     "stats": {"congeladores_ganados": 0},
     "avisos": [],             # cosas para contarle al chico (logro nuevo, congelador...) hasta que se muestren
+    # Práctica del día (v6): tarjetas de repaso espaciado {"leccion:paso": {caja, proximo, aciertos, fallos}}
+    "repaso": {},
+    "xp_practica": {},        # XP ganado practicando por día (tope diario), últimos 7 días
 }
 
 
@@ -387,6 +392,28 @@ def registrar_ejercicio(progreso, indice, estrellas, xp_ganado):
 
 
 # ─────────────────────────────────────────
+# PRÁCTICA DEL DÍA
+# ─────────────────────────────────────────
+def registrar_practica(progreso, leccion_id, paso, acierto, hoy=None):
+    """Anota un paso practicado: reprograma su tarjeta, suma un poco de XP (con tope diario) y cuenta
+    como actividad del día. `acierto` = respondió bien al primer intento. Guarda. Devuelve el XP ganado."""
+    hoy = hoy or date.today()
+    hoy_s = str(hoy)
+    practica.registrar(progreso, leccion_id, paso, acierto, hoy)
+    por_dia = progreso.setdefault("xp_practica", {})
+    ganado = 0
+    if acierto:
+        ganado = max(0, min(practica.XP_ACIERTO, practica.XP_MAXIMO_DIARIO - por_dia.get(hoy_s, 0)))
+        por_dia[hoy_s] = por_dia.get(hoy_s, 0) + ganado
+        for viejo in sorted(por_dia)[:-7]:
+            del por_dia[viejo]
+        sumar_xp(progreso, ganado, hoy)
+    actualizar_racha(progreso, hoy)
+    guardar_progreso(progreso)
+    return ganado
+
+
+# ─────────────────────────────────────────
 # LECCIONES
 # ─────────────────────────────────────────
 def registrar_paso_leccion(progreso, leccion_id, indice, xp, perfecto, total_pasos, estrellas=None):
@@ -400,7 +427,8 @@ def registrar_paso_leccion(progreso, leccion_id, indice, xp, perfecto, total_pas
     lec = progreso.setdefault("lecciones", {}).setdefault(
         leccion_id, {"pasos": {}, "completada": False, "perfecta": False})
     antes = lec["pasos"].get(str(indice), {"xp": 0, "perfecto": False})
-    mejor = {"xp": max(antes["xp"], xp), "perfecto": bool(antes["perfecto"] or perfecto)}
+    mejor = {"xp": max(antes["xp"], xp), "perfecto": bool(antes["perfecto"] or perfecto),
+             "fecha": antes.get("fecha") or str(date.today())}         # la práctica del día parte de acá
     if estrellas is not None or "estrellas" in antes:                # pasos 'escribir' de cursos sin ejercicio
         mejor["estrellas"] = max(antes.get("estrellas", 0), estrellas or 0)
     ganado = mejor["xp"] - antes["xp"]
