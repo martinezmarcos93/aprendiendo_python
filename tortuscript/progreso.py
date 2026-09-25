@@ -267,6 +267,15 @@ def resumen_sesion_hoy(progreso, ejercicios_lista, hoy=None):
     return {"completados": completados, "xp_ganado_hoy": xp_hoy, "conceptos": conceptos}
 
 
+def calendario_semana(progreso, hoy=None):
+    """Los últimos 7 días (el más viejo primero) para el mini calendario del resumen."""
+    hoy = hoy or date.today()
+    activos = set(progreso.get("dias_activo", []))
+    dias = [hoy - timedelta(days=i) for i in range(6, -1, -1)]
+    return [{"dia": d.day, "fecha": str(d), "activo": str(d) in activos, "hoy": d == hoy}
+            for d in dias]
+
+
 # ─────────────────────────────────────────
 # NIVEL Y UTILIDADES
 # ─────────────────────────────────────────
