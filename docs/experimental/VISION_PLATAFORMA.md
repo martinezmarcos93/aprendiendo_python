@@ -5,6 +5,8 @@
 > Cada idea debería validarse con chicos reales antes de construirse. Para lo que sí existe hoy, ver el
 > [README](../../README.md), el [CHANGELOG](../../CHANGELOG.md) y [ADR-002](../decisions/ADR-002-cursos-como-datos-y-progreso-aditivo.md).
 
+> Continúa en [ACADEMIA_DE_JUEGOS_E_INTERESES.md](ACADEMIA_DE_JUEGOS_E_INTERESES.md): rama de desarrollo de juegos (RPG, estrategia) y sistema de intereses.
+
 ## 1. Punto de partida
 
 **La idea:** llevar el proyecto a un siguiente nivel: un curso de programación para chicos, **gratis hasta cierto punto**
