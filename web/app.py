@@ -260,7 +260,7 @@ def create_app(token=None):
     @app.get("/ejercicios/<int:n>")
     def ejercicio(n):
         indice = n - 1
-        ej = _ejercicio_o_404(indice)
+        _ejercicio_o_404(indice)
         if not _desbloqueado(indice):
             return redirect(url_for("ejercicio", n=_siguiente_pendiente() + 1))
         return _pagina_ejercicio(indice)

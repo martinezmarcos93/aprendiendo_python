@@ -9,7 +9,6 @@ Requiere Playwright (opcional, no está en requirements.txt) y un servidor de pr
 Sale con código 1 si alguna lección falla o si el navegador registra errores de consola.
 """
 import argparse
-import json
 import sys
 from pathlib import Path
 

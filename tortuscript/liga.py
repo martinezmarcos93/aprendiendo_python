@@ -7,7 +7,7 @@ Todo es puro (recibe `hoy` y los datos de los otros perfiles) para poder probarl
 """
 import random
 import zlib
-from datetime import date, timedelta
+from datetime import timedelta
 
 from . import progreso as _progreso
 
