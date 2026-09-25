@@ -59,7 +59,18 @@
   /** Ejemplo ejecutable: con `lienzo` dibuja con la tortuga; si no, muestra el texto que imprime. */
   function bloqueEjecutable(paso, etiqueta) {
     const caja = el("div", "ejemplo-ejecutable");
-    caja.appendChild(bloqueCodigo(paso.codigo));
+    if (paso.tortu) {                                     // TortuScript y su Python, lado a lado
+      const par = el("div", "par-codigo");
+      for (const [rotulo, codigo, clase] of [["TortuScript", paso.tortu, "tortu-c"], ["Python", paso.codigo, "py-c"]]) {
+        const c = el("div", `codigo-caja ${clase}`);
+        c.appendChild(el("span", "rotulo", rotulo));
+        c.appendChild(el("pre", "", codigo));
+        par.appendChild(c);
+      }
+      caja.appendChild(par);
+    } else {
+      caja.appendChild(bloqueCodigo(paso.codigo));
+    }
     const probar = el("button", "boton chico celeste", etiqueta || "▶ Probar");
     probar.type = "button";
     caja.appendChild(probar);
