@@ -1,0 +1,23 @@
+{% extends "base.html" %}
+{% block titulo %}Logros{% endblock %}
+{% block contenido %}
+<div class="columna-ancha">
+  <section class="tarjeta">
+    <h1>🏆 Logros</h1>
+    <p class="tenue">Ganaste <b>{{ estado.logros_ganados }}</b> de {{ estado.logros_total }}. Se ganan solos, jugando: no se pierden nunca.</p>
+    <div class="barra-larga"><span style="width: {{ (100 * estado.logros_ganados / estado.logros_total)|round|int }}%"></span></div>
+  </section>
+  <div class="logros-grid">
+    {% for l in catalogo %}
+    <div class="logro {{ 'ganado' if l.ganado else 'pendiente' }}" title="{{ l.descripcion }}">
+      <span class="logro-icono" aria-hidden="true">{{ l.icono if l.ganado else '🔒' }}</span>
+      <div>
+        <b>{{ l.titulo }}</b>
+        <div class="tenue">{{ l.descripcion }}</div>
+        {% if l.ganado %}<small class="verde-t">Ganado el {{ l.fecha }}</small>{% endif %}
+      </div>
+    </div>
+    {% endfor %}
+  </div>
+</div>
+{% endblock %}

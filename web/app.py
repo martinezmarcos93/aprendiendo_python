@@ -19,7 +19,7 @@ RAIZ = Path(__file__).resolve().parent.parent
 if str(RAIZ) not in sys.path:
     sys.path.insert(0, str(RAIZ))
 
-from tortuscript import contenido, evaluacion, leccion as motor, progreso  # noqa: E402
+from tortuscript import contenido, evaluacion, leccion as motor, liga, logros, progreso  # noqa: E402
 from tortuscript.ejercicios import EJERCICIOS  # noqa: E402
 from tortuscript.proceso import correr  # noqa: E402
 from tortuscript.referencia import cargar_referencia  # noqa: E402
@@ -61,9 +61,27 @@ def create_app(token=None):
             return redirect(url_for("bienvenida"))
         return None
 
+    @app.before_request
+    def _semana_de_la_liga():
+        """Al cambiar de semana se resuelve la liga anterior (¿subió?) una sola vez."""
+        if request.method != "GET" or request.endpoint in (None, "static") or request.path.startswith("/api/"):
+            return None
+        p = progreso.cargar_progreso()
+        viejo = dict(p.get("liga") or {})
+
+        def otros_de_la_semana(domingo):
+            return {n: xp for n, dias in progreso.leer_otros_perfiles().items()
+                    if (xp := liga.xp_de_la_semana(dias, domingo)) > 0}
+        liga.cerrar_semana(p, otros_de_la_semana, date.today())
+        if p.get("liga") != viejo or p.get("avisos"):
+            progreso.guardar_progreso(p)
+        return None
+
     @app.context_processor
     def _globales():
-        return {"token": app.config["TOKEN"], "estado": _estado(), "perfil": progreso.PERFIL_ACTUAL}
+        # Lo que quedó pendiente (p. ej. subir de liga al cambiar la semana) se cuenta en la próxima página
+        avisos = progreso.tomar_avisos(progreso.cargar_progreso())
+        return {"token": app.config["TOKEN"], "estado": _estado(), "perfil": progreso.PERFIL_ACTUAL, "avisos_pendientes": avisos}
 
     # ─────────────── helpers ───────────────
     def _estado():
@@ -74,7 +92,13 @@ def create_app(token=None):
         planas = motor.lecciones_planas(_camino(p))
         meta = progreso.meta_diaria_xp(p)
         hoy_xp = progreso.xp_de_hoy(p)
+        reto = progreso.reto_de_racha(p)
+        tabla_liga = liga.resumen(p, _otros_en_liga(date.today()), date.today())
         return {
+            "congeladores": p.get("congeladores", 0), "racha_protegida": progreso.racha_protegida(p),
+            "reto_dias": reto[0], "reto_total": reto[1],
+            "logros_ganados": len(p.get("logros", {})), "logros_total": len(logros.LOGROS),
+            "liga": {k: tabla_liga[k] for k in ("liga", "icono", "puesto", "tamano", "xp", "dias_restantes", "asciende")},
             "lecciones_hechas": sum(1 for lec in planas if lec["estado"] in ("hecha", "perfecta")),
             "lecciones_total": len(planas),
             "xp_hoy": hoy_xp, "meta_xp": meta, "meta_min": p["config"]["meta_min"],
@@ -102,6 +126,16 @@ def create_app(token=None):
         if not 0 <= n < len(EJERCICIOS):
             abort(404)
         return EJERCICIOS[n]
+
+    def _otros_en_liga(dia):
+        """XP de la semana (hasta `dia`) de los otros perfiles de la PC que jugaron esta semana."""
+        return {n: xp for n, dias in progreso.leer_otros_perfiles().items()
+                if (xp := liga.xp_de_la_semana(dias, dia)) > 0}
+
+    def _avisos_tras(p):
+        """Revisa los logros con el progreso ya actualizado y devuelve (y guarda) los avisos pendientes."""
+        logros.revisar(p, logros.resumen_de(p, _camino(p)))
+        return progreso.tomar_avisos(p)
 
     def _niveles():
         return {s["nivel"]: s["titulo"] for s in contenido.cargar_curso()["secciones"]}
@@ -246,7 +280,19 @@ def create_app(token=None):
         return render_template(
             "resumen.html", hoy=hoy, racha=progreso.racha_vigente(p), racha_max=p.get("racha_max", 0),
             jugo_hoy=p.get("ultimo_dia") == str(date.today()), calendario=progreso.calendario_semana(p),
-            estrellas_texto=progreso.estrellas_texto, metas=progreso.METAS_MIN)
+            estrellas_texto=progreso.estrellas_texto, metas=progreso.METAS_MIN,
+            recientes=sorted((c for c in logros.catalogo(p) if c["ganado"]), key=lambda c: c["fecha"], reverse=True)[:4])
+
+    @app.get("/logros")
+    def pagina_logros():
+        p = progreso.cargar_progreso()
+        return render_template("logros.html", catalogo=logros.catalogo(p))
+
+    @app.get("/liga")
+    def pagina_liga():
+        p = progreso.cargar_progreso()
+        return render_template("liga.html", liga=liga.resumen(p, _otros_en_liga(date.today()), date.today()),
+                               ligas=liga.LIGAS)
 
     @app.get("/referencia")
     def referencia():
@@ -344,9 +390,10 @@ def create_app(token=None):
         xp = 0 if paso["tipo"] == "explicacion" else motor.xp_por_intentos(estado_paso["errores"] + 1, False)
         perfecto = estado_paso["errores"] == 0
         info = progreso.registrar_paso_leccion(p, leccion_id, i, xp, perfecto, len(lec["pasos"]))
+        avisos = _avisos_tras(p)
         return jsonify(ok=True, xp=info["xp_ganado"], perfecto=perfecto,
                        sube_nivel=progreso.calcular_nivel(p["xp_total"])[0] > nivel_antes,
-                       leccion=_resumen_leccion(leccion_id, info), estado_juego=_estado())
+                       leccion=_resumen_leccion(leccion_id, info), estado_juego=_estado(), avisos=avisos)
 
     @app.post("/api/lecciones/<leccion_id>/pasos/<int:i>/respuesta")
     def api_ver_respuesta(leccion_id, i):
@@ -361,7 +408,7 @@ def create_app(token=None):
         p = progreso.cargar_progreso()
         info = progreso.registrar_paso_leccion(p, leccion_id, i, 0, False, len(lec["pasos"]))
         return jsonify(respuesta=motor.respuesta_correcta(paso), leccion=_resumen_leccion(leccion_id, info),
-                       estado_juego=_estado())
+                       estado_juego=_estado(), avisos=_avisos_tras(p))
 
     def _evaluar_escribir(leccion_id, i, paso, datos):
         """Ejecuta y evalúa un paso 'escribir'. Los ejercicios del curso clásico guardan su
@@ -389,6 +436,7 @@ def create_app(token=None):
             r["premio"] = {"estrellas": estrellas, "xp": xp, "mejora": mejora,
                            "sube_nivel": progreso.calcular_nivel(p["xp_total"])[0] > nivel_antes}
             r["leccion"] = _resumen_leccion(leccion_id, info)
+            r["avisos"] = _avisos_tras(p)
         r["estado_juego"] = _estado()
         return r
 

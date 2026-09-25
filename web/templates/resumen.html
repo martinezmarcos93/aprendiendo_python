@@ -16,8 +16,16 @@
     <div class="calendario" aria-label="Últimos 7 días">
       <span class="tenue">Últimos 7 días:</span>
       {% for d in calendario %}
-        <span class="dia {{ 'activo' if d.activo }} {{ 'hoy' if d.hoy }}" title="{{ d.fecha }}{{ ' (hoy)' if d.hoy }}{{ ' — programaste' if d.activo }}">{{ d.dia }}</span>
+        <span class="dia {{ 'activo' if d.activo }} {{ 'hoy' if d.hoy }} {{ 'congelado' if d.congelado }}" title="{{ d.fecha }}{{ ' (hoy)' if d.hoy }}{{ ' — programaste' if d.activo }}{{ ' — un congelador salvó este día' if d.congelado }}">{{ '❄' if d.congelado else d.dia }}</span>
       {% endfor %}
+    </div>
+    <div class="reto-resumen">
+      <b>Reto de 7 días</b>
+      <div class="puntos-reto" role="img" aria-label="{{ estado.reto_dias }} de {{ estado.reto_total }} días">
+        {% for i in range(estado.reto_total) %}<span class="punto {{ 'lleno' if i < estado.reto_dias }}"></span>{% endfor %}
+      </div>
+      <span class="tenue">Cada {{ estado.reto_total }} días seguidos ganás un congelador ❄️ que salva tu racha si faltás un día.</span>
+      <div>❄️ Congeladores guardados: <b>{{ estado.congeladores }}</b> (máximo 2){% if estado.racha_protegida %} · <b class="verde-t">hoy tu racha está protegida</b>{% endif %}</div>
     </div>
   </section>
 
@@ -36,6 +44,15 @@
         {% for m in metas %}<button type="button" class="boton chico {{ 'violeta' if m == estado.meta_min }}" data-meta="{{ m }}" role="radio" aria-checked="{{ 'true' if m == estado.meta_min else 'false' }}">{{ m }} min</button>{% endfor %}
       </div>
     </div>
+  </section>
+
+  <section class="tarjeta">
+    <div class="fila"><h2 style="margin:0">🏆 Logros</h2><span class="espacio"></span>
+      <a class="boton chico" href="{{ url_for('pagina_logros') }}">Ver todos ({{ estado.logros_ganados }}/{{ estado.logros_total }})</a></div>
+    {% if recientes %}
+      <div class="etiquetas">{% for l in recientes %}<span class="concepto">{{ l.icono }} {{ l.titulo }}</span>{% endfor %}</div>
+    {% else %}<p class="tenue">Todavía no ganaste ninguno: ¡el primero llega enseguida!</p>{% endif %}
+    <p style="margin:.4rem 0 0"><a href="{{ url_for('pagina_liga') }}">{{ estado.liga.icono }} Liga {{ estado.liga.liga }}: puesto {{ estado.liga.puesto }} de {{ estado.liga.tamano }}</a></p>
   </section>
 
   <section class="tarjeta">

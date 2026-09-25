@@ -18,6 +18,7 @@
       if (r.python !== undefined && r.python !== "") python.setValue(r.python);
       mostrarVeredicto(r);
       Tortu.actualizarEstado(r.estado_juego);
+      Tortu.avisos(r.avisos);
     } catch (e) {
       Tortu.veredicto("error", "😵 No pude comunicarme con TortuScript", [["mensaje", String(e)]]);
     } finally {

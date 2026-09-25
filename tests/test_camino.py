@@ -5,7 +5,7 @@ import unittest
 from datetime import date
 from pathlib import Path
 
-from tortuscript import contenido, leccion, progreso
+from tortuscript import contenido, leccion, liga, logros, progreso
 
 try:
     import flask  # noqa: F401
@@ -153,7 +153,8 @@ class TestWebCamino(Base):
                 self.assertEqual(r.status_code, 302)
                 self.assertTrue(r.headers["Location"].endswith("/bienvenida"))
         self.assertEqual(self.c.get("/bienvenida").status_code, 200)
-        self.assertEqual(self.c.get("/static/css/tortu.css").status_code, 200)     # sin redirigir
+        with self.c.get("/static/css/tortu.css") as css:
+            self.assertEqual(css.status_code, 200)                                  # sin redirigir
         self.assertEqual(self.post("/api/traducir", {"codigo": "mostrar 1"}).status_code, 200)
 
     def test_onboarding_completo(self):
@@ -270,6 +271,69 @@ class TestWebCamino(Base):
         r = self.post("/api/lecciones/tortuga-girar/pasos/4/comprobar",
                       {"respuesta": ["avanzar 100", "girar_izq 90", "avanzar 100"]}).get_json()
         self.assertTrue(r["ok"])
+
+    # ── gamificación en la web ──
+    def _paso(self, i, respuesta, leccion_id="hola-mundo"):
+        return self.post(f"/api/lecciones/{leccion_id}/pasos/{i}/comprobar", {"respuesta": respuesta}).get_json()
+
+    def test_los_logros_llegan_como_avisos_una_sola_vez(self):
+        self.post("/api/onboarding", {"meta_min": 10})
+        r = self._paso(0, True)
+        self.assertEqual([a["id"] for a in r["avisos"] if a["tipo"] == "logro"], ["primer-paso"])
+        self.assertEqual(r["avisos"][0]["titulo"], "Primer paso")
+        self.assertEqual(self._paso(1, "mostrar")["avisos"], [])
+        html = self.c.get("/logros").get_data(as_text=True)
+        self.assertIn("Primer paso", html)
+        self.assertIn("Ganado el", html)
+        self.assertEqual(progreso.cargar_progreso()["avisos"], [])
+
+    def test_la_meta_diaria_se_avisa_al_cumplirla(self):
+        self.post("/api/onboarding", {"meta_min": 5})                      # 20 XP
+        for i, resp in ((1, "mostrar"), (2, ["mostrar"]), (3, ['mostrar "Hola"', 'mostrar "Chau"'])):
+            self.assertNotIn("meta_cumplida", [a["tipo"] for a in self._paso(i, resp)["avisos"]])
+        r = self._paso(4, "Buen día")
+        self.assertIn("meta_cumplida", [a["tipo"] for a in r["avisos"]])
+        self.assertEqual(r["estado_juego"]["meta_pct"], 100)
+        self.assertIn("meta-diaria", progreso.cargar_progreso()["logros"])
+
+    def test_estado_y_paginas_de_gamificacion(self):
+        self.post("/api/onboarding", {"meta_min": 10})
+        est = self.c.get("/api/estado", headers=self.h).get_json()
+        self.assertEqual((est["congeladores"], est["reto_dias"], est["reto_total"]), (0, 0, 7))
+        self.assertEqual((est["logros_ganados"], est["logros_total"]), (0, len(logros.LOGROS)))
+        self.assertEqual((est["liga"]["liga"], est["liga"]["tamano"]), ("Bronce", 5))
+        for ruta in ("/logros", "/liga", "/resumen", "/"):
+            self.assertEqual(self.c.get(ruta).status_code, 200)
+        html = self.c.get("/").get_data(as_text=True)
+        self.assertIn("Reto de 7 días", html)
+        self.assertIn("Liga Bronce", html)
+        self.assertIn('<details class="mas">', html)                                    # menú "Más"
+
+    def test_liga_con_otro_perfil_de_la_pc(self):
+        self.post("/api/onboarding", {"meta_min": 10, "nombre": "Lua"})
+        p = progreso.cargar_progreso("tomi")
+        p["config"]["nombre"] = "Tomi"
+        progreso.sumar_xp(p, 500)
+        progreso.guardar_progreso(p)
+        html = self.c.get("/liga").get_data(as_text=True)
+        self.assertIn("Tomi", html)
+        self.assertIn("(vos)", html)
+        self.assertEqual(html.count('class="puesto"'), 5)                               # el grupo se completa con rivales
+
+    def test_al_cambiar_de_semana_se_sube_de_liga_y_se_avisa_en_la_pagina(self):
+        from datetime import date, timedelta
+        self.post("/api/onboarding", {"meta_min": 10})
+        hoy = date.today()
+        anterior = liga.lunes_de(hoy) - timedelta(days=2)                              # un sábado de la semana pasada
+        p = progreso.cargar_progreso()
+        p["liga"] = {"nivel": 0, "semana": liga.clave_semana(anterior)}
+        p["xp_por_dia"] = {str(anterior): 900}
+        progreso.guardar_progreso(p)
+        html = self.c.get("/").get_data(as_text=True)
+        self.assertIn("liga_asciende", html)
+        self.assertIn("Plata", html)
+        self.assertEqual(progreso.cargar_progreso()["liga"], {"nivel": 1, "semana": liga.clave_semana(hoy)})
+        self.assertNotIn("liga_asciende", self.c.get("/").get_data(as_text=True))       # el aviso se cuenta una sola vez
 
     # ── curso de Python real ──
     def test_ejercicio_en_python_se_evalua_y_da_pistas_sin_traducir(self):

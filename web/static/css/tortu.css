@@ -428,6 +428,53 @@ a.nodo-camino:hover { transform: translateY(-3px) scale(1.05); }
 .bienvenida .opciones { max-width: 26rem; margin: 1rem auto; }
 .bienvenida h1 { font-size: 1.7rem; }
 
+/* ───────── gamificación ───────── */
+.mas { position: relative; }
+.mas > summary { list-style: none; cursor: pointer; text-decoration: none; font-weight: 800; color: var(--texto-suave);
+  padding: .45rem .9rem; border-radius: 999px; }
+.mas > summary::-webkit-details-marker { display: none; }
+.mas > summary:hover, .mas[open] > summary { background: var(--superficie); color: var(--texto); }
+.mas > summary.activo { background: var(--superficie-2); color: var(--texto); }
+.mas-lista { position: absolute; z-index: 40; top: calc(100% + .3rem); left: 0; min-width: 12rem; display: grid; padding: .4rem;
+  background: var(--superficie); border: 1px solid var(--borde); border-radius: var(--radio-chico); box-shadow: var(--sombra); }
+.mas-lista a { display: flex; justify-content: space-between; gap: 1rem; padding: .5rem .7rem; border-radius: 8px; }
+.mas-lista a:hover { background: var(--superficie-2); }
+.puntos-reto { display: flex; gap: .4rem; margin: .5rem 0; }
+.punto { width: 1.5rem; height: 1.5rem; border-radius: 50%; background: var(--superficie-2); border: 2px solid var(--borde); }
+.punto.lleno { background: var(--naranja); border-color: var(--amarillo); box-shadow: 0 0 10px rgba(255,155,74,.5); }
+.racha-card { display: grid; gap: .1rem; }
+.racha-card h3 { margin: 0; }
+.linea-cong { margin-top: .3rem; }
+.reto-resumen { margin-top: .9rem; padding-top: .8rem; border-top: 1px solid var(--borde); }
+.reto-resumen .puntos-reto { justify-content: center; }
+.dia.congelado { background: #16385c; border-color: var(--celeste); color: var(--celeste); }
+.logros-grid { display: grid; grid-template-columns: repeat(auto-fill, minmax(260px, 1fr)); gap: .8rem; }
+.logro { display: flex; gap: .9rem; align-items: center; padding: .9rem 1rem; border-radius: var(--radio-chico);
+  background: var(--superficie); border: 2px solid var(--borde); }
+.logro.ganado { border-color: var(--amarillo); background: linear-gradient(180deg, #3b3312, var(--superficie)); }
+.logro.pendiente { opacity: .55; }
+.logro-icono { font-size: 2.1rem; }
+.ligas { display: flex; gap: .5rem; justify-content: center; margin-top: .6rem; }
+.liga-chip { width: 2.6rem; height: 2.6rem; display: grid; place-items: center; border-radius: 50%; font-size: 1.4rem;
+  background: var(--superficie-2); border: 2px solid var(--borde); opacity: .5; }
+.liga-chip.superada { opacity: .85; }
+.liga-chip.actual { opacity: 1; border-color: var(--amarillo); box-shadow: 0 0 14px rgba(255,197,61,.5); transform: scale(1.15); }
+.tabla-liga { list-style: none; margin: .5rem 0 1rem; padding: 0; display: grid; gap: .5rem; }
+.tabla-liga li { display: flex; align-items: center; gap: .8rem; padding: .6rem .9rem; border-radius: var(--radio-chico);
+  background: var(--fondo-2); border: 2px solid transparent; }
+.tabla-liga li.sube { border-color: #1d5c3e; }
+.tabla-liga li.yo { border-color: var(--violeta); background: #241f5c; font-weight: 900; }
+.tabla-liga .puesto { width: 1.6rem; text-align: center; font-weight: 900; color: var(--texto-suave); }
+.tabla-liga .nombre-liga { flex: 1; }
+.tabla-liga .xp-liga { font-family: var(--fuente-codigo); }
+.avisos { position: fixed; z-index: 90; top: 4.6rem; right: 1rem; display: grid; gap: .6rem; width: min(22rem, calc(100vw - 2rem)); pointer-events: none; }
+.aviso { display: grid; padding: .8rem 1rem; border-radius: var(--radio-chico); background: linear-gradient(180deg, var(--superficie-2), var(--superficie));
+  border: 2px solid var(--amarillo); box-shadow: var(--sombra); animation: aparecer .35s cubic-bezier(.2,.9,.3,1.3); transition: opacity .4s, transform .4s; }
+.aviso.congelador_ganado, .aviso.congelador_usado { border-color: var(--celeste); }
+.aviso.meta_cumplida { border-color: var(--verde); }
+.aviso.saliendo { opacity: 0; transform: translateX(30px); }
+.aviso span { color: var(--texto-suave); font-size: .9rem; }
+
 /* ───────── modales ───────── */
 .modal {
   position: fixed; inset: 0; z-index: 50; display: grid; place-items: center;

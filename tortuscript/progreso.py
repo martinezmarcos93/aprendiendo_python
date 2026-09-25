@@ -77,6 +77,22 @@ def obtener_perfiles():
     return sorted(perfiles)
 
 
+def leer_otros_perfiles(actual=None):
+    """{nombre que se ve: XP por día} de los demás perfiles de esta PC (solo lectura; sirve a la liga)."""
+    actual = actual or PERFIL_ACTUAL
+    salida = {}
+    for nombre in obtener_perfiles():
+        if nombre == actual:
+            continue
+        try:
+            datos = _leer(get_archivo_progreso(nombre))
+        except (OSError, ValueError):
+            continue                                    # perfil sin archivo o dañado: no participa
+        visible = (datos.get("config") or {}).get("nombre") or nombre
+        salida[visible] = datos.get("xp_por_dia") or {}
+    return salida
+
+
 PROGRESO_INICIAL = {
     "version": VERSION_ESQUEMA,
     "xp_total": 0,

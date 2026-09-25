@@ -7,7 +7,7 @@
   <link rel="icon" href="data:image/svg+xml,<svg xmlns='http://www.w3.org/2000/svg' viewBox='0 0 100 100'><text y='.9em' font-size='90'>🐢</text></svg>">
   <link rel="stylesheet" href="{{ url_for('static', filename='vendor/codemirror/codemirror.css') }}">
   <link rel="stylesheet" href="{{ url_for('static', filename='css/tortu.css') }}">
-  <script>window.TORTU = { token: {{ token|tojson }} };</script>
+  <script>window.TORTU = { token: {{ token|tojson }}, avisos: {{ avisos_pendientes|tojson }} };</script>
 </head>
 <body>
   <header class="barra">
@@ -17,12 +17,20 @@
       <a href="{{ url_for('aprender') }}" class="{{ 'activo' if request.endpoint in ('leccion', 'ejercicio') }}">Aprender</a>
       <a href="{{ url_for('experimentar') }}" class="{{ 'activo' if request.endpoint == 'experimentar' }}">Experimentar</a>
       <a href="{{ url_for('tortuga') }}" class="{{ 'activo' if request.endpoint == 'tortuga' }}">Tortuga</a>
-      <a href="{{ url_for('mapa') }}" class="{{ 'activo' if request.endpoint == 'mapa' }}">Mapa</a>
       <a href="{{ url_for('repaso') }}" class="{{ 'activo' if request.endpoint.startswith('repaso') }}">Repaso</a>
-      <a href="{{ url_for('referencia') }}" class="{{ 'activo' if request.endpoint == 'referencia' }}">Referencia</a>
+      <details class="mas">
+        <summary class="{{ 'activo' if request.endpoint in ('mapa', 'referencia', 'pagina_logros', 'pagina_liga', 'resumen') }}">Más ▾</summary>
+        <div class="mas-lista">
+          <a href="{{ url_for('mapa') }}">🗺️ Mapa</a>
+          <a href="{{ url_for('pagina_logros') }}">🏆 Logros <small class="tenue">{{ estado.logros_ganados }}/{{ estado.logros_total }}</small></a>
+          <a href="{{ url_for('pagina_liga') }}">{{ estado.liga.icono }} Liga <small class="tenue">{{ estado.liga.liga }}</small></a>
+          <a href="{{ url_for('resumen') }}">📊 Resumen</a>
+          <a href="{{ url_for('referencia') }}">📖 Referencia</a>
+        </div>
+      </details>
     </nav>
     <div class="estadisticas">
-      <a class="chip racha" href="{{ url_for('resumen') }}" title="Días seguidos programando — ver el resumen de hoy">🔥 <span id="e-racha">{{ estado.racha }}</span></a>
+      <a class="chip racha" href="{{ url_for('resumen') }}" title="Días seguidos programando — ver el resumen de hoy">🔥 <span id="e-racha">{{ estado.racha }}</span><span id="e-cong">{{ (' ❄' ~ estado.congeladores) if estado.congeladores }}</span></a>
       <span class="chip nivel" id="e-nivel">{{ estado.titulo }} · Nv.{{ estado.nivel }}</span>
       <span class="xp" title="Experiencia">
         <span id="e-xp">{{ estado.xp }} XP</span>

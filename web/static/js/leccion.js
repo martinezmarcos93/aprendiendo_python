@@ -129,6 +129,7 @@
     try {
       const r = await Tortu.api(rutaPaso(paso.indice, "comprobar"), { respuesta });
       Tortu.actualizarEstado(r.estado_juego);
+      Tortu.avisos(r.avisos);
       if (r.ok) {
         xpTotal += r.xp || 0;
         if (r.perfecto) perfectos += 1;
@@ -155,6 +156,7 @@
     try {
       const r = await Tortu.api(rutaPaso(paso.indice, "respuesta"), {});
       Tortu.actualizarEstado(r.estado_juego);
+      Tortu.avisos(r.avisos);
       hechos += 1; resultadoFinal = r.leccion;
       pintarProgreso();
       const texto = Array.isArray(r.respuesta) ? r.respuesta.join(paso.tipo === "ordenar" ? "\n" : "  ·  ") : r.respuesta;
@@ -374,6 +376,7 @@
           salida.appendChild(el("span", "tenue", sinSalida));
         }
         Tortu.actualizarEstado(r.estado_juego);
+        Tortu.avisos(r.avisos);
         if (r.cancelado) return;
         if (dibuja) {
           const vista = Lienzo.vistaPara(paso.objetivo, r.ordenes);          // que entren los dos dibujos

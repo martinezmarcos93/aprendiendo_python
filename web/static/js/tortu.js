@@ -185,10 +185,47 @@ const Tortu = (() => {
   });
   pintarSonido();
 
+  // ───────── avisos (logros, congelador, meta, liga) ─────────
+  function textoAviso(a) {
+    switch (a.tipo) {
+      case "logro": return [`${a.icono} ¡Nuevo logro: ${a.titulo}!`, a.descripcion];
+      case "congelador_ganado": return ["❄️ ¡Ganaste un congelador de racha!", "Te protege si un día no podés programar."];
+      case "congelador_usado": return ["❄️ Tu congelador salvó tu racha", `Ya llevás ${a.racha} días seguidos.`];
+      case "meta_cumplida": return ["🎯 ¡Cumpliste la meta de hoy!", `${a.xp} XP en el día.`];
+      case "liga_asciende": return [`${a.icono} ¡Subiste a la liga de ${a.liga}!`, `Terminaste la semana en el puesto ${a.puesto}.`];
+      default: return null;
+    }
+  }
+  function avisos(lista) {
+    if (!lista || !lista.length) return;
+    let caja = document.getElementById("avisos");
+    if (!caja) {
+      caja = document.createElement("div");
+      caja.id = "avisos"; caja.className = "avisos"; caja.setAttribute("aria-live", "polite");
+      document.body.appendChild(caja);
+    }
+    let festejar = false;
+    for (const a of lista) {
+      const t = textoAviso(a);
+      if (!t) continue;
+      festejar = festejar || ["logro", "liga_asciende", "congelador_ganado"].includes(a.tipo);
+      const div = document.createElement("div");
+      div.className = `aviso ${a.tipo}`;
+      const h = document.createElement("b"); h.textContent = t[0];
+      const p = document.createElement("span"); p.textContent = t[1] || "";
+      div.append(h, p);
+      caja.appendChild(div);
+      setTimeout(() => { div.classList.add("saliendo"); setTimeout(() => div.remove(), 400); }, 6500);
+    }
+    if (festejar) celebrar(false);
+  }
+
   // ───────── barra superior ─────────
   function actualizarEstado(e) {
     if (!e) return;
     document.getElementById("e-racha").textContent = e.racha;
+    const cong = document.getElementById("e-cong");
+    if (cong) { cong.textContent = e.congeladores ? ` ❄${e.congeladores}` : ""; }
     document.getElementById("e-nivel").textContent = `${e.titulo} · Nv.${e.nivel}`;
     document.getElementById("e-xp").textContent = `${e.xp} XP`;
     document.getElementById("e-barra").style.width = `${Math.round(100 * e.xp_actual / e.xp_max)}%`;
@@ -233,7 +270,8 @@ const Tortu = (() => {
     };
   }
   document.getElementById("btn-perfil").addEventListener("click", abrirPerfiles);
+  avisos(window.TORTU.avisos);                 // lo que quedó pendiente desde la última vez
 
   return { api, crearEditores, ejecutarConPreguntas, mostrarConsola, veredicto,
-           limpiarResultado, actualizarEstado, celebrar, tocar };
+           limpiarResultado, actualizarEstado, celebrar, tocar, avisos };
 })();
