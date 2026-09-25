@@ -101,13 +101,6 @@ class VentanaRepaso(VentanaEjercicios):
     de ejercicios ya completados, en el orden elegido.
     """
 
-    def __init__(self, parent, modo="todos"):
-        self.modo = modo
-        self._cola = []          # lista de índices a repasar
-        self._pos_cola = 0       # posición actual en la cola
-        self._construir_cola()   # antes de llamar super().__init__
-        super().__init__(parent)
-
     def _construir_cola(self):
         progreso = cargar_progreso()
         ejercicios_prog = progreso.get("ejercicios", {})
@@ -148,11 +141,6 @@ class VentanaRepaso(VentanaEjercicios):
         self._cola = cola
 
     # ── Sobreescribir init de estado para arrancar en el primer elemento de la cola
-    def _init_estado(self):
-        self.indice = self._cola[0] if self._cola else 0
-        self._pos_cola = 0
-
-    # ── Sobreescribir __init__ para personalizar título y estado inicial
     def __init__(self, parent, modo="todos"):
         self.modo = modo
         self._cola = []
@@ -187,7 +175,7 @@ class VentanaRepaso(VentanaEjercicios):
             self.cargar()
 
     def _personalizar_barra(self):
-        """Reemplaza los botones Anterior/Siguiente por los de repaso."""
+        """Agrega el contador de la cola de repaso a la barra superior."""
         # El label de título de la ventana ya indica el modo.
         # Agregamos un indicador de posición en la cola.
         self.lbl_cola = tk.Label(

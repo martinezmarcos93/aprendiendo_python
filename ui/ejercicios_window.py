@@ -5,10 +5,11 @@ from translator import TraductorTortuScript, detectar_tipo
 from executor import ejecutar_codigo
 from progreso import (
     cargar_progreso, registrar_ejercicio,
-    calcular_nivel, titulo_nivel, estrellas_texto
+    calcular_nivel, titulo_nivel, estrellas_texto, racha_vigente
 )
 from celebracion import VentanaCelebracion
 from ui.resumen_window import VentanaResumen
+from ui.mapa_window import VentanaMapa
 from utils import centrar_ventana
 from highlighter import TortuHighlighter
 from sounds import play_sound
@@ -109,6 +110,9 @@ class VentanaEjercicios(tk.Toplevel):
         self.editor = scrolledtext.ScrolledText(panel, font=("Consolas", 13), bg=BG_EDITOR, fg=BLANCO, insertbackground=BLANCO, relief=tk.FLAT, padx=10, pady=10, undo=True)
         self.editor.grid(row=1, column=0, sticky="nsew", padx=(0, 6))
         self.hl_editor = TortuHighlighter(self.editor, es_python=False)
+        self._id_traduccion = None
+        self.editor.bind("<KeyRelease>", self._programar_traduccion, add="+")
+        self.editor.bind("<Control-Return>", lambda e: (self.ejecutar(), "break")[1])
 
         self.panel_python = scrolledtext.ScrolledText(panel, font=("Consolas", 13), bg=BG_PYTHON, fg=BLANCO, insertbackground=BLANCO, relief=tk.FLAT, padx=10, pady=10, state=tk.DISABLED)
         self.panel_python.grid(row=1, column=1, sticky="nsew", padx=(6, 0))
@@ -154,9 +158,19 @@ class VentanaEjercicios(tk.Toplevel):
         self.btn_pista.config(text="💡  Pista (1/3)", state=tk.NORMAL)
         self._actualizar_barra_xp()
 
-    def _traducir_en_vivo(self, event=None):
-        # Ya no se usa — la traducción ocurre al ejecutar
-        pass
+    def _programar_traduccion(self, event=None):
+        # Traducción en vivo con una pequeña espera, para no traducir en cada tecla
+        if self._id_traduccion is not None:
+            self.after_cancel(self._id_traduccion)
+        self._id_traduccion = self.after(300, self._traducir_en_vivo)
+
+    def _traducir_en_vivo(self):
+        self._id_traduccion = None
+        codigo = self.editor.get("1.0", "end-1c")
+        if detectar_tipo(codigo) == "python":
+            self._set_python(codigo)
+        else:
+            self._set_python(self.traductor.traducir_codigo(codigo))
 
     def _set_python(self, texto):
         self.panel_python.config(state=tk.NORMAL)
@@ -188,7 +202,8 @@ class VentanaEjercicios(tk.Toplevel):
             python = self.traductor.traducir_codigo(codigo_usuario)
             self._set_python(python)
 
-        salida_txt, hay_error, msg_error = ejecutar_codigo(python)
+        detalles = {}
+        salida_txt, hay_error, msg_error = ejecutar_codigo(python, detalles=detalles)
         self.salida.delete("1.0", tk.END)
 
         if hay_error:
@@ -201,18 +216,34 @@ class VentanaEjercicios(tk.Toplevel):
         else:
             self._mostrar_salida([("✅ Ejecutado sin errores (sin salida).\n", "ok")])
 
-        self._evaluar(codigo_usuario, salida_txt)
+        self._evaluar(detalles)
 
-    def _evaluar(self, codigo_tortu, salida_txt):
+    @staticmethod
+    def _normalizar_salida(texto):
+        # Tolerante con espacios al final de cada línea y líneas vacías al final;
+        # estricto con el contenido (mayúsculas y tildes cuentan).
+        return "\n".join(l.rstrip() for l in texto.strip().split("\n"))
+
+    def _evaluar(self, detalles):
         ej  = EJERCICIOS[self.indice]
         sol = ej.get("solucion", "").strip()
+        entradas_alumno = detalles.get("entradas", [])
 
-        # Ejecutar la solución oficial para obtener la salida esperada
-        python_sol = self.traductor.traducir_codigo(sol)
-        salida_esperada, _, _ = ejecutar_codigo(python_sol)
+        # Salida esperada: se ejecuta la solución oficial con LAS MISMAS respuestas
+        # que dio el chico a preguntar() (sin abrir otro diálogo).
+        traductor_sol = TraductorTortuScript()
+        python_sol = traductor_sol.traducir_codigo(sol)
+        usa_preguntar = "preguntar" in traductor_sol.ultimas_palabras
+        if usa_preguntar and not entradas_alumno:
+            self._mostrar_salida([
+                ("\n⚠️  Este ejercicio pide usar  preguntar  para que el usuario escriba el dato.\n", "pista"),
+            ])
+            return
+        det_sol = {}
+        ejecutar_codigo(python_sol, entradas_fijas=entradas_alumno, detalles=det_sol)
 
-        salida_alumno   = salida_txt.strip()
-        salida_correcta = salida_esperada.strip()
+        salida_alumno   = self._normalizar_salida(detalles.get("salida_programa", ""))
+        salida_correcta = self._normalizar_salida(det_sol.get("salida_programa", ""))
 
         if not salida_alumno:
             # El código no produjo ninguna salida
@@ -233,20 +264,16 @@ class VentanaEjercicios(tk.Toplevel):
             else:
                 estrellas, xp = 1, 5
         else:
-            # Hay salida pero no coincide
-            estrellas, xp = 1, 5
+            # Hay salida pero no coincide: NO cuenta como completado.
             play_sound("error")
             self._mostrar_salida([
-                ("\n⚠️  Casi! Tu salida no coincide exactamente.\n", "pista"),
-                (f"   Esperado:  {salida_correcta}\n", "info"),
-                (f"   Tu salida: {salida_alumno}\n", "info"),
+                ("\n🤔  Casi… tu programa corre, pero lo que muestra no es lo que pide el ejercicio.\n\n", "pista"),
+                ("   Se esperaba:\n", "info"),
+                (self._sangrar(salida_correcta) + "\n", "bold"),
+                ("   Tu programa mostró:\n", "info"),
+                (self._sangrar(salida_alumno) + "\n\n", "bold"),
+                ("   Compará línea por línea (mayúsculas y tildes cuentan) y probá de nuevo.\n", "info"),
             ])
-            hubo_mejora = registrar_ejercicio(self.progreso, self.indice, estrellas, xp)
-            self.progreso = cargar_progreso()
-            self.lbl_estrellas_hist.config(text=estrellas_texto(estrellas))
-            self._actualizar_barra_xp()
-            if not hubo_mejora:
-                self.salida.insert(tk.END, "\n✔ Ya tenías esta estrella guardada.\n", "info")
             return
 
         hubo_mejora = registrar_ejercicio(self.progreso, self.indice, estrellas, xp)
@@ -292,10 +319,16 @@ class VentanaEjercicios(tk.Toplevel):
             ])
             self.btn_pista.config(text="✅ Solución mostrada", state=tk.DISABLED)
 
+    @staticmethod
+    def _sangrar(texto):
+        return "\n".join("      " + l for l in (texto or "(nada)").split("\n"))
+
     def _detectar_keywords(self, sol):
-        palabras = ["mostrar","preguntar","funcion","si","sino","para","mientras","repetir","devolver","clase","es","y","o","no"]
-        encontradas = [p for p in palabras if p in sol]
-        return encontradas if encontradas else ["mostrar"]
+        # Palabras de TortuScript que usa de verdad la solución (no subcadenas sueltas)
+        t = TraductorTortuScript()
+        t.traducir_codigo(sol)
+        palabras = [p for p in t.ultimas_palabras if p not in ("verdadero", "falso")]
+        return palabras or ["mostrar"]
 
     def _actualizar_barra_xp(self):
         xp = self.progreso.get("xp_total", 0)
@@ -312,7 +345,7 @@ class VentanaEjercicios(tk.Toplevel):
         if xp_max > 0:
             fill_w = int(200 * xp_actual / xp_max)
             self.canvas_xp.create_rectangle(0, 0, fill_w, 14, fill=AMARILLO, outline="")
-        racha = self.progreso.get("racha", 0)
+        racha = racha_vigente(self.progreso)
         emoji = "🔥" if racha >= 3 else "⭐"
         self.lbl_racha.config(text=f"{emoji} {racha} día{'s' if racha != 1 else ''}")
 
@@ -321,11 +354,10 @@ class VentanaEjercicios(tk.Toplevel):
             self.salida.insert(tk.END, texto, tag)
 
     def _limpiar(self):
+        # Las pistas ya vistas siguen contando: limpiar no las borra.
         self.editor.delete("1.0", tk.END)
         self._set_python("")
         self.salida.delete("1.0", tk.END)
-        self.pista_nivel = 0
-        self.btn_pista.config(text="💡  Pista (1/3)", state=tk.NORMAL)
 
     def _abrir_resumen(self):
         VentanaResumen(self)
@@ -353,6 +385,12 @@ class VentanaEjercicios(tk.Toplevel):
         if self.indice < len(EJERCICIOS) - 1:
             self.indice += 1
             self.cargar()
+        else:
+            self.salida.delete("1.0", tk.END)
+            self._mostrar_salida([
+                ("🏁  ¡Llegaste al último ejercicio!\n", "ok"),
+                ("   Podés repasar los que no tienen 3 estrellas con  🔁 Repaso.\n", "info"),
+            ])
 
     def anterior(self):
         if self.indice > 0:
