@@ -5,6 +5,21 @@
 > (tiene el mismo título). **Cada bug marcado ✔ se reprodujo ejecutando el código real**
 > (Python 3.12.3, Ubuntu 24.04). No se modificó código: esto es solo el informe.
 
+
+## 0. Estado de aplicación (rama `fix/auditoria-20260924`)
+
+Aplicado con OK de Marcos (traductor: reescritura con `tokenize`). 45 tests en verde
+(`python -m unittest discover tests`) + prueba de todas las ventanas sin errores de Tk.
+
+| Resuelto | Pendiente (no aplicado) |
+|---|---|
+| **Traductor** T1–T10 (reescrito con tokenize) | E3 tope de **memoria** (requiere ejecutar en subproceso) |
+| **Ejecutor** E1 depurador, E2 sandbox AST, E3 tope de salida, E4 límite global, E5 sin trazar tkinter | E6 `sys.stdout` global, E7 `SystemExit` (bajo impacto) |
+| **Evaluación** X1, X2, X3, X4, X5, X6, X8 | X7 curva de dificultad y ejercicios nuevos (roadmap §8) |
+| **Progreso** P1–P9 | U7 sonido en Linux/macOS |
+| **Mensajes** U8 · **UI** U1–U6, U9, U12 | U10 confetti (código muerto), U11 `#` dentro de strings en el resaltado |
+| README al día | Compatibilidad 3.8: revisada por lectura, **no probada** (no hay 3.8 instalado) |
+
 ---
 
 ## 1. Resumen ejecutivo
