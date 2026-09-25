@@ -7,6 +7,13 @@
   let completado = cab.dataset.completado === "si";
   let pistas = 0;
   const { editor, python } = Tortu.crearEditores(ejecutar);
+  const botonVoz = document.getElementById("btn-voz");
+  if (botonVoz && Tortu.hayVoz) {                            // escuchar la consigna
+    const consigna = () => document.querySelector(".consigna").textContent.replace("📋", "").trim();
+    botonVoz.hidden = false;
+    botonVoz.addEventListener("click", () => Tortu.leer(consigna()));
+    if (Tortu.leerSolo()) Tortu.leer(consigna());
+  }
   const btnEjecutar = document.getElementById("btn-ejecutar");
 
   async function ejecutar() {

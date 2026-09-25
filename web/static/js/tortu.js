@@ -42,6 +42,7 @@ const Tortu = (() => {
       extraKeys: {
         "Ctrl-Enter": () => alEjecutar(), "Cmd-Enter": () => alEjecutar(),
         Tab: (cm) => cm.replaceSelection("    "),
+        Esc: () => { const b = document.getElementById("btn-ejecutar"); if (b) b.focus(); },   // sale del editor con el teclado
       },
     });
     const campoPython = document.getElementById("python");
@@ -239,6 +240,7 @@ const Tortu = (() => {
 
   function celebrar(grande) {
     if (typeof confetti !== "function") return;
+    if (document.documentElement.dataset.movimiento === "reducido") return;
     confetti({ particleCount: grande ? 180 : 90, spread: grande ? 100 : 70, origin: { y: 0.7 } });
   }
 
@@ -278,6 +280,73 @@ const Tortu = (() => {
   document.getElementById("btn-perfil").addEventListener("click", abrirPerfiles);
   avisos(window.TORTU.avisos);                 // lo que quedó pendiente desde la última vez
 
-  return { api, crearEditores, ejecutarConPreguntas, mostrarConsola, veredicto,
+  // ───────── voz (Web Speech: usa las voces del sistema, sin internet) ─────────
+  const hayVoz = "speechSynthesis" in window && typeof SpeechSynthesisUtterance === "function";
+  const VELOCIDADES = { lenta: 0.8, normal: 1, rapida: 1.25 };
+  function vozEspanola() {
+    const voces = hayVoz ? speechSynthesis.getVoices() : [];
+    return voces.find((v) => /^es[-_]AR/i.test(v.lang)) || voces.find((v) => /^es/i.test(v.lang)) || null;
+  }
+  /** Lee un texto en voz alta. Devuelve false si el navegador no tiene voz. */
+  function leer(texto) {
+    if (!hayVoz || !texto) return false;
+    speechSynthesis.cancel();
+    const u = new SpeechSynthesisUtterance(texto);
+    u.lang = "es-AR";
+    const v = vozEspanola();
+    if (v) u.voice = v;
+    u.rate = VELOCIDADES[document.documentElement.dataset.velocidad] || 1;
+    speechSynthesis.speak(u);
+    return true;
+  }
+  function callar() { if (hayVoz) speechSynthesis.cancel(); }
+  const leerSolo = () => document.documentElement.dataset.voz === "si";
+
+  // ───────── ajustes de accesibilidad ─────────
+  function iniciarAjustes() {
+    const modal = document.getElementById("modal-ajustes");
+    const abrir = document.getElementById("btn-ajustes");
+    const aviso = document.getElementById("aj-aviso");
+    const cerrar = () => { modal.hidden = true; callar(); abrir.focus(); };
+    abrir.addEventListener("click", () => {
+      aviso.textContent = hayVoz && !vozEspanola()
+        ? "Este navegador no tiene una voz en español: se va a usar la que haya." : (hayVoz ? "" : "Este navegador no puede leer en voz alta.");
+      modal.hidden = false;
+      modal.querySelector(".opcion-ajuste[aria-checked='true']").focus();
+    });
+    document.getElementById("aj-cerrar").addEventListener("click", cerrar);
+    document.getElementById("aj-probar").addEventListener("click", () => {
+      if (!leer("Hola, esta es mi voz. Así te voy a leer las consignas.")) aviso.textContent = "Este navegador no puede leer en voz alta.";
+    });
+    modal.addEventListener("keydown", (ev) => { if (ev.key === "Escape") { ev.preventDefault(); cerrar(); } });
+    for (const grupo of modal.querySelectorAll(".ajuste")) {
+      grupo.addEventListener("click", async (ev) => {
+        const b = ev.target.closest(".opcion-ajuste");
+        if (!b) return;
+        const clave = grupo.dataset.ajuste, valor = b.dataset.valor;
+        document.documentElement.dataset[clave] = valor;                       // se ve al instante
+        for (const x of grupo.querySelectorAll(".opcion-ajuste")) x.setAttribute("aria-checked", String(x === b));
+        try { await api("/api/ajustes", { [clave]: valor }); }
+        catch (e) { aviso.textContent = "No pude guardar el ajuste (se ve, pero no se recuerda)."; }
+      });
+    }
+  }
+  iniciarAjustes();
+
+  // El foco se queda adentro de la ventana abierta (con Tab y Shift+Tab)
+  document.addEventListener("keydown", (ev) => {
+    if (ev.key !== "Tab") return;
+    const abierta = document.querySelector(".modal:not([hidden])");
+    if (!abierta) return;
+    const focos = [...abierta.querySelectorAll("button:not([disabled]), input, a[href], [tabindex]:not([tabindex='-1'])")]
+      .filter((e) => e.offsetParent !== null);
+    if (!focos.length) return;
+    const primero = focos[0], ultimo = focos[focos.length - 1];
+    if (ev.shiftKey && document.activeElement === primero) { ev.preventDefault(); ultimo.focus(); }
+    else if (!ev.shiftKey && document.activeElement === ultimo) { ev.preventDefault(); primero.focus(); }
+    else if (!abierta.contains(document.activeElement)) { ev.preventDefault(); primero.focus(); }
+  });
+
+  return { api, leer, callar, leerSolo, hayVoz, crearEditores, ejecutarConPreguntas, mostrarConsola, veredicto,
            limpiarResultado, actualizarEstado, celebrar, tocar, avisos };
 })();

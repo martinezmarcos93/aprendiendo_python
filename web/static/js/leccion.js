@@ -22,6 +22,7 @@
   let leerRespuesta = null;     // devuelve la respuesta armada por el chico (o null si falta algo)
   let resultadoFinal = null;    // último "leccion" que devolvió el servidor
   let editor = null;
+  let teclas = null;            // atajos del paso actual (por ahora: 1 a 9 para elegir una opción)
 
   // ───────── utilidades de DOM ─────────
   function el(tag, clase, texto) {
@@ -193,9 +194,28 @@
     cont.textContent = "";
     editor = null; leerRespuesta = null; reactivar = null;
     pintarProgreso();
+    teclas = null;
     const dibujo = { explicacion, elegir, predecir: elegir, completar, ordenar, escribir }[paso.tipo];
     dibujo(paso);
     cont.classList.remove("entra"); void cont.offsetWidth; cont.classList.add("entra");
+    const texto = textoParaLeer(paso);
+    if (Tortu.hayVoz && texto) {
+      const b = el("button", "boton-voz", "🔊");
+      b.type = "button"; b.title = "Escuchar"; b.setAttribute("aria-label", "Escuchar la consigna");
+      b.addEventListener("click", () => Tortu.leer(texto));
+      cont.appendChild(b);
+      if (Tortu.leerSolo()) Tortu.leer(texto); else Tortu.callar();
+    }
+    if (paso.tipo !== "escribir") { cont.setAttribute("tabindex", "-1"); cont.focus({ preventScroll: true }); }   // que el lector de pantalla empiece acá
+  }
+
+  /** Lo que se lee en voz alta de cada paso (el código no: se ve, y leerlo símbolo por símbolo confunde). */
+  function textoParaLeer(paso) {
+    if (paso.tipo === "explicacion") return paso.texto;
+    if (paso.tipo === "elegir" || paso.tipo === "predecir") {
+      return `${paso.pregunta}. Opciones: ${paso.opciones.map((o, i) => `${i + 1}, ${o}`).join(". ")}`;
+    }
+    return [paso.consigna, paso.forma ? `Forma: ${paso.forma}` : "", paso.nota || ""].filter(Boolean).join(". ");
   }
 
   function explicacion(paso) {
@@ -213,9 +233,10 @@
     const lista = el("div", "opciones");
     lista.setAttribute("role", "radiogroup");
     let elegida = null;
-    const botones = paso.opciones.map((texto) => {
+    const botones = paso.opciones.map((texto, k) => {
       const b = el("button", "opcion-paso", texto);
       b.type = "button"; b.setAttribute("role", "radio"); b.setAttribute("aria-checked", "false");
+      b.dataset.n = String(k + 1);                          // el número se dibuja con CSS: no cambia el texto del botón
       b.addEventListener("click", () => {
         elegida = texto;
         botones.forEach((x) => { x.classList.toggle("elegida", x === b); x.setAttribute("aria-checked", String(x === b)); });
@@ -225,6 +246,10 @@
       return b;
     });
     cont.appendChild(lista);
+    teclas = (ev) => {                                       // 1, 2, 3... eligen la opción
+      const n = Number(ev.key);
+      if (n >= 1 && n <= botones.length && !botones[n - 1].disabled) { ev.preventDefault(); botones[n - 1].click(); }
+    };
     leerRespuesta = () => elegida;
     reactivar = () => { botones.forEach((x) => x.classList.remove("mala")); habilitar(); };
     function habilitar() { mostrarPie("neutro", elegida ? "¿Estás seguro?" : "Elegí una opción.", "Comprobar", enviar, false); btnPrincipal.disabled = !elegida; btnPrincipal.className = "boton violeta"; }
@@ -354,7 +379,8 @@
     }
     editor = CodeMirror.fromTextArea(area, {
       mode: python ? "python" : "tortuscript", lineNumbers: true, indentUnit: 4, tabSize: 4, indentWithTabs: false, autofocus: true,
-      extraKeys: { "Ctrl-Enter": () => ejecutar(), "Cmd-Enter": () => ejecutar(), Tab: (cm) => cm.replaceSelection("    ") },
+      extraKeys: { "Ctrl-Enter": () => ejecutar(), "Cmd-Enter": () => ejecutar(), Tab: (cm) => cm.replaceSelection("    "),
+                   Esc: () => run.focus() },
     });
     editor.setSize(null, dibuja ? 260 : 180);
     if (paso.inicial) {                                    // proyectos guiados: se sigue desde lo que ya estaba armado
@@ -366,6 +392,7 @@
     const pista = el("button", "boton amarillo", "💡 Pista (1/3)"); pista.type = "button";
     acciones.append(run, pista);
     zonaEditor.appendChild(acciones);
+    zonaEditor.appendChild(el("p", "tenue ayuda-teclado", "Con el teclado: Tab escribe espacios · Esc sale del editor · Ctrl+Enter ejecuta."));
     const salida = el("pre", "consola mini");
     salida.appendChild(el("span", "tenue", dibuja ? "Si tu programa muestra algo, aparece acá." : "Acá vas a ver lo que muestra tu programa."));
     const cajaPista = el("div", "pista-caja");
@@ -465,6 +492,11 @@
   }
 
   btnPrincipal.addEventListener("click", () => { if (accion) accion(); });
+  document.addEventListener("keydown", (ev) => {
+    if (!teclas || ev.ctrlKey || ev.metaKey || ev.altKey) return;
+    if (["TEXTAREA", "INPUT"].includes(document.activeElement.tagName) || !document.getElementById("modal-pregunta").hidden) return;
+    teclas(ev);
+  });
   document.addEventListener("keydown", (ev) => {
     if (ev.key === "Enter" && !ev.shiftKey && !ev.ctrlKey && accion && !btnPrincipal.disabled
         && !["TEXTAREA", "INPUT", "BUTTON", "A"].includes(document.activeElement.tagName)

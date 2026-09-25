@@ -11,6 +11,7 @@
     {% if repaso %}<span class="etiqueta repaso-e">🔁 {{ repaso.pos }}/{{ repaso.total }} · {{ repaso.modo }}</span>
     {% else %}<span class="tenue">{{ n }} / {{ total }}</span>{% endif %}
   </div>
+  <button class="boton-voz" id="btn-voz" type="button" hidden title="Escuchar" aria-label="Escuchar la consigna">🔊</button>
   <div class="consigna">📋 {{ ej.descripcion }}</div>
   {% if leccion_larga and not repaso %}<p class="tenue" style="margin:.7rem 0 0">¿Querés practicar paso a paso? <a href="{{ url_for('leccion', leccion_id=leccion_larga) }}"><b>Hacé la lección completa ▶</b></a></p>{% endif %}
 </section>

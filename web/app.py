@@ -84,7 +84,8 @@ def create_app(token=None):
     def _globales():
         # Lo que quedó pendiente (p. ej. subir de liga al cambiar la semana) se cuenta en la próxima página
         avisos = progreso.tomar_avisos(progreso.cargar_progreso())
-        return {"token": app.config["TOKEN"], "estado": _estado(), "perfil": progreso.PERFIL_ACTUAL, "avisos_pendientes": avisos}
+        return {"token": app.config["TOKEN"], "estado": _estado(), "perfil": progreso.PERFIL_ACTUAL,
+                "avisos_pendientes": avisos, "ajustes": progreso.ajustes_de(progreso.cargar_progreso())}
 
     # ─────────────── helpers ───────────────
     def _estado():
@@ -645,6 +646,15 @@ def create_app(token=None):
         if not progreso.guardar_config(p, meta_min=datos.get("meta_min")):
             return jsonify(ok=False, mensaje="Esa meta no existe."), 400
         return jsonify(ok=True, estado=_estado())
+
+    @app.post("/api/ajustes")
+    def api_ajustes():
+        datos = request.get_json(silent=True) or {}
+        p = progreso.cargar_progreso()
+        cambios = {k: datos.get(k) for k in progreso.AJUSTES if k in datos}
+        if not progreso.guardar_ajustes(p, **cambios):
+            return jsonify(ok=False, mensaje="Ese ajuste no existe."), 400
+        return jsonify(ok=True, ajustes=progreso.ajustes_de(p))
 
     @app.get("/api/perfiles")
     def api_perfiles():
