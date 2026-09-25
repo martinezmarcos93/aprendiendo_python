@@ -16,9 +16,7 @@ y de copiar/pegar cosas peligrosas, no de un atacante.
 import ast
 import io
 import sys
-import tkinter as tk
-from tkinter import simpledialog
-
+from dialogo_preguntar import preguntar
 from error_handler import armar_mensaje_error
 
 MAX_PASOS = 50_000
@@ -91,21 +89,17 @@ class InputInteractivo:
     """input() del alumno. Con `entradas_fijas` responde desde esa lista sin abrir
     diálogos (se usa para evaluar la solución oficial con las mismas respuestas)."""
 
-    def __init__(self, salida, entradas_fijas=None, registro=None):
+    def __init__(self, salida, entradas_fijas=None, registro=None, ventana_padre=None):
         self._salida = salida
         self._fijas = list(entradas_fijas) if entradas_fijas is not None else None
         self._registro = registro
+        self._padre = ventana_padre
 
     def __call__(self, prompt=""):
         if self._fijas is not None:
             respuesta = self._fijas.pop(0) if self._fijas else ""
         else:
-            root = tk._default_root
-            if not root:
-                root = tk.Tk()
-                root.withdraw()
-            respuesta = simpledialog.askstring(
-                "Entrada de datos", str(prompt) if prompt else "Ingresá un valor:", parent=root)
+            respuesta = preguntar(prompt, padre=self._padre)
             if respuesta is None:
                 respuesta = ""
         if self._registro is not None:
@@ -117,11 +111,11 @@ class InputInteractivo:
 # -------------------------
 # ENTORNO
 # -------------------------
-def _hacer_globals(salida, entradas_fijas=None, registro=None):
+def _hacer_globals(salida, entradas_fijas=None, registro=None, ventana_padre=None):
     return {
         "__builtins__": {
             "print": print,
-            "input": InputInteractivo(salida, entradas_fijas, registro),
+            "input": InputInteractivo(salida, entradas_fijas, registro, ventana_padre),
             "range": range, "len": len, "int": int, "float": float, "str": str,
             "list": list, "dict": dict, "tuple": tuple, "set": set, "bool": bool,
             "True": True, "False": False, "None": None,
@@ -161,11 +155,12 @@ def _hacer_tracer(callback_linea):
 # EJECUCIÓN PRINCIPAL
 # -------------------------
 def ejecutar_codigo(codigo_python, extra_globals=None, callback_linea=None,
-                    entradas_fijas=None, detalles=None):
+                    entradas_fijas=None, detalles=None, ventana_padre=None):
     """Ejecuta el código y devuelve (salida_pantalla, hubo_error, mensaje_error).
 
     - callback_linea(n): se llama antes de ejecutar cada línea n del alumno (depurador).
     - entradas_fijas: respuestas para preguntar() sin abrir diálogos.
+    - ventana_padre: ventana sobre la que se abre la pregunta (la que ejecutó el código).
     - detalles (dict opcional): se completa con 'salida_programa' (solo prints) y
       'entradas' (lo que se respondió a cada preguntar()).
     """
@@ -174,7 +169,7 @@ def ejecutar_codigo(codigo_python, extra_globals=None, callback_linea=None,
     stdout_original = sys.stdout
     try:
         codigo = validar_codigo(codigo_python)
-        entorno = _hacer_globals(salida, entradas_fijas, registro_entradas)
+        entorno = _hacer_globals(salida, entradas_fijas, registro_entradas, ventana_padre)
         if extra_globals:
             entorno.update(extra_globals)
         sys.stdout = salida

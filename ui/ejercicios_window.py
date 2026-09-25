@@ -206,7 +206,7 @@ class VentanaEjercicios(tk.Toplevel):
             self._set_python(python)
 
         detalles = {}
-        salida_txt, hay_error, msg_error = ejecutar_codigo(python, detalles=detalles)
+        salida_txt, hay_error, msg_error = ejecutar_codigo(python, detalles=detalles, ventana_padre=self)
         self.salida.delete("1.0", tk.END)
 
         if hay_error:

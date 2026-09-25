@@ -181,7 +181,7 @@ class ZonaTortuga(tk.Toplevel):
             self.canvas.update()
             time.sleep(0.4)
 
-        salida, hay_error, msg_error = ejecutar_codigo(python, extra_globals=extra_globals, callback_linea=_callback_linea)
+        salida, hay_error, msg_error = ejecutar_codigo(python, extra_globals=extra_globals, callback_linea=_callback_linea, ventana_padre=self)
         
         self.editor.tag_remove("current_line", "1.0", tk.END)
         self.editor.update()

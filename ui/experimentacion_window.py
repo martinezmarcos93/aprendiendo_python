@@ -165,7 +165,7 @@ class ZonaExperimentacion(tk.Toplevel):
             python = self.traductor.traducir_codigo(codigo)
             self._set_python(python)
 
-        salida, hay_error, msg_error = ejecutar_codigo(python)
+        salida, hay_error, msg_error = ejecutar_codigo(python, ventana_padre=self)
         self.salida.delete("1.0", tk.END)
 
         if hay_error:
