@@ -5,7 +5,15 @@ Ventanita de preguntar() con la estética de TortuScript.
   (Ejercicios, Experimentar o Tortuga), sin traer al frente el menú principal.
 - Enter y el Intro del teclado numérico confirman; Escape cancela.
 """
+import logging
 import tkinter as tk
+
+logger = logging.getLogger("tortuscript.dialogo")
+
+# Enter normal y el del teclado numérico, por nombre, por código físico (X11/Windows)
+# y por el carácter que producen: así funciona con cualquier mapa de teclado.
+_TECLAS_ENTER = {"Return", "KP_Enter"}
+_CODIGOS_ENTER = {36, 104, 13}
 
 BG_MAIN   = "#0f172a"
 BG_CARD   = "#1e293b"
@@ -54,8 +62,9 @@ class DialogoPreguntar(tk.Toplevel):
         tk.Label(botones, text="Enter para responder", font=("Arial", 9),
                  bg=BG_MAIN, fg=GRIS).pack(side=tk.LEFT)
 
-        for tecla in ("<Return>", "<KP_Enter>"):
-            self.bind(tecla, self._aceptar)
+        # Se escucha en el propio campo de texto (donde está el foco) y en la ventana
+        for widget in (self.entrada, self):
+            widget.bind("<Key>", self._tecla, add="+")
         self.bind("<Escape>", self._cancelar)
         self.protocol("WM_DELETE_WINDOW", self._cancelar)
 
@@ -79,7 +88,18 @@ class DialogoPreguntar(tk.Toplevel):
             y = (self.winfo_screenheight() - alto) // 3
         self.geometry(f"+{max(x, 0)}+{max(y, 0)}")
 
+    def _tecla(self, evento):
+        logger.info("tecla en preguntar: keysym=%s keycode=%s char=%r state=%s",
+                    evento.keysym, evento.keycode, evento.char, evento.state)
+        if (evento.keysym in _TECLAS_ENTER or evento.keycode in _CODIGOS_ENTER
+                or evento.char in ("\r", "\n")):
+            self._aceptar()
+            return "break"
+        return None
+
     def _aceptar(self, _evento=None):
+        if self.respuesta is not None or not self.winfo_exists():
+            return
         self.respuesta = self.entrada.get()
         self.destroy()
 
