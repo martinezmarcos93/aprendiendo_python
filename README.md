@@ -34,7 +34,11 @@ proyecto/
 │   ├── error_handler.py          ← Explica los errores en lenguaje simple
 │   ├── evaluacion.py             ← Compara salidas, estrellas por pistas, palabras clave
 │   ├── progreso.py               ← XP, nivel, racha, sesión y perfiles (guardado seguro)
-│   └── ejercicios.py             ← Los 30 ejercicios del curso
+│   ├── ejercicios.py             ← Los 30 ejercicios del curso
+│   └── worker.py + proceso.py    ← (web) el código del chico corre en un subproceso con límites
+├── web/                          ← App web: app.py (Flask), templates/, static/{css,js,vendor,fonts}
+├── iniciar_web.py                ← Lanzador de la versión web
+├── requirements.txt              ← Flask (solo para la web)
 ├── dialogo_preguntar.py          ← Ventanita de preguntar() (app Tk)
 ├── celebracion.py                ← Animación de confetti al completar
 ├── highlighter.py                ← Resaltado de sintaxis del editor
@@ -73,7 +77,18 @@ python -m tkinter
 
 Si la segunda línea abre una ventanita, estás listo. No necesita instalar ninguna dependencia externa.
 
-**Para ejecutar:**
+**Versión web (nueva, en migración — Python 3.9+):**
+
+```bash
+python3 -m venv .venv
+.venv/bin/python -m pip install -r requirements.txt   # solo Flask
+.venv/bin/python iniciar_web.py                       # abre el navegador
+```
+
+Corre solo en tu PC (`127.0.0.1`), sin internet ni cuentas. Todas las librerías del navegador
+(editor, confetti, fuentes) vienen incluidas en `web/static/`.
+
+**Versión de escritorio (Tk, se retira cuando la web la iguale):**
 
 ```bash
 python main.py

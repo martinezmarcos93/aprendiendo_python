@@ -1,0 +1,24 @@
+{% extends "base.html" %}
+{% block titulo %}Experimentar{% endblock %}
+{% block contenido %}
+<section class="tarjeta">
+  <div class="fila">
+    <h1>🧪 Zona de experimentación</h1>
+    <span class="tenue">Escribí lo que quieras: sin ejercicios, sin límites.</span>
+  </div>
+  <div class="ejemplos" id="ejemplos"></div>
+</section>
+<section class="editores">
+  <div class="panel-editor tortu"><h3>✏️ Tu código TortuScript</h3><textarea id="editor"></textarea></div>
+  <div class="panel-editor py"><h3>🐍 Así se escribe en Python</h3><textarea id="python"></textarea></div>
+</section>
+<div class="acciones">
+  <button class="boton verde grande" id="btn-ejecutar" type="button">▶ Ejecutar <span class="atajo">Ctrl+Enter</span></button>
+  <button class="boton" id="btn-limpiar" type="button">🗑 Limpiar</button>
+</div>
+<section class="resultado">
+  <pre class="consola" id="consola" aria-live="polite"><span class="tenue">Acá vas a ver lo que muestra tu programa.</span></pre>
+  <div id="veredicto"></div>
+</section>
+{% endblock %}
+{% block scripts %}<script src="{{ url_for('static', filename='js/experimentar.js') }}"></script>{% endblock %}

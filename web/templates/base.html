@@ -1,0 +1,69 @@
+<!doctype html>
+<html lang="es">
+<head>
+  <meta charset="utf-8">
+  <meta name="viewport" content="width=device-width, initial-scale=1">
+  <title>{% block titulo %}TortuScript{% endblock %} · TortuScript</title>
+  <link rel="icon" href="data:image/svg+xml,<svg xmlns='http://www.w3.org/2000/svg' viewBox='0 0 100 100'><text y='.9em' font-size='90'>🐢</text></svg>">
+  <link rel="stylesheet" href="{{ url_for('static', filename='vendor/codemirror/codemirror.css') }}">
+  <link rel="stylesheet" href="{{ url_for('static', filename='css/tortu.css') }}">
+  <script>window.TORTU = { token: {{ token|tojson }} };</script>
+</head>
+<body>
+  <header class="barra">
+    <a class="logo" href="{{ url_for('inicio') }}"><span class="tortu">🐢</span> TortuScript</a>
+    <nav class="nav">
+      <a href="{{ url_for('inicio') }}" class="{{ 'activo' if request.endpoint == 'inicio' }}">Inicio</a>
+      <a href="{{ url_for('ejercicios_siguiente') }}" class="{{ 'activo' if request.endpoint == 'ejercicio' }}">Ejercicios</a>
+      <a href="{{ url_for('experimentar') }}" class="{{ 'activo' if request.endpoint == 'experimentar' }}">Experimentar</a>
+    </nav>
+    <div class="estadisticas">
+      <span class="chip racha" title="Días seguidos programando">🔥 <span id="e-racha">{{ estado.racha }}</span></span>
+      <span class="chip nivel" id="e-nivel">{{ estado.titulo }} · Nv.{{ estado.nivel }}</span>
+      <span class="xp" title="Experiencia">
+        <span id="e-xp">{{ estado.xp }} XP</span>
+        <span class="barra-xp"><span id="e-barra" style="width: {{ (100 * estado.xp_actual / estado.xp_max)|round|int }}%"></span></span>
+      </span>
+      <button class="chip perfil" id="btn-perfil" type="button" title="Cambiar de perfil">👤 <span id="e-perfil">{{ perfil }}</span></button>
+    </div>
+  </header>
+
+  <main>{% block contenido %}{% endblock %}</main>
+
+  <!-- Ventana de preguntar() -->
+  <div class="modal" id="modal-pregunta" hidden role="dialog" aria-modal="true" aria-labelledby="mp-texto">
+    <div class="caja">
+      <div class="quien">✏️ Tu programa pregunta:</div>
+      <div class="pregunta-texto" id="mp-texto"></div>
+      <input class="campo" id="mp-campo" autocomplete="off" spellcheck="false">
+      <div class="pie">
+        <span class="tenue atajo">Enter para responder · Esc para cancelar</span>
+        <span class="espacio"></span>
+        <button class="boton chico" id="mp-cancelar" type="button">Cancelar</button>
+        <button class="boton verde" id="mp-ok" type="button">✔ Responder</button>
+      </div>
+    </div>
+  </div>
+
+  <!-- Cambiar de perfil -->
+  <div class="modal" id="modal-perfil" hidden role="dialog" aria-modal="true" aria-labelledby="pf-titulo">
+    <div class="caja">
+      <h2 id="pf-titulo">👤 ¿Quién programa hoy?</h2>
+      <div class="lista-perfiles" id="pf-lista"></div>
+      <input class="campo" id="pf-campo" placeholder="O escribí un nombre nuevo" autocomplete="off">
+      <div class="tenue atajo" id="pf-error"></div>
+      <div class="pie">
+        <button class="boton chico" id="pf-cancelar" type="button">Cancelar</button>
+        <button class="boton violeta" id="pf-ok" type="button">Entrar</button>
+      </div>
+    </div>
+  </div>
+
+  <script src="{{ url_for('static', filename='vendor/codemirror/codemirror.js') }}"></script>
+  <script src="{{ url_for('static', filename='vendor/codemirror/simple.js') }}"></script>
+  <script src="{{ url_for('static', filename='vendor/codemirror/python.js') }}"></script>
+  <script src="{{ url_for('static', filename='vendor/confetti/confetti.browser.js') }}"></script>
+  <script src="{{ url_for('static', filename='js/tortu.js') }}"></script>
+  {% block scripts %}{% endblock %}
+</body>
+</html>

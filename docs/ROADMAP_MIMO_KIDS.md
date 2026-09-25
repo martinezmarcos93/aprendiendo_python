@@ -17,9 +17,9 @@ queda resuelta como "web local"; el orden de fases pasa a ser:
 
 | Orden | Fase | Qué cambia por la migración |
 |---|---|---|
-| 1 | **M0 — Separar el núcleo** (1 sesión) | `tortuscript/` sin Tk; `preguntar()` y tortuga desacoplados; 51 tests siguen verdes |
+| 1 | ✅ **M0 — Separar el núcleo** (1 sesión) | `tortuscript/` sin Tk; `preguntar()` y tortuga desacoplados; 51 tests siguen verdes |
 | 2 | **Fase 0 — Contenido como datos + validador** (1-2) | Igual; no depende de la interfaz |
-| 3 | **M1 — Base web** (2) | Flask, sistema de diseño CSS, layout, perfiles, ejecución en subproceso, modal de preguntar |
+| 3 | ✅ **M1 — Base web** (2) — hecha antes que la Fase 0, con Ejercicios y Experimentar funcionando | Flask, sistema de diseño CSS, layout, perfiles, ejecución en subproceso, modal de preguntar |
 | 4 | **Fase 1 — Motor de lecciones** (3-4) | Directo en web |
 | 5 | **Fase 2 — Camino + onboarding** (2) | Directo en web |
 | 6 | **M2 — Paridad** (2) | Playground, Tortuga en canvas con depurador, Referencia, Mapa, Resumen, Repaso en web |

@@ -175,13 +175,17 @@ def _hacer_tracer(callback_linea):
 # EJECUCIÓN PRINCIPAL
 # -------------------------
 def ejecutar_codigo(codigo_python, extra_globals=None, callback_linea=None,
-                    entradas_fijas=None, detalles=None, pedir_entrada=None):
+                    entradas_fijas=None, detalles=None, pedir_entrada=None,
+                    completar_con_vacio=None):
     """Ejecuta el código y devuelve (salida_pantalla, hubo_error, mensaje_error).
 
     - callback_linea(n): se llama antes de ejecutar cada línea n del alumno (depurador).
     - entradas_fijas: respuestas para preguntar(), en orden. Si se pasa (aunque sea []),
       las preguntas de más se responden con "" (así se evalúa la solución oficial).
     - pedir_entrada(pregunta) -> str: cómo pedirle una respuesta al chico (app Tk).
+    - completar_con_vacio: True responde "" a las preguntas de más; False se detiene
+      con la pregunta pendiente (web: respuestas ya dadas + la que falta). Por defecto,
+      True solo si se pasaron entradas_fijas y no hay pedir_entrada.
       Sin esto ni entradas, el programa se detiene en la primera pregunta y
       detalles['pregunta_pendiente'] la trae (app web: pregunta y re-ejecuta).
     - detalles (dict opcional): 'salida_programa' (solo prints), 'entradas' (respuestas
@@ -193,8 +197,10 @@ def ejecutar_codigo(codigo_python, extra_globals=None, callback_linea=None,
     stdout_original = sys.stdout
     try:
         codigo = validar_codigo(codigo_python)
+        if completar_con_vacio is None:
+            completar_con_vacio = entradas_fijas is not None and pedir_entrada is None
         entorno = _hacer_globals(salida, entradas_fijas, registro_entradas, pedir_entrada,
-                                 completar_con_vacio=entradas_fijas is not None and pedir_entrada is None)
+                                 completar_con_vacio)
         if extra_globals:
             entorno.update(extra_globals)
         sys.stdout = salida

@@ -20,6 +20,12 @@ def _explicacion(tipo, detalle):
     if tipo == "RecursionError":
         return ("🌀 Una función se llama a sí misma sin parar\n\n"
                 "💡 Toda función que se llama a sí misma necesita un caso en el que se detenga.")
+    if tipo in ("MemoryError", "SinMemoria"):
+        return ("🧠 Tu programa usó demasiada memoria\n\n"
+                "💡 ¿Estás armando un texto o una lista gigante? Probá con números más chicos.")
+    if tipo == "TardoDemasiado":
+        return ("⏱️ Tu programa tardó demasiado y lo frenamos\n\n"
+                "💡 ¿Hay un bucle que no termina o una cuenta enorme?")
     if tipo == "SalidaDemasiadoLarga":
         return ("📜 Tu programa mostró demasiado texto\n\n"
                 "💡 ¿Pusiste un `mostrar` dentro de un bucle que repite muchísimas veces?")
@@ -103,7 +109,8 @@ def armar_mensaje_error(excepcion, archivo="<tu código>"):
     linea = _linea_del_error(excepcion, archivo)
     if linea:
         partes.append(f"📍 Mirá la línea {linea}")
-    if tipo not in ("BucleInfinito", "SalidaDemasiadoLarga", "CodigoNoPermitido"):
+    if tipo not in ("BucleInfinito", "SalidaDemasiadoLarga", "CodigoNoPermitido",
+                    "MemoryError", "SinMemoria", "TardoDemasiado"):
         partes.append(f"🔧 Para curiosos (en inglés): {tipo}: {detalle}")
     return "\n\n".join(partes)
 
