@@ -135,7 +135,7 @@ Los logs de errores internos van a `logs/tortuscript.log` y nunca se muestran al
 ## Para quien mantiene el proyecto
 
 ```bash
-python -m unittest discover tests            # tests (325)
+python -m unittest discover tests            # tests (335)
 python herramientas/validar_contenido.py     # valida todos los cursos
 python herramientas/crear_paquete.py         # arma dist/TortuScript-<fecha>.zip para instalar en otra compu
 ```
@@ -144,11 +144,12 @@ Con **Playwright** (opcional, no está en `requirements.txt`) se puede verificar
 
 ```bash
 python herramientas/servidor_de_prueba.py    # servidor con progreso temporal (otra terminal)
+python herramientas/servidor_de_prueba.py 5077 --todo-desbloqueado --abrir   # revisar todo el contenido sin jugar lo anterior
 python herramientas/jugar_cursos.py          # juega TODAS las lecciones por el navegador
 python herramientas/revisar_contraste.py     # contraste WCAG AA en modo normal y alto contraste
 python herramientas/revisar_responsive.py    # que nada se desborde en pantallas de 320 a 768 px
 ```
 
-Cambios recientes: [`CHANGELOG.md`](CHANGELOG.md). Roadmap: [`docs/ROADMAP_MIMO_KIDS.md`](docs/ROADMAP_MIMO_KIDS.md).
+La rama principal es `main`. Cambios recientes: [`CHANGELOG.md`](CHANGELOG.md). Roadmap: [`docs/ROADMAP_MIMO_KIDS.md`](docs/ROADMAP_MIMO_KIDS.md).
 
 *Hecho con 🐢 y mucho amor para aprender a programar de a poco.*
