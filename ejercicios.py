@@ -3,8 +3,8 @@ EJERCICIOS = [
 # =========================
 # NIVEL 1 - MOSTRAR
 # =========================
-{"nivel":1,"titulo":"1. Hola mundo","descripcion":"Mostrá: Hola mundo","solucion":'mostrar "Hola mundo"'},
-{"nivel":1,"titulo":"2. Mensaje","descripcion":"Mostrá: Aprender es divertido","solucion":'mostrar "Aprender es divertido"'},
+{"nivel":1,"titulo":"1. Hola mundo","descripcion":"Hacé que aparezca en pantalla el texto Hola mundo.   Forma:  mostrar \"tu texto\"","solucion":'mostrar "Hola mundo"'},
+{"nivel":1,"titulo":"2. Mensaje","descripcion":"Hacé que aparezca el texto Aprender es divertido.   Forma:  mostrar \"tu texto\"","solucion":'mostrar "Aprender es divertido"'},
 {"nivel":1,"titulo":"3. Dos mensajes","descripcion":"Mostrá Hola y, en la línea siguiente, Chau","solucion":'mostrar "Hola"\nmostrar "Chau"'},
 
 # =========================

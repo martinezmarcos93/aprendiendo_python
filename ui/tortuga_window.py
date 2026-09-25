@@ -63,7 +63,7 @@ class ZonaTortuga(tk.Toplevel):
         ).grid(row=0, column=1, sticky="ew", pady=(0, 4))
 
         self.editor = scrolledtext.ScrolledText(
-            panel, font=("Consolas", 13),
+            panel, height=6, font=("Consolas", 13),
             bg=BG_EDITOR, fg=BLANCO, insertbackground=BLANCO,
             relief=tk.FLAT, padx=10, pady=10, undo=True
         )
@@ -75,7 +75,7 @@ class ZonaTortuga(tk.Toplevel):
         frame_canvas = tk.Frame(panel, bg="white", highlightthickness=2, highlightbackground=GRIS)
         frame_canvas.grid(row=1, column=1, sticky="nsew", padx=(6, 0))
         
-        self.canvas = tk.Canvas(frame_canvas, bg="white", highlightthickness=0)
+        self.canvas = tk.Canvas(frame_canvas, bg="white", highlightthickness=0, height=200)
         self.canvas.pack(fill="both", expand=True)
 
         # Barra botones

@@ -90,7 +90,7 @@ class ZonaExperimentacion(tk.Toplevel):
         ).grid(row=0, column=1, sticky="ew", pady=(0, 4))
 
         self.editor = scrolledtext.ScrolledText(
-            panel, font=("Consolas", 13),
+            panel, height=6, font=("Consolas", 13),
             bg=BG_EDITOR, fg=BLANCO, insertbackground=BLANCO,
             relief=tk.FLAT, padx=10, pady=10, undo=True
         )
@@ -101,7 +101,7 @@ class ZonaExperimentacion(tk.Toplevel):
         self.editor.bind("<Control-Return>", lambda e: (self.ejecutar(), "break")[1])
 
         self.panel_python = scrolledtext.ScrolledText(
-            panel, font=("Consolas", 13),
+            panel, height=6, font=("Consolas", 13),
             bg=BG_PYTHON, fg=BLANCO, insertbackground=BLANCO,
             relief=tk.FLAT, padx=10, pady=10, state=tk.DISABLED
         )

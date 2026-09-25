@@ -58,11 +58,17 @@ _INICIO_OPERANDO_OP = {"(", "[", "{", "-", "+", "~"}
 _FIN_OPERANDO_OP = {")", "]", "}"}
 
 
+# Formas del voseo que un chico escribe naturalmente ("mostrá" en vez de "mostrar")
+ALIAS = {
+    "mostra": "mostrar",
+}
+
+
 def normalizar(palabra):
-    """Minúsculas y sin tildes: 'Función' → 'funcion'."""
+    """Minúsculas, sin tildes y con alias: 'Función' → 'funcion', 'Mostrá' → 'mostrar'."""
     sin_tildes = unicodedata.normalize("NFKD", palabra)
-    sin_tildes = "".join(c for c in sin_tildes if not unicodedata.combining(c))
-    return sin_tildes.lower()
+    sin_tildes = "".join(c for c in sin_tildes if not unicodedata.combining(c)).lower()
+    return ALIAS.get(sin_tildes, sin_tildes)
 
 
 def _tokens_de_linea(texto):

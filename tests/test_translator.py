@@ -42,6 +42,8 @@ class TestTraduccionLinea(unittest.TestCase):
         # Tildes y mayúsculas (bug T6)
         ('Mostrar "hola"', 'print("hola")'),
         ('MOSTRAR "hola"', 'print("hola")'),
+        ('mostrá "hola"', 'print("hola")'),          # voseo
+        ('Mostrá "hola"', 'print("hola")'),
         ('es_mayor es Verdadero', 'es_mayor = True'),
         # preguntar
         ('resultado es preguntar("Edad? ")', 'resultado = input("Edad? ")'),

@@ -107,14 +107,14 @@ class VentanaEjercicios(tk.Toplevel):
         tk.Label(panel, text="✏️  Tu código TortuScript", font=("Arial", 11, "bold"), bg=BG_MAIN, fg=VERDE, anchor="w").grid(row=0, column=0, sticky="ew", pady=(0, 4))
         tk.Label(panel, text="🐍  Python generado (en vivo)", font=("Arial", 11, "bold"), bg=BG_MAIN, fg=AZUL, anchor="w", padx=10).grid(row=0, column=1, sticky="ew", pady=(0, 4))
 
-        self.editor = scrolledtext.ScrolledText(panel, font=("Consolas", 13), bg=BG_EDITOR, fg=BLANCO, insertbackground=BLANCO, relief=tk.FLAT, padx=10, pady=10, undo=True)
+        self.editor = scrolledtext.ScrolledText(panel, height=6, font=("Consolas", 13), bg=BG_EDITOR, fg=BLANCO, insertbackground=BLANCO, relief=tk.FLAT, padx=10, pady=10, undo=True)
         self.editor.grid(row=1, column=0, sticky="nsew", padx=(0, 6))
         self.hl_editor = TortuHighlighter(self.editor, es_python=False)
         self._id_traduccion = None
         self.editor.bind("<KeyRelease>", self._programar_traduccion, add="+")
         self.editor.bind("<Control-Return>", lambda e: (self.ejecutar(), "break")[1])
 
-        self.panel_python = scrolledtext.ScrolledText(panel, font=("Consolas", 13), bg=BG_PYTHON, fg=BLANCO, insertbackground=BLANCO, relief=tk.FLAT, padx=10, pady=10, state=tk.DISABLED)
+        self.panel_python = scrolledtext.ScrolledText(panel, height=6, font=("Consolas", 13), bg=BG_PYTHON, fg=BLANCO, insertbackground=BLANCO, relief=tk.FLAT, padx=10, pady=10, state=tk.DISABLED)
         self.panel_python.grid(row=1, column=1, sticky="nsew", padx=(6, 0))
         self.hl_python = TortuHighlighter(self.panel_python, es_python=True)
 
