@@ -4,7 +4,7 @@
   <meta charset="utf-8">
   <meta name="viewport" content="width=device-width, initial-scale=1">
   <title>{% block titulo %}TortuScript{% endblock %} · TortuScript</title>
-  <link rel="icon" href="data:image/svg+xml,<svg xmlns='http://www.w3.org/2000/svg' viewBox='0 0 100 100'><text y='.9em' font-size='90'>🐢</text></svg>">
+  <link rel="icon" type="image/svg+xml" href="{{ url_for('static', filename='img/tortuscript.svg') }}">
   <link rel="stylesheet" href="{{ url_for('static', filename='vendor/codemirror/codemirror.css') }}">
   <link rel="stylesheet" href="{{ url_for('static', filename='css/tortu.css') }}">
   <script>window.TORTU = { token: {{ token|tojson }}, avisos: {{ avisos_pendientes|tojson }} };</script>

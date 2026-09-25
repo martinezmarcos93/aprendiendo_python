@@ -1,0 +1,13 @@
+<svg xmlns="http://www.w3.org/2000/svg" viewBox="0 0 128 128" role="img" aria-label="TortuScript: una tortuga">
+  <rect width="128" height="128" rx="28" fill="#1b2047"/>
+  <g stroke="#0b3d1e" stroke-width="3" stroke-linejoin="round">
+    <circle cx="30" cy="84" r="11" fill="#2fd47a"/><circle cx="98" cy="84" r="11" fill="#2fd47a"/>
+    <circle cx="34" cy="50" r="10" fill="#2fd47a"/><circle cx="94" cy="50" r="10" fill="#2fd47a"/>
+    <circle cx="64" cy="26" r="13" fill="#2fd47a"/>
+    <ellipse cx="64" cy="70" rx="34" ry="40" fill="#16a34a"/>
+  </g>
+  <g stroke="#b9f5d0" stroke-width="3" fill="none" stroke-linecap="round" opacity=".85">
+    <path d="M40 60h48M40 84h48M64 42v58"/>
+  </g>
+  <circle cx="59" cy="24" r="2.5" fill="#0b3d1e"/><circle cx="69" cy="24" r="2.5" fill="#0b3d1e"/>
+</svg>
