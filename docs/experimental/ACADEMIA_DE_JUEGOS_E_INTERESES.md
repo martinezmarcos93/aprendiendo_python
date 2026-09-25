@@ -4,6 +4,8 @@
 > (25/09/2026). Nada de lo que figura como "propuesto" está implementado. Ver lo que existe hoy en el
 > [README](../../README.md).
 
+> Seguridad para una eventual publicación en línea: [SEGURIDAD_SITIO_PROFESIONAL.md](SEGURIDAD_SITIO_PROFESIONAL.md).
+
 ## 1. Las dos preguntas
 
 1. **¿Dónde encaja una orientación 100 % a desarrollo de juegos** (estilo Calabozos y Dragones, Warcraft, Pathfinder)?
