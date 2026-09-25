@@ -25,7 +25,7 @@ logger = logging.getLogger("tortuscript.progreso")
 # Los archivos viven en la carpeta raíz del proyecto (no en la carpeta desde donde se
 # lo abre, ni dentro del paquete tortuscript/).
 DIRECTORIO = Path(__file__).resolve().parent.parent
-VERSION_ESQUEMA = 3
+VERSION_ESQUEMA = 4
 
 PERFIL_ACTUAL = "default"
 
@@ -88,6 +88,10 @@ PROGRESO_INICIAL = {
     "sesion_hoy": [],         # índices completados en `ultimo_dia`
     # Lecciones (v3): {leccion_id: {"pasos": {"0": {"xp": 5, "perfecto": true}}, "completada": bool, "perfecta": bool}}
     "lecciones": {},
+    # Configuración del chico (v4): se completa en el onboarding y se cambia desde el resumen.
+    "config": {"onboarding": False, "nombre": None, "experiencia": None, "meta_min": 10},
+    # XP ganado por día (últimos 30), para la meta diaria.
+    "xp_por_dia": {},
 }
 
 
@@ -106,6 +110,8 @@ def _migrar(data):
     for campo, valor in PROGRESO_INICIAL.items():
         if campo not in data:
             data[campo] = copy.deepcopy(valor)
+    for clave, valor in PROGRESO_INICIAL["config"].items():      # config de versiones anteriores, a medias
+        data["config"].setdefault(clave, valor)
     data["version"] = VERSION_ESQUEMA
     return data
 
@@ -159,6 +165,62 @@ def guardar_progreso(progreso):
         if tmp and os.path.exists(tmp):
             os.remove(tmp)
         return False
+
+
+# ─────────────────────────────────────────
+# CONFIGURACIÓN, XP Y META DIARIA
+# ─────────────────────────────────────────
+EXPERIENCIAS = ("nunca", "poquito", "bastante")
+METAS_MIN = (5, 10, 15)
+XP_POR_MINUTO = 4                 # meta de 5 min = 20 XP, 10 min = 40 XP, 15 min = 60 XP
+
+
+def sumar_xp(progreso, cantidad, hoy=None):
+    """Suma XP al total y al del día (para la meta diaria). Ignora cantidades <= 0."""
+    if cantidad <= 0:
+        return
+    hoy_s = str(hoy or date.today())
+    progreso["xp_total"] = progreso.get("xp_total", 0) + cantidad
+    por_dia = progreso.setdefault("xp_por_dia", {})
+    por_dia[hoy_s] = por_dia.get(hoy_s, 0) + cantidad
+    for viejo in sorted(por_dia)[:-30]:
+        del por_dia[viejo]
+
+
+def meta_diaria_xp(progreso):
+    minutos = progreso.get("config", {}).get("meta_min", 10)
+    return XP_POR_MINUTO * (minutos if minutos in METAS_MIN else 10)
+
+
+def xp_de_hoy(progreso, hoy=None):
+    return progreso.get("xp_por_dia", {}).get(str(hoy or date.today()), 0)
+
+
+def necesita_onboarding(progreso):
+    """Un perfil nuevo pasa por la bienvenida; uno con progreso previo (de antes de que existiera)
+    no tiene que volver a empezar."""
+    if progreso.get("config", {}).get("onboarding"):
+        return False
+    hay_avance = progreso.get("xp_total", 0) > 0 or progreso.get("ejercicios") or progreso.get("lecciones")
+    return not hay_avance
+
+
+def guardar_config(progreso, experiencia=None, meta_min=None, nombre=None, onboarding=None):
+    """Valida y guarda la configuración. Devuelve False si algún valor no es válido."""
+    cfg = progreso.setdefault("config", copy.deepcopy(PROGRESO_INICIAL["config"]))
+    if experiencia is not None:
+        if experiencia not in EXPERIENCIAS:
+            return False
+        cfg["experiencia"] = experiencia
+    if meta_min is not None:
+        if meta_min not in METAS_MIN:
+            return False
+        cfg["meta_min"] = meta_min
+    if nombre is not None:
+        cfg["nombre"] = nombre[:30]
+    if onboarding is not None:
+        cfg["onboarding"] = bool(onboarding)
+    return guardar_progreso(progreso)
 
 
 # ─────────────────────────────────────────
@@ -221,7 +283,7 @@ def registrar_ejercicio(progreso, indice, estrellas, xp_ganado):
     hubo_mejora = estrellas > anterior.get("estrellas", 0)
 
     if hubo_mejora:
-        progreso["xp_total"] = progreso.get("xp_total", 0) + xp_ganado - anterior.get("xp", 0)
+        sumar_xp(progreso, xp_ganado - anterior.get("xp", 0))
         progreso["ejercicios"][key] = {"estrellas": estrellas, "xp": xp_ganado, "completado": True}
 
     if estrellas >= 1:
@@ -249,7 +311,7 @@ def registrar_paso_leccion(progreso, leccion_id, indice, xp, perfecto, total_pas
     mejor = {"xp": max(antes["xp"], xp), "perfecto": bool(antes["perfecto"] or perfecto)}
     ganado = mejor["xp"] - antes["xp"]
     lec["pasos"][str(indice)] = mejor
-    progreso["xp_total"] = progreso.get("xp_total", 0) + ganado
+    sumar_xp(progreso, ganado)
 
     estaba_completa = lec["completada"]
     lec["completada"] = lec["completada"] or all(str(i) in lec["pasos"] for i in range(total_pasos))

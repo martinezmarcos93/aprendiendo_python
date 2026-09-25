@@ -66,6 +66,37 @@ def esta_completada(progreso, leccion_id, indices_escribir):
         ejercicios.get(str(i), {}).get("completado") for i in indices_escribir)
 
 
+def es_perfecta(progreso, leccion_id, indices_escribir, total_pasos):
+    """Perfecta en el motor de lecciones, o (formato viejo: solo 'escribir') con 3 estrellas."""
+    if progreso.get("lecciones", {}).get(leccion_id, {}).get("perfecta"):
+        return True
+    ejercicios = progreso.get("ejercicios", {})
+    return bool(indices_escribir) and len(indices_escribir) == total_pasos and all(
+        ejercicios.get(str(i), {}).get("estrellas", 0) == 3 for i in indices_escribir)
+
+
+def estado_camino(curso, progreso, indices_por_leccion):
+    """Estado de cada lección para dibujar el camino:
+    'perfecta' | 'hecha' | 'actual' (la primera pendiente) | 'bloqueada'.
+    `indices_por_leccion`: {leccion_id: [índices de ejercicio 'escribir']}."""
+    salida, actual_asignada = [], False
+    for seccion in curso["secciones"]:
+        lecciones = []
+        for lec in seccion["lecciones"]:
+            indices = indices_por_leccion.get(lec["id"], [])
+            if esta_completada(progreso, lec["id"], indices):
+                estado = "perfecta" if es_perfecta(progreso, lec["id"], indices, len(lec["pasos"])) else "hecha"
+            elif not actual_asignada:
+                estado, actual_asignada = "actual", True
+            else:
+                estado = "bloqueada"
+            numero, _, nombre = lec["titulo"].partition(". ")
+            lecciones.append({"id": lec["id"], "numero": numero, "nombre": nombre or lec["titulo"],
+                              "estado": estado, "pasos": len(lec["pasos"])})
+        salida.append({"nivel": seccion["nivel"], "titulo": seccion["titulo"], "lecciones": lecciones})
+    return salida
+
+
 # ─────────────────────────────────────────
 # LO QUE VE EL CHICO (sin las respuestas)
 # ─────────────────────────────────────────
