@@ -36,6 +36,60 @@
     return pre;
   }
 
+  // ───────── lienzos de la tortuga ─────────
+  function lienzoNuevo() {
+    const c = document.createElement("canvas");
+    c.width = 600; c.height = 600; c.className = "lienzo-paso";
+    c.setAttribute("role", "img");
+    return c;
+  }
+  /** "Tenés que dibujar esto": el dibujo de la solución, ya pintado. */
+  function cajaObjetivo(paso) {
+    if (!paso.objetivo) return null;
+    const caja = el("div", "objetivo-caja");
+    caja.appendChild(el("div", "rotulo-zona", "🎯 Tenés que dibujar esto:"));
+    const c = lienzoNuevo(); c.setAttribute("aria-label", "Dibujo que hay que lograr");
+    caja.appendChild(c);
+    const lienzo = Lienzo.crear(c);
+    lienzo.usarVista(Lienzo.vistaPara(paso.objetivo));
+    lienzo.dibujar(paso.objetivo);
+    caja.lienzo = lienzo;                      // para volver a encuadrar junto al dibujo del alumno
+    return caja;
+  }
+  /** Ejemplo ejecutable: con `lienzo` dibuja con la tortuga; si no, muestra el texto que imprime. */
+  function bloqueEjecutable(paso, etiqueta) {
+    const caja = el("div", "ejemplo-ejecutable");
+    caja.appendChild(bloqueCodigo(paso.codigo));
+    const probar = el("button", "boton chico celeste", etiqueta || "▶ Probar");
+    probar.type = "button";
+    caja.appendChild(probar);
+    if (paso.lienzo) {
+      const c = lienzoNuevo(); c.setAttribute("aria-label", "Dibujo de la tortuga");
+      const lienzo = Lienzo.crear(c); lienzo.reiniciar();
+      caja.appendChild(c);
+      probar.addEventListener("click", async () => {
+        probar.disabled = true;
+        try {
+          const r = await Tortu.ejecutarConPreguntas("/api/tortuga", { codigo: paso.codigo });
+          lienzo.usarVista(Lienzo.vistaPara(r.ordenes));
+          await lienzo.reproducir(r.ordenes || [], { velocidad: 7 });
+        } finally { probar.disabled = false; }
+      });
+    } else {
+      const salida = el("pre", "consola mini");
+      salida.appendChild(el("span", "tenue", "Tocá Probar para ver qué muestra."));
+      caja.appendChild(salida);
+      probar.addEventListener("click", async () => {
+        probar.disabled = true;
+        try {
+          const r = await Tortu.ejecutarConPreguntas("/api/ejecutar", { codigo: paso.codigo });
+          salida.textContent = r.error ? r.mensaje : (r.salida || "(no mostró nada)");
+        } finally { probar.disabled = false; }
+      });
+    }
+    return caja;
+  }
+
   // ───────── barra de feedback ─────────
   function mostrarPie(clase, texto, principal, alPrincipal, verRespuesta) {
     pie.hidden = false;
@@ -129,22 +183,7 @@
   function explicacion(paso) {
     cont.appendChild(el("h2", "", "💡 Para saber"));
     cont.appendChild(el("p", "texto-grande", paso.texto));
-    if (paso.codigo) {
-      cont.appendChild(bloqueCodigo(paso.codigo));
-      const salida = el("pre", "consola mini");
-      salida.appendChild(el("span", "tenue", "Tocá Probar para ver qué muestra."));
-      const probar = el("button", "boton chico celeste", "▶ Probar");
-      probar.type = "button";
-      probar.addEventListener("click", async () => {
-        probar.disabled = true;
-        try {
-          const r = await Tortu.ejecutarConPreguntas("/api/ejecutar", { codigo: paso.codigo });
-          salida.textContent = r.error ? r.mensaje : (r.salida || "(no mostró nada)");
-        } finally { probar.disabled = false; }
-      });
-      cont.appendChild(probar);
-      cont.appendChild(salida);
-    }
+    if (paso.codigo) cont.appendChild(bloqueEjecutable(paso));
     mostrarPie("neutro", "¿Listo?", "Entendido", () => comprobar(paso, true), false);
     btnPrincipal.className = "boton violeta";
   }
@@ -152,7 +191,7 @@
   function elegir(paso) {
     cont.appendChild(el("h2", "", paso.tipo === "predecir" ? "🔮 Predecí" : "🎯 Elegí"));
     cont.appendChild(el("p", "texto-grande", paso.pregunta));
-    if (paso.codigo) cont.appendChild(bloqueCodigo(paso.codigo));
+    if (paso.codigo) cont.appendChild(paso.lienzo ? bloqueEjecutable(paso, "▶ Ver qué dibuja") : bloqueCodigo(paso.codigo));
     const lista = el("div", "opciones");
     lista.setAttribute("role", "radiogroup");
     let elegida = null;
@@ -182,6 +221,7 @@
   function completar(paso) {
     cont.appendChild(el("h2", "", "🧩 Completá"));
     cont.appendChild(el("p", "texto-grande", paso.consigna));
+    const objetivoC = cajaObjetivo(paso); if (objetivoC) cont.appendChild(objetivoC);
     const partes = paso.codigo.split(HUECO);
     const relleno = new Array(partes.length - 1).fill(null);     // ficha (índice) de cada hueco
     const pre = el("pre", "codigo-paso completar");
@@ -228,6 +268,7 @@
   function ordenar(paso) {
     cont.appendChild(el("h2", "", "🔢 Ordená"));
     cont.appendChild(el("p", "texto-grande", paso.consigna));
+    const objetivoO = cajaObjetivo(paso); if (objetivoO) cont.appendChild(objetivoO);
     const armado = [];                                           // índices de paso.lineas, en el orden elegido
     cont.appendChild(el("div", "rotulo-zona", "Tu programa:"));
     const zonaArmado = el("div", "zona-ordenar armado");
@@ -265,39 +306,71 @@
   }
 
   function escribir(paso) {
+    const dibuja = Boolean(paso.tortuga);
+    const python = paso.lenguaje === "python";
     cont.appendChild(el("h2", "", "⌨️ Escribí"));
     cont.appendChild(el("p", "texto-grande", paso.consigna));
     if (paso.forma) { const f = el("div", "forma-paso"); f.appendChild(el("span", "tenue", "Forma: ")); f.appendChild(el("code", "", paso.forma)); cont.appendChild(f); }
     if (paso.nota) cont.appendChild(el("p", "tenue", paso.nota));
+
+    const zonaEditor = el("div", "columna-editor");
     const area = el("textarea"); area.id = "editor-paso";
-    cont.appendChild(area);
+    zonaEditor.appendChild(area);
+    let lienzo = null;
+    if (dibuja) {
+      const duo = el("div", "duo-tortuga");
+      const derecha = el("div", "columna-lienzos");
+      var objetivo = cajaObjetivo(paso);
+      if (objetivo) derecha.appendChild(objetivo);
+      const propio = el("div", "objetivo-caja");
+      propio.appendChild(el("div", "rotulo-zona", "🖼️ Tu dibujo:"));
+      const c = lienzoNuevo(); c.setAttribute("aria-label", "Tu dibujo");
+      propio.appendChild(c); derecha.appendChild(propio);
+      lienzo = Lienzo.crear(c);
+      if (paso.objetivo) lienzo.usarVista(Lienzo.vistaPara(paso.objetivo));
+      lienzo.reiniciar();
+      duo.append(zonaEditor, derecha);
+      cont.appendChild(duo);
+    } else {
+      cont.appendChild(zonaEditor);
+    }
     editor = CodeMirror.fromTextArea(area, {
-      mode: "tortuscript", lineNumbers: true, indentUnit: 4, tabSize: 4, indentWithTabs: false, autofocus: true,
+      mode: python ? "python" : "tortuscript", lineNumbers: true, indentUnit: 4, tabSize: 4, indentWithTabs: false, autofocus: true,
       extraKeys: { "Ctrl-Enter": () => ejecutar(), "Cmd-Enter": () => ejecutar(), Tab: (cm) => cm.replaceSelection("    ") },
     });
-    editor.setSize(null, 180);
+    editor.setSize(null, dibuja ? 260 : 180);
     const acciones = el("div", "acciones");
-    const run = el("button", "boton verde", "▶ Ejecutar"); run.type = "button";
+    const run = el("button", "boton verde", dibuja ? "▶ Dibujar" : "▶ Ejecutar"); run.type = "button";
     const pista = el("button", "boton amarillo", "💡 Pista (1/3)"); pista.type = "button";
     acciones.append(run, pista);
-    cont.appendChild(acciones);
+    zonaEditor.appendChild(acciones);
     const salida = el("pre", "consola mini");
-    salida.appendChild(el("span", "tenue", "Acá vas a ver lo que muestra tu programa."));
+    salida.appendChild(el("span", "tenue", dibuja ? "Si tu programa muestra algo, aparece acá." : "Acá vas a ver lo que muestra tu programa."));
     const cajaPista = el("div", "pista-caja");
     cont.append(salida, cajaPista);
-    let vistas = 0;
     ocultarPie();
 
     async function ejecutar() {
       if (run.disabled) return;
       run.disabled = true; ocultarPie();
       try {
-        const r = await Tortu.ejecutarConPreguntas(`/api/ejercicios/${paso.ejercicio}/evaluar`, { codigo: editor.getValue() });
+        const r = await Tortu.ejecutarConPreguntas(rutaPaso(paso.indice, "evaluar"), { codigo: editor.getValue() });
         salida.textContent = r.cancelado ? "" : (r.salida || "");
-        if (!r.salida) { salida.textContent = ""; salida.appendChild(el("span", "tenue", r.error ? "(tu programa no llegó a mostrar nada)" : "(tu programa no mostró nada)")); }
+        if (!r.salida) {
+          salida.textContent = "";
+          const sinSalida = dibuja ? "(tu programa no mostró texto, ¡solo dibujó!)"
+            : (r.error ? "(tu programa no llegó a mostrar nada)" : "(tu programa no mostró nada)");
+          salida.appendChild(el("span", "tenue", sinSalida));
+        }
         Tortu.actualizarEstado(r.estado_juego);
-        const ev = r.evaluacion || {};
         if (r.cancelado) return;
+        if (dibuja) {
+          const vista = Lienzo.vistaPara(paso.objetivo, r.ordenes);          // que entren los dos dibujos
+          lienzo.usarVista(vista);
+          if (objetivo && objetivo.lienzo) objetivo.lienzo.usarVista(vista);
+          await lienzo.reproducir(r.ordenes || [], { velocidad: 9 });
+        }
+        const ev = r.evaluacion || {};
         if (r.error) { Tortu.tocar("error"); mostrarPie("mal", ["🔧 Hay algo para arreglar", r.mensaje], "Reintentar", reintentar, false); return; }
         if (ev.estado === "correcto") {
           const p = r.premio || {};
@@ -311,18 +384,22 @@
           return;
         }
         Tortu.tocar("error");
-        const texto = { falta_preguntar: ["✏️ Este ejercicio pide usar preguntar."],
-                        sin_salida: ["🤫 Tu programa no mostró nada.", "Recordá usar mostrar."],
-                        incorrecto: ["🤔 ¡Casi! Tu programa corre, pero muestra otra cosa.", `Se esperaba:\n${ev.esperado}`] }[ev.estado] || ["Revisalo otra vez."];
-        mostrarPie("mal", texto, "Reintentar", () => { ocultarPie(); editor.focus(); }, false);
+        const parecido = ev.similitud !== undefined ? `Se parece un ${Math.round(100 * ev.similitud)}% al objetivo.` : "";
+        const texto = {
+          falta_preguntar: ["✏️ Este ejercicio pide usar preguntar."],
+          sin_salida: ["🤫 Tu programa no mostró nada.", "Recordá usar mostrar (o print, si escribís Python)."],
+          sin_dibujo: ["🤫 Tu programa no dibujó nada.", "Usá avanzar para que la tortuga deje una línea."],
+          incorrecto: dibuja ? ["🤔 ¡Casi! Tu dibujo no es igual al objetivo.", parecido, "Compará los tamaños, los giros y los colores."]
+                             : ["🤔 ¡Casi! Tu programa corre, pero muestra otra cosa.", `Se esperaba:\n${ev.esperado}`],
+        }[ev.estado] || ["Revisalo otra vez."];
+        mostrarPie("mal", texto.filter(Boolean), "Reintentar", () => { ocultarPie(); editor.focus(); }, false);
       } catch (e) {
         mostrarPie("mal", ["😵 No pude comunicarme con TortuScript.", String(e)], "Reintentar", () => ocultarPie(), false);
       } finally { if (!editor.getOption("readOnly")) run.disabled = false; }
     }
     run.addEventListener("click", ejecutar);
     pista.addEventListener("click", async () => {
-      const r = await Tortu.api(`/api/ejercicios/${paso.ejercicio}/pista`, {});
-      vistas = r.nivel;
+      const r = await Tortu.api(rutaPaso(paso.indice, "pista"), {});
       cajaPista.textContent = "";
       const caja = el("div", "veredicto info");
       caja.appendChild(el("h3", "", `💡 Pista ${r.nivel}: ${r.titulo}`));

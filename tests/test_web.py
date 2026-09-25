@@ -241,6 +241,45 @@ class TestWeb(unittest.TestCase):
         self.assertIn("Hacé la lección completa", self.c.get("/ejercicios/2").get_data(as_text=True))
         self.assertNotIn("Hacé la lección completa", self.c.get("/repaso/todos/1?s=1", follow_redirects=True).get_data(as_text=True))
 
+    # ── evaluar y pistas por paso de lección (también sirven a los ejercicios clásicos) ──
+    def test_evaluar_paso_escribir_de_una_leccion(self):
+        r = self.post("/api/lecciones/hola-mundo/pasos/5/evaluar", {"codigo": 'mostrar "Hola mundo"'}).get_json()
+        self.assertEqual(r["evaluacion"]["estado"], "correcto")
+        self.assertEqual((r["premio"]["estrellas"], r["premio"]["xp"], r["premio"]["mejora"]), (3, 30, True))
+        p = progreso.cargar_progreso()
+        self.assertTrue(p["ejercicios"]["0"]["completado"])                    # clave histórica intacta
+        self.assertIn("5", p["lecciones"]["hola-mundo"]["pasos"])
+        self.assertEqual(self.post("/api/lecciones/hola-mundo/pasos/1/evaluar", {"codigo": "x"}).status_code, 400)
+        self.assertEqual(self.post("/api/lecciones/hola-mundo/pasos/99/evaluar", {}).status_code, 404)
+        self.assertEqual(self.post("/api/lecciones/no-existe/pasos/0/evaluar", {}).status_code, 404)
+
+    def test_pistas_por_paso_bajan_las_estrellas_y_no_se_mezclan_con_otra_leccion(self):
+        for esperado in (1, 2, 3):
+            r = self.post("/api/lecciones/hola-mundo/pasos/5/pista").get_json()
+            self.assertEqual(r["nivel"], esperado)
+        self.assertEqual(r["codigo"], 'mostrar "Hola mundo"')
+        r = self.post("/api/lecciones/hola-mundo/pasos/5/evaluar", {"codigo": 'mostrar "Hola mundo"'}).get_json()
+        self.assertEqual((r["premio"]["estrellas"], r["premio"]["xp"]), (1, 5))
+        self._completar((0, 3), (1, 3))
+        self.assertEqual(self.post("/api/lecciones/texto-o-cuenta/pasos/5/pista").get_json()["nivel"], 1)   # empieza de cero
+
+    def test_abrir_la_leccion_reinicia_las_pistas(self):
+        self.post("/api/lecciones/hola-mundo/pasos/5/pista")
+        self.c.get("/leccion/hola-mundo")
+        self.assertEqual(self.post("/api/lecciones/hola-mundo/pasos/5/pista").get_json()["nivel"], 1)
+
+    def test_api_de_pasos_respeta_el_bloqueo(self):
+        self.assertEqual(self.post("/api/lecciones/texto-o-cuenta/pasos/0/comprobar", {"respuesta": True}).status_code, 403)
+        self.assertEqual(self.post("/api/lecciones/texto-o-cuenta/pasos/5/evaluar", {"codigo": "x"}).status_code, 403)
+
+    def test_los_ejercicios_clasicos_siguen_funcionando_y_comparten_pistas(self):
+        self.post("/api/ejercicios/1/pista")
+        self.post("/api/ejercicios/1/pista")
+        r = self.post("/api/ejercicios/1/evaluar", {"codigo": 'mostrar "Hola mundo"'}).get_json()
+        self.assertEqual((r["premio"]["estrellas"], r["premio"]["xp"]), (1, 10))          # 2 pistas vistas
+        self.assertEqual(r["leccion"]["siguiente"], "texto-o-cuenta")
+        self.assertEqual(self.post("/api/ejercicios/2/evaluar", {"codigo": "mostrar 1"}).status_code, 200)   # desbloqueado por el 1
+
     def test_api_tortuga(self):
         r = self.post("/api/tortuga", {"codigo": "avanzar 10\ngirar_der 90"}).get_json()
         self.assertEqual([o["o"] for o in r["ordenes"]], ["avanzar", "girar_der"])

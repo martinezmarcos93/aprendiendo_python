@@ -3,6 +3,7 @@
 const Lienzo = (() => {
   const VERDE = "#16a34a";
   const TAM = 600;
+  const VISTA_INICIAL = Object.freeze({ escala: 1, cx: 0, cy: 0 });
 
   /** Estado puro de la tortuga (0° = arriba, giro a la derecha = horario). Sin DOM: testeable. */
   function nuevoEstado() {
@@ -31,9 +32,28 @@ const Lienzo = (() => {
     return e;
   }
 
-  function dibujarTortuga(ctx, e) {
+  /** Encuadre que hace entrar todos los dibujos (listas de órdenes) con un margen, sin pasarse de 2.4x
+   *  (así una raya corta no se ve gigante). Incluye siempre el punto de partida. */
+  function vistaPara(...listas) {
+    let minX = 0, maxX = 0, minY = 0, maxY = 0;
+    for (const ordenes of listas) {
+      const e = nuevoEstado();
+      for (const o of ordenes || []) aplicar(e, o);
+      for (const t of e.trazos) {
+        minX = Math.min(minX, t.x1, t.x2); maxX = Math.max(maxX, t.x1, t.x2);
+        minY = Math.min(minY, t.y1, t.y2); maxY = Math.max(maxY, t.y1, t.y2);
+      }
+    }
+    const extension = Math.max(maxX - minX, maxY - minY);
+    if (extension <= 0) return VISTA_INICIAL;
+    return { escala: Math.max(0.4, Math.min(2.4, 480 / extension)), cx: (minX + maxX) / 2, cy: (minY + maxY) / 2 };
+  }
+
+  /** La tortuga se dibuja con tamaño fijo en pantalla, sea cual sea el zoom (ctx ya está en coordenadas del dibujo). */
+  function dibujarTortuga(ctx, e, escala) {
     ctx.save();
-    ctx.translate(TAM / 2 + e.x, TAM / 2 + e.y);
+    ctx.translate(e.x, e.y);
+    ctx.scale(1 / escala, 1 / escala);
     ctx.rotate((e.rumbo * Math.PI) / 180);
     ctx.fillStyle = e.color; ctx.strokeStyle = "#0b3d1e"; ctx.lineWidth = 2;
     for (const [px, py] of [[-11, -9], [11, -9], [-11, 10], [11, 10]]) {   // patas
@@ -49,17 +69,20 @@ const Lienzo = (() => {
   function crear(canvas) {
     const ctx = canvas.getContext("2d");
     let e = nuevoEstado();
+    let vista = VISTA_INICIAL;
     let ejecucion = 0;                       // se incrementa para cancelar una animación en curso
 
     function pintar(parcial) {
+      ctx.setTransform(1, 0, 0, 1, 0, 0);
       ctx.fillStyle = "#fff"; ctx.fillRect(0, 0, TAM, TAM);
-      ctx.lineCap = "round"; ctx.lineWidth = 3;
+      ctx.setTransform(vista.escala, 0, 0, vista.escala, TAM / 2 - vista.cx * vista.escala, TAM / 2 - vista.cy * vista.escala);
+      ctx.lineCap = "round"; ctx.lineWidth = 3 / Math.max(1, vista.escala * 0.6 + 0.4);
       const trazos = parcial ? e.trazos.concat([parcial]) : e.trazos;
       for (const t of trazos) {
         ctx.strokeStyle = t.color; ctx.beginPath();
-        ctx.moveTo(TAM / 2 + t.x1, TAM / 2 + t.y1); ctx.lineTo(TAM / 2 + t.x2, TAM / 2 + t.y2); ctx.stroke();
+        ctx.moveTo(t.x1, t.y1); ctx.lineTo(t.x2, t.y2); ctx.stroke();
       }
-      dibujarTortuga(ctx, e);
+      dibujarTortuga(ctx, e, vista.escala);
     }
     const esperar = (ms) => new Promise((r) => setTimeout(r, ms));
     function cuadro() { return new Promise((r) => requestAnimationFrame(r)); }
@@ -100,6 +123,14 @@ const Lienzo = (() => {
 
     return {
       estado: () => e,
+      /** Cambia el encuadre (ver vistaPara) y vuelve a pintar lo que hay. */
+      usarVista(nueva) { vista = nueva || VISTA_INICIAL; pintar(null); },
+      /** Dibuja todas las órdenes de una vez (vista previa del objetivo). */
+      dibujar(ordenes) {
+        ejecucion++; e = nuevoEstado();
+        for (const orden of ordenes) aplicar(e, orden);
+        pintar(null);
+      },
       reiniciar() { ejecucion++; e = nuevoEstado(); pintar(null); },
       detener() { ejecucion++; },
       /** Reproduce las órdenes. opciones: {velocidad 1-10, depurador, alLinea(n), alFinal()} */
@@ -124,7 +155,7 @@ const Lienzo = (() => {
     };
   }
 
-  return { crear, nuevoEstado, aplicar, destino };
+  return { crear, nuevoEstado, aplicar, destino, vistaPara };
 })();
 
 (() => {

@@ -40,7 +40,15 @@
 </section>
 
 <section class="camino-lecciones" aria-label="Camino de lecciones">
-  {% for seccion in camino %}
+  {% for curso in camino %}
+  {% if camino|length > 1 %}
+  <div class="banda-curso {{ '' if curso.abierto else 'cerrado' }}">
+    <span class="icono-curso">{{ curso.icono }}</span>
+    <div><h2>{{ curso.titulo }}</h2><span class="tenue">{{ curso.descripcion }}</span>
+      {% if not curso.abierto %}<div class="candado-curso">🔒 Se desbloquea al terminar «{{ curso.requiere }}»</div>{% endif %}</div>
+  </div>
+  {% endif %}
+  {% for seccion in curso.secciones if curso.abierto %}
   <div class="seccion-camino n{{ seccion.nivel }}">
     <div class="banda-camino"><span class="etiqueta-nivel">NIVEL {{ seccion.nivel }}</span> <b>{{ seccion.titulo }}</b></div>
     <ol class="senda">
@@ -60,6 +68,7 @@
       {% endfor %}
     </ol>
   </div>
+  {% endfor %}
   {% endfor %}
 </section>
 {% endblock %}

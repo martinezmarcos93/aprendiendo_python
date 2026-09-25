@@ -358,6 +358,16 @@ a.ficha:hover { transform: translateY(-3px); background: var(--superficie-2); }
 .paso-caja .pista-caja { margin-top: .6rem; }
 .mascota.gran { font-size: 5rem; text-align: center; }
 
+/* pasos con tortuga */
+.lienzo-paso { display: block; width: 100%; height: auto; aspect-ratio: 1; background: #fff; border-radius: var(--radio-chico); border: 2px solid var(--borde); }
+.objetivo-caja { min-width: 0; }
+.duo-tortuga { display: grid; grid-template-columns: minmax(0, 1fr) minmax(0, 1fr); gap: 1rem; align-items: start; }
+.columna-lienzos { display: grid; grid-template-columns: 1fr 1fr; gap: .7rem; }
+.columna-editor { min-width: 0; }
+.ejemplo-ejecutable .lienzo-paso { max-width: 300px; margin-top: .7rem; }
+.paso-caja > .objetivo-caja { max-width: 260px; margin-bottom: 1rem; }
+@media (max-width: 800px) { .duo-tortuga { grid-template-columns: 1fr; } }
+
 /* barra de feedback fija abajo */
 .pie-leccion { position: fixed; left: 0; right: 0; bottom: 0; z-index: 30; padding: 1rem 1.4rem 1.2rem;
   display: flex; gap: 1rem; align-items: center; justify-content: space-between; flex-wrap: wrap;
@@ -388,6 +398,12 @@ a.ficha:hover { transform: translateY(-3px); background: var(--superficie-2); }
 .banda-camino { display: flex; align-items: center; gap: .7rem; padding: .7rem 1rem; border-radius: var(--radio-chico);
   background: var(--c-fondo); color: var(--c); font-size: 1.1rem; }
 .banda-camino .etiqueta-nivel { background: transparent; padding: 0; }
+.banda-curso { display: flex; gap: 1rem; align-items: center; padding: 1rem 1.2rem; margin-top: .6rem; border-radius: var(--radio);
+  background: linear-gradient(90deg, var(--superficie-2), var(--superficie)); border: 1px solid var(--borde); }
+.banda-curso h2 { margin: 0; font-size: 1.3rem; }
+.banda-curso.cerrado { opacity: .65; }
+.icono-curso { font-size: 2.4rem; }
+.candado-curso { color: var(--amarillo); font-weight: 800; margin-top: .2rem; }
 .senda { list-style: none; margin: 1rem 0 0; padding: 0; display: grid; gap: 1.1rem; }
 .parada { display: flex; align-items: center; gap: 1rem; transition: transform .2s; }
 .parada.z1 { transform: translateX(64px); } .parada.z3 { transform: translateX(-64px); }
