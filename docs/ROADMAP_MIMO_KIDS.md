@@ -9,6 +9,26 @@
 
 ---
 
+## ✅ Estado: APROBADO (24/09/2026) — con migración total a web
+
+Marcos aprobó el roadmap y decidió **reconstruir TortuScript como aplicación web** (Flask +
+HTML/CSS/JS). Ver [ADR-001](decisions/ADR-001-migracion-a-web.md). La decisión 1 de §5
+queda resuelta como "web local"; el orden de fases pasa a ser:
+
+| Orden | Fase | Qué cambia por la migración |
+|---|---|---|
+| 1 | **M0 — Separar el núcleo** (1 sesión) | `tortuscript/` sin Tk; `preguntar()` y tortuga desacoplados; 51 tests siguen verdes |
+| 2 | **Fase 0 — Contenido como datos + validador** (1-2) | Igual; no depende de la interfaz |
+| 3 | **M1 — Base web** (2) | Flask, sistema de diseño CSS, layout, perfiles, ejecución en subproceso, modal de preguntar |
+| 4 | **Fase 1 — Motor de lecciones** (3-4) | Directo en web |
+| 5 | **Fase 2 — Camino + onboarding** (2) | Directo en web |
+| 6 | **M2 — Paridad** (2) | Playground, Tortuga en canvas con depurador, Referencia, Mapa, Resumen, Repaso en web |
+| 7 | Fases 4 → 3 → 5 → 6 | Contenido, gamificación, repaso, proyectos y certificado |
+| 8 | **Fase 7 — Accesibilidad y audio** | Más simple en web (zoom, contraste, lector de pantalla) |
+| 9 | **M3 — Retiro de Tk + lanzador** (1) | Se borra `ui/`; ícono/lanzador que abre el navegador; Fase 8 (instalador) |
+
+Total estimado: **21-28 sesiones**.
+
 ## 0. Qué se clona y qué no
 
 | Se clona (mecánicas y pedagogía, no tienen dueño) | No se copia (tiene derechos y además es para adultos) |
