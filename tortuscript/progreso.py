@@ -25,7 +25,7 @@ logger = logging.getLogger("tortuscript.progreso")
 # Los archivos viven en la carpeta raíz del proyecto (no en la carpeta desde donde se
 # lo abre, ni dentro del paquete tortuscript/).
 DIRECTORIO = Path(__file__).resolve().parent.parent
-VERSION_ESQUEMA = 4
+VERSION_ESQUEMA = 5
 
 PERFIL_ACTUAL = "default"
 
@@ -92,6 +92,14 @@ PROGRESO_INICIAL = {
     "config": {"onboarding": False, "nombre": None, "experiencia": None, "meta_min": 10},
     # XP ganado por día (últimos 30), para la meta diaria.
     "xp_por_dia": {},
+    # Gamificación amable (v5): sin vidas ni compras; todo se gana jugando.
+    "congeladores": 0,        # protegen la racha si se falta UN día (se ganan cada 7 días de racha)
+    "dias_congelados": [],    # días que un congelador salvó (últimos 30)
+    "dias_meta": [],          # días en que se cumplió la meta diaria (últimos 60)
+    "logros": {},             # {id_logro: "YYYY-MM-DD"}
+    "liga": {"nivel": 0, "semana": None},
+    "stats": {"congeladores_ganados": 0},
+    "avisos": [],             # cosas para contarle al chico (logro nuevo, congelador...) hasta que se muestren
 }
 
 
@@ -175,16 +183,40 @@ METAS_MIN = (5, 10, 15)
 XP_POR_MINUTO = 4                 # meta de 5 min = 20 XP, 10 min = 40 XP, 15 min = 60 XP
 
 
+def avisar(progreso, tipo, **datos):
+    """Deja anotado algo para contarle al chico (la web lo muestra y lo saca con tomar_avisos)."""
+    progreso.setdefault("avisos", []).append({"tipo": tipo, **datos})
+
+
+def tomar_avisos(progreso, guardar=True):
+    """Devuelve los avisos pendientes y los borra."""
+    avisos = progreso.get("avisos") or []
+    if avisos:
+        progreso["avisos"] = []
+        if guardar:
+            guardar_progreso(progreso)
+    return avisos
+
+
 def sumar_xp(progreso, cantidad, hoy=None):
-    """Suma XP al total y al del día (para la meta diaria). Ignora cantidades <= 0."""
+    """Suma XP al total y al del día (para la meta diaria). Ignora cantidades <= 0.
+    Avisa la primera vez que en el día se llega a la meta."""
     if cantidad <= 0:
         return
     hoy_s = str(hoy or date.today())
+    meta = meta_diaria_xp(progreso)
     progreso["xp_total"] = progreso.get("xp_total", 0) + cantidad
     por_dia = progreso.setdefault("xp_por_dia", {})
-    por_dia[hoy_s] = por_dia.get(hoy_s, 0) + cantidad
+    antes = por_dia.get(hoy_s, 0)
+    por_dia[hoy_s] = antes + cantidad
     for viejo in sorted(por_dia)[:-30]:
         del por_dia[viejo]
+    if antes < meta <= por_dia[hoy_s]:
+        dias = progreso.setdefault("dias_meta", [])
+        if hoy_s not in dias:
+            dias.append(hoy_s)
+            progreso["dias_meta"] = dias[-60:]
+        avisar(progreso, "meta_cumplida", xp=meta)
 
 
 def meta_diaria_xp(progreso):
@@ -226,10 +258,17 @@ def guardar_config(progreso, experiencia=None, meta_min=None, nombre=None, onboa
 # ─────────────────────────────────────────
 # RACHA DIARIA
 # ─────────────────────────────────────────
+MAX_CONGELADORES = 2
+DIAS_RETO = 7                     # el reto de racha: cada 7 días seguidos se gana un congelador
+
+
 def actualizar_racha(progreso, hoy=None):
     """
     Llamar cuando el usuario completa un ejercicio.
     Retorna (racha_actual, es_dia_nuevo).
+
+    Si se faltó UN solo día y hay un congelador, se usa solo y la racha sigue. Cada 7 días
+    seguidos se gana un congelador (hasta 2 guardados).
     """
     hoy = hoy or date.today()
     hoy_s = str(hoy)
@@ -238,10 +277,20 @@ def actualizar_racha(progreso, hoy=None):
     if ultimo == hoy_s:
         return progreso.get("racha", 1), False
 
-    if ultimo == str(hoy - timedelta(days=1)):
+    ayer = hoy - timedelta(days=1)
+    if ultimo == str(ayer):
         progreso["racha"] = progreso.get("racha", 0) + 1
+    elif ultimo == str(hoy - timedelta(days=2)) and progreso.get("congeladores", 0) > 0:
+        progreso["congeladores"] -= 1
+        congelados = progreso.setdefault("dias_congelados", [])
+        congelados.append(str(ayer))
+        progreso["dias_congelados"] = congelados[-30:]
+        progreso["racha"] = progreso.get("racha", 0) + 1
+        avisar(progreso, "congelador_usado", racha=progreso["racha"])
     else:
         progreso["racha"] = 1
+    if progreso["racha"] % DIAS_RETO == 0:
+        _ganar_congelador(progreso)
 
     progreso["racha_max"] = max(progreso.get("racha_max", 0), progreso["racha"])
     progreso["ultimo_dia"] = hoy_s
@@ -256,14 +305,41 @@ def actualizar_racha(progreso, hoy=None):
     return progreso["racha"], True
 
 
+def _ganar_congelador(progreso):
+    if progreso.get("congeladores", 0) < MAX_CONGELADORES:
+        progreso["congeladores"] = progreso.get("congeladores", 0) + 1
+        avisar(progreso, "congelador_ganado", racha=progreso["racha"])
+    stats = progreso.setdefault("stats", {})
+    stats["congeladores_ganados"] = stats.get("congeladores_ganados", 0) + 1
+
+
 def racha_vigente(progreso, hoy=None):
     """La racha que corresponde mostrar: si el último día jugado fue antes de ayer,
-    la racha ya se cortó (aunque el archivo todavía guarde el número viejo)."""
+    la racha ya se cortó (aunque el archivo todavía guarde el número viejo).
+    Si se faltó un solo día y hay un congelador, sigue viva: al volver a jugar lo usa."""
     hoy = hoy or date.today()
     ultimo = progreso.get("ultimo_dia")
     if ultimo in (str(hoy), str(hoy - timedelta(days=1))):
         return progreso.get("racha", 0)
+    if ultimo == str(hoy - timedelta(days=2)) and progreso.get("congeladores", 0) > 0:
+        return progreso.get("racha", 0)
     return 0
+
+
+def racha_protegida(progreso, hoy=None):
+    """True si hoy todavía no se jugó y la racha se salvaría con un congelador."""
+    hoy = hoy or date.today()
+    return progreso.get("ultimo_dia") == str(hoy - timedelta(days=2)) and progreso.get("congeladores", 0) > 0
+
+
+def reto_de_racha(progreso, hoy=None):
+    """Progreso del reto de 7 días: (días_seguidos_del_reto_actual, total).
+    Al llegar a 7 se gana el congelador y el reto arranca de nuevo."""
+    racha = racha_vigente(progreso, hoy)
+    if racha == 0:
+        return 0, DIAS_RETO
+    resto = racha % DIAS_RETO
+    return (resto if resto else DIAS_RETO), DIAS_RETO
 
 
 def registrar_sesion_hoy(progreso, indice):
@@ -366,8 +442,10 @@ def calendario_semana(progreso, hoy=None):
     """Los últimos 7 días (el más viejo primero) para el mini calendario del resumen."""
     hoy = hoy or date.today()
     activos = set(progreso.get("dias_activo", []))
+    congelados = set(progreso.get("dias_congelados", []))
     dias = [hoy - timedelta(days=i) for i in range(6, -1, -1)]
-    return [{"dia": d.day, "fecha": str(d), "activo": str(d) in activos, "hoy": d == hoy}
+    return [{"dia": d.day, "fecha": str(d), "activo": str(d) in activos, "hoy": d == hoy,
+             "congelado": str(d) in congelados}
             for d in dias]
 
 
