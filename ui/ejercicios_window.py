@@ -129,8 +129,9 @@ class VentanaEjercicios(tk.Toplevel):
 
         tk.Button(barra_btn, text="🗑  Limpiar", font=("Arial", 11), bg="#475569", fg="white", relief=tk.FLAT, padx=14, pady=6, cursor="hand2", command=self._limpiar).pack(side=tk.LEFT, padx=(0, 8))
 
-        tk.Button(barra_btn, text="⬅ Anterior", font=("Arial", 11), bg=BG_CARD, fg=BLANCO, relief=tk.FLAT, padx=14, pady=6, cursor="hand2", command=self.anterior).pack(side=tk.RIGHT, padx=(8, 0))
-        tk.Button(barra_btn, text="Siguiente ➡", font=("Arial", 11), bg=BG_CARD, fg=BLANCO, relief=tk.FLAT, padx=14, pady=6, cursor="hand2", command=self.siguiente).pack(side=tk.RIGHT)
+        # side=RIGHT apila de derecha a izquierda: Siguiente primero para que quede "⬅ Anterior  Siguiente ➡"
+        tk.Button(barra_btn, text="Siguiente ➡", font=("Arial", 11), bg=BG_CARD, fg=BLANCO, relief=tk.FLAT, padx=14, pady=6, cursor="hand2", command=self.siguiente).pack(side=tk.RIGHT, padx=(8, 0))
+        tk.Button(barra_btn, text="⬅ Anterior", font=("Arial", 11), bg=BG_CARD, fg=BLANCO, relief=tk.FLAT, padx=14, pady=6, cursor="hand2", command=self.anterior).pack(side=tk.RIGHT)
 
         # ── Salida
         tk.Label(self, text="🖥  Resultado", font=("Arial", 11, "bold"), bg=BG_MAIN, fg=AMARILLO, anchor="w").pack(fill="x", padx=16, pady=(2, 2))
@@ -153,6 +154,7 @@ class VentanaEjercicios(tk.Toplevel):
         hist = self.progreso["ejercicios"].get(str(self.indice), {})
         self.lbl_estrellas_hist.config(text=estrellas_texto(hist.get("estrellas", 0)))
         self.editor.delete("1.0", tk.END)
+        self.editor.edit_reset()   # Ctrl+Z no debe traer el código del ejercicio anterior
         self._set_python("")
         self.salida.delete("1.0", tk.END)
         self.btn_pista.config(text="💡  Pista (1/3)", state=tk.NORMAL)
@@ -212,11 +214,10 @@ class VentanaEjercicios(tk.Toplevel):
             return
 
         if salida_txt:
-            self._mostrar_salida([("✅ Salida:\n", "ok"), (salida_txt + "\n", "bold")])
-        else:
-            self._mostrar_salida([("✅ Ejecutado sin errores (sin salida).\n", "ok")])
+            self._mostrar_salida([("🖥  Tu programa mostró:\n", "info"), (salida_txt + "\n", "bold")])
 
         self._evaluar(detalles)
+        self.salida.see(tk.END)   # que el veredicto quede a la vista
 
     @staticmethod
     def _normalizar_salida(texto):
@@ -269,10 +270,9 @@ class VentanaEjercicios(tk.Toplevel):
             self._mostrar_salida([
                 ("\n🤔  Casi… tu programa corre, pero lo que muestra no es lo que pide el ejercicio.\n\n", "pista"),
                 ("   Se esperaba:\n", "info"),
-                (self._sangrar(salida_correcta) + "\n", "bold"),
-                ("   Tu programa mostró:\n", "info"),
-                (self._sangrar(salida_alumno) + "\n\n", "bold"),
-                ("   Compará línea por línea (mayúsculas y tildes cuentan) y probá de nuevo.\n", "info"),
+                (self._sangrar(salida_correcta) + "\n\n", "bold"),
+                ("   Compará línea por línea con lo que mostró tu programa (arriba).\n", "info"),
+                ("   Mayúsculas, tildes y espacios entre palabras cuentan.\n", "info"),
             ])
             return
 
@@ -281,8 +281,9 @@ class VentanaEjercicios(tk.Toplevel):
         self.lbl_estrellas_hist.config(text=estrellas_texto(estrellas))
         self._actualizar_barra_xp()
 
+        self.salida.insert(tk.END, "\n✅  ¡Correcto! Es justo lo que pedía el ejercicio.\n", "ok")
         if hubo_mejora:
-            self.salida.insert(tk.END, f"\n{estrellas_texto(estrellas)}  +{xp} XP\n", "pista")
+            self.salida.insert(tk.END, f"{estrellas_texto(estrellas)}  +{xp} XP\n", "pista")
             VentanaCelebracion(self, estrellas=estrellas, xp_ganado=xp)
         else:
             self.salida.insert(tk.END, "\n✔ Ya tenías esta estrella guardada.\n", "info")
