@@ -11,7 +11,7 @@ EJERCICIOS = [
  "descripcion":'Hacé que aparezca el texto Hola mundo.   Forma:  mostrar "tu texto"',
  "solucion":'mostrar "Hola mundo"'},
 {"nivel":1,"titulo":"2. Texto o cuenta",
- "descripcion":'En pantalla tienen que aparecer dos líneas: primero 7 + 3 tal cual, y abajo el resultado de esa cuenta.   Pista: lo que va entre comillas se muestra igual; sin comillas, la compu hace la cuenta.',
+ "descripcion":"Utiliza mostrar 7+3 con comillas y luego en el renglon de abajo sin comillas, veras la diferencia",
  "solucion":'mostrar "7 + 3"\nmostrar 7 + 3'},
 {"nivel":1,"titulo":"3. Dos líneas",
  "descripcion":"Mostrá Hola y, en la línea siguiente, Chau. Cada mostrar escribe una línea nueva.",
