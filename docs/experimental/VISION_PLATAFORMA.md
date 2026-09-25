@@ -9,6 +9,8 @@
 
 > Secuencia completa vista por el usuario: [RECORRIDO_DEL_USUARIO.md](RECORRIDO_DEL_USUARIO.md).
 
+> Plan consolidado por fases y estimación de magnitud: [ROADMAP_MAESTRO.md](ROADMAP_MAESTRO.md).
+
 ## 1. Punto de partida
 
 **La idea:** llevar el proyecto a un siguiente nivel: un curso de programación para chicos, **gratis hasta cierto punto**
