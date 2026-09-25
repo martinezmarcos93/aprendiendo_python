@@ -14,6 +14,7 @@ Reglas amables (nada de vidas ni castigos):
 import random
 import zlib
 
+from . import tortuga
 from .contenido import HUECO
 from .evaluacion import normalizar_salida
 
@@ -47,6 +48,26 @@ def lista_lecciones(curso):
     return [leccion for seccion in curso["secciones"] for leccion in seccion["lecciones"]]
 
 
+def buscar_en_cursos(cursos, leccion_id):
+    """(curso, seccion, leccion) de la primera lección con ese id, o None."""
+    for curso in cursos:
+        hallada = buscar_leccion(curso, leccion_id)
+        if hallada is not None:
+            return curso, hallada[0], hallada[1]
+    return None
+
+
+def siguiente_global(cursos, leccion_id):
+    """Lección que sigue: la próxima del mismo curso o, si era la última, la primera del curso siguiente."""
+    for i, curso in enumerate(cursos):
+        if buscar_leccion(curso, leccion_id) is not None:
+            proxima = leccion_siguiente(curso, leccion_id)
+            if proxima is not None:
+                return proxima
+            return lista_lecciones(cursos[i + 1])[0] if i + 1 < len(cursos) else None
+    return None
+
+
 def leccion_siguiente(curso, leccion_id):
     todas = lista_lecciones(curso)
     for i, leccion in enumerate(todas):
@@ -75,10 +96,11 @@ def es_perfecta(progreso, leccion_id, indices_escribir, total_pasos):
         ejercicios.get(str(i), {}).get("estrellas", 0) == 3 for i in indices_escribir)
 
 
-def estado_camino(curso, progreso, indices_por_leccion):
+def estado_camino(curso, progreso, indices_por_leccion, curso_abierto=True):
     """Estado de cada lección para dibujar el camino:
     'perfecta' | 'hecha' | 'actual' (la primera pendiente) | 'bloqueada'.
-    `indices_por_leccion`: {leccion_id: [índices de ejercicio 'escribir']}."""
+    `indices_por_leccion`: {leccion_id: [índices de ejercicio 'escribir']}.
+    Con `curso_abierto=False` (el curso pide algo que falta) todas salen bloqueadas."""
     salida, actual_asignada = [], False
     for seccion in curso["secciones"]:
         lecciones = []
@@ -86,7 +108,7 @@ def estado_camino(curso, progreso, indices_por_leccion):
             indices = indices_por_leccion.get(lec["id"], [])
             if esta_completada(progreso, lec["id"], indices):
                 estado = "perfecta" if es_perfecta(progreso, lec["id"], indices, len(lec["pasos"])) else "hecha"
-            elif not actual_asignada:
+            elif not actual_asignada and curso_abierto:
                 estado, actual_asignada = "actual", True
             else:
                 estado = "bloqueada"
@@ -95,6 +117,37 @@ def estado_camino(curso, progreso, indices_por_leccion):
                               "estado": estado, "pasos": len(lec["pasos"])})
         salida.append({"nivel": seccion["nivel"], "titulo": seccion["titulo"], "lecciones": lecciones})
     return salida
+
+
+def estado_cursos(cursos, progreso, indices_por_leccion):
+    """El camino completo: una entrada por curso con sus secciones y lecciones.
+    Un curso está abierto si no pide nada o si ya se completó la lección que pide."""
+    salida = []
+    for curso in cursos:
+        requiere = (curso.get("requiere") or {}).get("leccion")
+        titulo_requerido = None
+        abierto = True
+        if requiere:
+            hallada = buscar_en_cursos(cursos, requiere)
+            titulo_requerido = hallada[2]["titulo"].partition(". ")[2] or hallada[2]["titulo"] if hallada else requiere
+            abierto = esta_completada(progreso, requiere, indices_por_leccion.get(requiere, []))
+        salida.append({
+            "id": curso["id"], "titulo": curso["titulo"], "icono": curso.get("icono", "📘"),
+            "descripcion": curso.get("descripcion", ""), "abierto": abierto,
+            "requiere": None if abierto else titulo_requerido,
+            "secciones": estado_camino(curso, progreso, indices_por_leccion, abierto),
+        })
+    return salida
+
+
+def lecciones_planas(estado):
+    """Lista plana de lecciones (con su curso) del resultado de estado_cursos."""
+    return [dict(lec, curso=c["id"]) for c in estado for s in c["secciones"] for lec in s["lecciones"]]
+
+
+def leccion_actual(estado):
+    """La lección que toca ahora: la primera pendiente del primer curso que tenga alguna abierta."""
+    return next((l for l in lecciones_planas(estado) if l["estado"] == "actual"), None)
 
 
 # ─────────────────────────────────────────
@@ -121,6 +174,11 @@ def paso_publico(paso, leccion_id, indice, numero_ejercicio=None):
     tipo = paso["tipo"]
     semilla = _semilla(leccion_id, indice)
     publico = {"tipo": tipo, "indice": indice}
+    for bandera in ("lienzo", "tortuga"):                     # cómo se dibuja / se compara el paso
+        if paso.get(bandera):
+            publico[bandera] = True
+    if paso.get("lenguaje"):
+        publico["lenguaje"] = paso["lenguaje"]
     if tipo == "explicacion":
         publico.update(texto=paso["texto"], codigo=paso.get("codigo"), forma=paso.get("forma"))
     elif tipo == "elegir":
@@ -166,12 +224,16 @@ def _completado(paso, rellenos):
     return codigo
 
 
-def _misma_salida(ejecutar, fuente_a, fuente_b, entradas):
-    """True si ambos programas muestran lo mismo sin errores. `ejecutar(fuente, entradas)`
-    devuelve lo que mostró el programa, o None si falló."""
+def _mismo_resultado(paso, ejecutar, fuente_a, fuente_b, entradas):
+    """True si ambos programas dan el mismo resultado sin errores: el mismo texto en pantalla o,
+    en los pasos de tortuga, el mismo dibujo. `ejecutar(fuente, entradas)` devuelve
+    {"salida": str, "ordenes": [...]} o None si falló o preguntó algo."""
     a, b = ejecutar(fuente_a, entradas), ejecutar(fuente_b, entradas)
-    return a is not None and b is not None and normalizar_salida(a) != "" \
-        and normalizar_salida(a) == normalizar_salida(b)
+    if a is None or b is None:
+        return False
+    if paso.get("tortuga"):
+        return tortuga.mismo_dibujo(a["ordenes"], b["ordenes"])
+    return normalizar_salida(a["salida"]) != "" and normalizar_salida(a["salida"]) == normalizar_salida(b["salida"])
 
 
 def comprobar(paso, respuesta, ejecutar=None):
@@ -198,11 +260,16 @@ def comprobar(paso, respuesta, ejecutar=None):
         malos = [i for i, (r, e) in enumerate(zip(respuesta, esperado)) if r != e]
         if not malos:
             return {"ok": True, "pista": None, "malos": None}
-        if ejecutar and all(isinstance(r, str) and r in paso["fichas"] for r in respuesta) \
-                and paso.get("salida") is not None:
-            salida = ejecutar(_completado(paso, respuesta), paso.get("entradas_prueba") or [])
-            if salida is not None and normalizar_salida(salida) == normalizar_salida(paso["salida"]):
-                return {"ok": True, "pista": None, "malos": None}
+        if ejecutar and all(isinstance(r, str) and r in paso["fichas"] for r in respuesta):
+            entradas = paso.get("entradas_prueba") or []
+            if paso.get("tortuga"):                                     # mismo dibujo que la respuesta oficial
+                if _mismo_resultado(paso, ejecutar, _completado(paso, respuesta),
+                                    _completado(paso, esperado), entradas):
+                    return {"ok": True, "pista": None, "malos": None}
+            elif paso.get("salida") is not None:
+                resultado = ejecutar(_completado(paso, respuesta), entradas)
+                if resultado is not None and normalizar_salida(resultado["salida"]) == normalizar_salida(paso["salida"]):
+                    return {"ok": True, "pista": None, "malos": None}
         return {"ok": False, "pista": paso.get("pista") or PISTAS_GENERICAS["completar"], "malos": malos}
 
     if tipo == "ordenar":
@@ -212,8 +279,8 @@ def comprobar(paso, respuesta, ejecutar=None):
         if respuesta == esperado:
             return {"ok": True, "pista": None, "malos": None}
         if ejecutar and sorted(respuesta) == sorted(esperado) and \
-                _misma_salida(ejecutar, "\n".join(respuesta), "\n".join(esperado),
-                              paso.get("entradas_prueba") or []):
+                _mismo_resultado(paso, ejecutar, "\n".join(respuesta), "\n".join(esperado),
+                                 paso.get("entradas_prueba") or []):
             return {"ok": True, "pista": None, "malos": None}
         malos = [i for i, (r, e) in enumerate(zip(respuesta, esperado)) if r != e]
         return {"ok": False, "pista": paso.get("pista") or PISTAS_GENERICAS["ordenar"], "malos": malos}

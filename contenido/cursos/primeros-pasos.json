@@ -1,6 +1,8 @@
 {
   "id": "primeros-pasos",
   "titulo": "Primeros pasos con TortuScript",
+  "icono": "🐢",
+  "descripcion": "Aprendé a programar en español: mostrar, variables, decisiones, repetir y funciones.",
   "version": 2,
   "secciones": [
     {

@@ -13,6 +13,7 @@ import itertools
 import re
 from dataclasses import dataclass
 
+from . import tortuga
 from .contenido import HUECO, TIPOS, pasos
 from .evaluacion import normalizar_salida
 from .executor import ejecutar_codigo
@@ -46,14 +47,28 @@ class Hallazgo:
         return f"{icono} {self.donde}: {self.mensaje}"
 
 
-def _correr(codigo_tortu, entradas=None):
-    """Traduce y ejecuta. Devuelve (salida_programa, error, palabras_usadas)."""
+def _correr_dibujo(codigo_tortu, entradas=None):
+    """Traduce y ejecuta con la tortuga. Devuelve (salida_programa, error, palabras_usadas, ordenes)."""
     t = TraductorTortuScript()
     python = t.traducir_codigo(codigo_tortu)
     detalles = {}
-    _, hay_error, mensaje = ejecutar_codigo(python, entradas_fijas=list(entradas or []), detalles=detalles)
+    registro = tortuga.Registro()
+    _, hay_error, mensaje = ejecutar_codigo(python, entradas_fijas=list(entradas or []), detalles=detalles,
+                                            extra_globals=registro.globales(), callback_linea=registro.callback_linea)
     primera = mensaje.split("\n")[0] if hay_error else ""
-    return detalles.get("salida_programa", ""), primera, list(t.ultimas_palabras)
+    return detalles.get("salida_programa", ""), primera, list(t.ultimas_palabras), registro.ordenes
+
+
+def _correr(codigo_tortu, entradas=None):
+    """Traduce y ejecuta. Devuelve (salida_programa, error, palabras_usadas)."""
+    salida, error, palabras, _ = _correr_dibujo(codigo_tortu, entradas)
+    return salida, error, palabras
+
+
+def _dibuja(codigo_tortu, entradas=None):
+    """(hay_error, ordenes, palabras) de un programa de tortuga."""
+    _, error, palabras, ordenes = _correr_dibujo(codigo_tortu, entradas)
+    return error, ordenes, palabras
 
 
 def _palabras(codigo_tortu):
@@ -98,9 +113,11 @@ def _validar_paso(paso, donde, hallazgos):
 
     if tipo == "explicacion":
         if _requeridos(paso, ["texto"], donde, hallazgos) and paso.get("codigo"):
-            _, err, usadas = _correr(paso["codigo"], entradas)
+            err, ordenes, usadas = _dibuja(paso["codigo"], entradas)
             if err:
                 hallazgos.append(Hallazgo(ERROR, donde, f"el ejemplo no corre: {err}"))
+            elif paso.get("lienzo") and not tortuga.trazos(ordenes):
+                hallazgos.append(Hallazgo(ERROR, donde, "el ejemplo con lienzo no dibuja nada"))
 
     elif tipo in ("elegir", "predecir"):
         campos = ["opciones", "correcta"] + (["pregunta"] if tipo == "elegir" else ["codigo"])
@@ -114,7 +131,17 @@ def _validar_paso(paso, donde, hallazgos):
         if not isinstance(correcta, int) or not 0 <= correcta < len(opciones):
             hallazgos.append(Hallazgo(ERROR, donde, f"«correcta» fuera de rango: {correcta!r}"))
             return set()
-        if tipo == "predecir":
+        if tipo == "predecir" and paso.get("cuenta") == "trazos":
+            err, ordenes, usadas = _dibuja(paso["codigo"], entradas)
+            if err:
+                hallazgos.append(Hallazgo(ERROR, donde, f"el código no corre: {err}"))
+            else:
+                real = str(len(tortuga.trazos(ordenes)))
+                if str(opciones[correcta]) != real:
+                    hallazgos.append(Hallazgo(ERROR, donde, f"la opción correcta dice {opciones[correcta]!r} pero dibuja {real} línea(s)"))
+                if any(str(o) == real for i, o in enumerate(opciones) if i != correcta):
+                    hallazgos.append(Hallazgo(ERROR, donde, "otra opción también es correcta"))
+        elif tipo == "predecir":
             salida, err, usadas = _correr(paso["codigo"], entradas)
             if err:
                 hallazgos.append(Hallazgo(ERROR, donde, f"el código no corre: {err}"))
@@ -143,9 +170,12 @@ def _validar_paso(paso, donde, hallazgos):
         codigo = paso["codigo"]
         for r in respuesta:
             codigo = codigo.replace(HUECO, r, 1)
-        salida, err, usadas = _correr(codigo, entradas)
+        salida, err, usadas, ordenes = _correr_dibujo(codigo, entradas)
         if err:
             hallazgos.append(Hallazgo(ERROR, donde, f"completado con la respuesta, no corre: {err}"))
+        elif paso.get("tortuga"):
+            if not tortuga.trazos(ordenes):
+                hallazgos.append(Hallazgo(ERROR, donde, "completado con la respuesta, no dibuja nada"))
         elif "salida" in paso and normalizar_salida(salida) != normalizar_salida(paso["salida"]):
             hallazgos.append(Hallazgo(ERROR, donde, f"muestra {salida.strip()!r} y se esperaba {paso['salida']!r}"))
 
@@ -156,30 +186,37 @@ def _validar_paso(paso, donde, hallazgos):
         if len(lineas) < 2:
             hallazgos.append(Hallazgo(ERROR, donde, "hace falta al menos 2 líneas para ordenar"))
             return set()
-        salida, err, usadas = _correr("\n".join(lineas), entradas)
+        salida, err, usadas, ordenes = _correr_dibujo("\n".join(lineas), entradas)
+        dibujando = bool(paso.get("tortuga"))
         if err:
             hallazgos.append(Hallazgo(ERROR, donde, f"en el orden correcto no corre: {err}"))
-        elif not salida.strip():
+        elif dibujando and not tortuga.trazos(ordenes):
+            hallazgos.append(Hallazgo(ERROR, donde, "en el orden correcto no dibuja nada"))
+        elif not dibujando and not salida.strip():
             hallazgos.append(Hallazgo(ERROR, donde, "en el orden correcto no muestra nada"))
         elif len(lineas) <= 6:
             objetivo = normalizar_salida(salida)
             for orden in itertools.permutations(lineas):
                 if list(orden) == lineas:
                     continue
-                s, e, _ = _correr("\n".join(orden), entradas)
-                if not e and normalizar_salida(s) == objetivo:
+                s, e, _, o = _correr_dibujo("\n".join(orden), entradas)
+                igual = tortuga.mismo_dibujo(o, ordenes) if dibujando else normalizar_salida(s) == objetivo
+                if not e and igual:
                     hallazgos.append(Hallazgo(AVISO, donde, "hay otro orden que muestra lo mismo; aceptá los dos al evaluar"))
                     break
 
     elif tipo == "escribir":
         if not _requeridos(paso, ["consigna", "solucion"], donde, hallazgos):
             return set()
-        salida, err, usadas = _correr(paso["solucion"], entradas)
+        salida, err, usadas, ordenes = _correr_dibujo(paso["solucion"], entradas)
         usadas = set(usadas)
         if "preguntar" in usadas and not entradas:
             hallazgos.append(Hallazgo(ERROR, donde, "la solución usa preguntar: agregá «entradas_prueba»"))
         if err:
             hallazgos.append(Hallazgo(ERROR, donde, f"la solución no corre: {err}"))
+        elif paso.get("tortuga"):
+            if not tortuga.trazos(ordenes):
+                hallazgos.append(Hallazgo(ERROR, donde, "la solución no dibuja nada (no se podría evaluar)"))
         elif not salida.strip():
             hallazgos.append(Hallazgo(ERROR, donde, "la solución no muestra nada (no se podría evaluar)"))
     else:

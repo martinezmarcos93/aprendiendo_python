@@ -7,6 +7,7 @@ al mismo resultado es válida.
 """
 import re
 
+from . import tortuga
 from .executor import ejecutar_codigo
 from .translator import TraductorTortuScript
 
@@ -14,6 +15,7 @@ CORRECTO = "correcto"
 INCORRECTO = "incorrecto"
 SIN_SALIDA = "sin_salida"
 FALTA_PREGUNTAR = "falta_preguntar"
+SIN_DIBUJO = "sin_dibujo"
 
 # (estrellas, xp) según cuántas pistas se vieron: 0, 1, 2, 3 (solución)
 _PREMIOS = [(3, 30), (2, 20), (1, 10), (1, 5)]
@@ -70,3 +72,27 @@ def evaluar(solucion, detalles_alumno):
     else:
         estado = INCORRECTO
     return {"estado": estado, "esperado": esperado, "obtenido": obtenido}
+
+
+def ordenes_de(fuente, entradas=None):
+    """Corre un programa de tortuga y devuelve sus órdenes (o None si falla o pregunta algo)."""
+    traductor = TraductorTortuScript()
+    registro = tortuga.Registro()
+    detalles = {}
+    _, hay_error, _ = ejecutar_codigo(
+        traductor.traducir_codigo(fuente.strip()), entradas_fijas=list(entradas or []), detalles=detalles,
+        extra_globals=registro.globales(), callback_linea=registro.callback_linea)
+    if hay_error or detalles.get("pregunta_pendiente") is not None:
+        return None
+    return registro.ordenes
+
+
+def evaluar_dibujo(solucion, ordenes_alumno, entradas=None):
+    """Compara el dibujo del alumno con el de la solución oficial. Devuelve
+    {'estado', 'similitud', 'objetivo'}: `objetivo` son las órdenes de la solución."""
+    objetivo = ordenes_de(solucion, entradas) or []
+    if not tortuga.trazos(ordenes_alumno):
+        return {"estado": SIN_DIBUJO, "similitud": 0.0, "objetivo": objetivo}
+    similitud = tortuga.similitud(ordenes_alumno, objetivo)
+    estado = CORRECTO if tortuga.mismo_dibujo(ordenes_alumno, objetivo) else INCORRECTO
+    return {"estado": estado, "similitud": round(similitud, 3), "objetivo": objetivo}

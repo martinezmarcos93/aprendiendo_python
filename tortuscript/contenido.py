@@ -32,6 +32,9 @@ from pathlib import Path
 
 CARPETA = Path(__file__).resolve().parent.parent / "contenido" / "cursos"
 CURSO_PRINCIPAL = "primeros-pasos"
+# Orden en que aparecen los cursos en el camino. Un curso puede pedir haber terminado una
+# lección de otro: {"requiere": {"leccion": "<id>"}} en su JSON.
+ORDEN_CURSOS = ("primeros-pasos", "tortuga", "python-real")
 
 TIPOS = ("explicacion", "elegir", "completar", "ordenar", "predecir", "escribir")
 HUECO = "___"
@@ -41,6 +44,16 @@ HUECO = "___"
 def cargar_curso(curso_id=CURSO_PRINCIPAL):
     with open(CARPETA / f"{curso_id}.json", encoding="utf-8") as f:
         return json.load(f)
+
+
+def ids_cursos():
+    """Los cursos que existen, en el orden del camino (más los que no figuren en ORDEN_CURSOS)."""
+    existentes = {p.stem for p in CARPETA.glob("*.json")}
+    return [c for c in ORDEN_CURSOS if c in existentes] + sorted(existentes - set(ORDEN_CURSOS))
+
+
+def todos_los_cursos():
+    return [cargar_curso(c) for c in ids_cursos()]
 
 
 def lecciones(curso):

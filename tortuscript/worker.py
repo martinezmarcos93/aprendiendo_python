@@ -8,11 +8,13 @@ Pedido:
   {"op": "ejecutar", "fuente": "...", "entradas": [...]}
   {"op": "evaluar",  "fuente": "...", "entradas": [...], "solucion": "..."}
   {"op": "tortuga",  "fuente": "...", "entradas": [...]}   → agrega "ordenes"
+  {"op": "evaluar_tortuga", "fuente": "...", "entradas": [...], "solucion": "..."}
+                                                                → "ordenes" + "evaluacion" del dibujo
 """
 import json
 import sys
 
-from .evaluacion import evaluar
+from .evaluacion import evaluar, evaluar_dibujo
 from .executor import ejecutar_codigo
 from .tortuga import Registro
 from .translator import TraductorTortuScript, detectar_tipo
@@ -27,7 +29,7 @@ def _python_de(fuente):
 def atender(pedido):
     tipo, python = _python_de(pedido.get("fuente", ""))
     detalles = {}
-    registro = Registro() if pedido.get("op") == "tortuga" else None
+    registro = Registro() if pedido.get("op") in ("tortuga", "evaluar_tortuga") else None
     salida, hay_error, mensaje = ejecutar_codigo(
         python, entradas_fijas=list(pedido.get("entradas") or []),
         detalles=detalles, completar_con_vacio=False,
@@ -42,6 +44,9 @@ def atender(pedido):
     }
     if registro is not None:
         respuesta["ordenes"] = registro.ordenes       # aunque haya error: se dibuja lo hecho
+    if pedido.get("op") == "evaluar_tortuga" and not hay_error and respuesta["pregunta"] is None:
+        respuesta["evaluacion"] = evaluar_dibujo(pedido.get("solucion", ""), registro.ordenes,
+                                                 respuesta["entradas"])
     if pedido.get("op") == "evaluar" and not hay_error and respuesta["pregunta"] is None:
         respuesta["evaluacion"] = evaluar(pedido.get("solucion", ""), detalles)
     return respuesta

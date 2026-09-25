@@ -29,6 +29,10 @@ _NOMBRE = re.compile(r"^[A-Za-zÁÉÍÓÚáéíóúñÑ]{2,20}$")
 COMANDOS = ("avanzar", "retroceder", "girar_der", "girar_izq", "color", "bajar_lapiz", "subir_lapiz")
 
 
+COLOR_INICIAL = "#16a34a"
+UMBRAL_DIBUJO = 0.97              # parecido mínimo para dar por igual un dibujo
+
+
 class ErrorTortuga(Exception):
     """Algo que el chico le pidió mal a la tortuga (se explica en lenguaje simple)."""
 
@@ -96,3 +100,57 @@ class Registro:
 
     def callback_linea(self, numero):
         self.linea = numero
+
+
+# ─────────────────────────────────────────
+# GEOMETRÍA: qué dibujó de verdad (para comparar dibujos)
+# ─────────────────────────────────────────
+def trazos(ordenes):
+    """Segmentos visibles (x1, y1, x2, y2, color) que dejan las órdenes. 0° = arriba, giro derecho = horario;
+    misma geometría que el canvas del navegador (web/static/js/tortuga.js)."""
+    x = y = rumbo = 0.0
+    lapiz, color, salida = True, COLOR_INICIAL, []
+    for orden in ordenes:
+        nombre = orden["o"]
+        if nombre in ("avanzar", "retroceder"):
+            distancia = orden["v"] if nombre == "avanzar" else -orden["v"]
+            radianes = math.radians(rumbo)
+            nx, ny = x + math.sin(radianes) * distancia, y - math.cos(radianes) * distancia
+            if lapiz and distancia != 0:
+                salida.append((x, y, nx, ny, color))
+            x, y = nx, ny
+        elif nombre == "girar_der":
+            rumbo = (rumbo + orden["v"]) % 360
+        elif nombre == "girar_izq":
+            rumbo = (rumbo - orden["v"]) % 360
+        elif nombre == "color":
+            color = orden["v"]
+        elif nombre == "bajar_lapiz":
+            lapiz = True
+        elif nombre == "subir_lapiz":
+            lapiz = False
+    return salida
+
+
+def _celdas(segmentos, celda=3.0):
+    """El dibujo como un conjunto de celdas de 3x3 con su color: no depende del orden, del sentido
+    en que se trazó ni de cuántos avanzar se usaron."""
+    puestas = set()
+    for x1, y1, x2, y2, color in segmentos:
+        pasos = max(1, int(math.hypot(x2 - x1, y2 - y1) / 1.5))
+        for k in range(pasos + 1):
+            t = k / pasos
+            puestas.add((round((x1 + (x2 - x1) * t) / celda), round((y1 + (y2 - y1) * t) / celda), color))
+    return puestas
+
+
+def similitud(ordenes_a, ordenes_b):
+    """Parecido entre dos dibujos: 1.0 idénticos, 0.0 sin nada en común."""
+    a, b = _celdas(trazos(ordenes_a)), _celdas(trazos(ordenes_b))
+    if not a and not b:
+        return 1.0
+    return len(a & b) / len(a | b)
+
+
+def mismo_dibujo(ordenes_a, ordenes_b):
+    return bool(trazos(ordenes_a)) and similitud(ordenes_a, ordenes_b) >= UMBRAL_DIBUJO

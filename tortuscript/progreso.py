@@ -297,7 +297,7 @@ def registrar_ejercicio(progreso, indice, estrellas, xp_ganado):
 # ─────────────────────────────────────────
 # LECCIONES
 # ─────────────────────────────────────────
-def registrar_paso_leccion(progreso, leccion_id, indice, xp, perfecto, total_pasos):
+def registrar_paso_leccion(progreso, leccion_id, indice, xp, perfecto, total_pasos, estrellas=None):
     """Anota un paso terminado de una lección y guarda.
 
     Se recuerda el MEJOR resultado de cada paso: repetir una lección nunca da XP doble, solo
@@ -309,6 +309,8 @@ def registrar_paso_leccion(progreso, leccion_id, indice, xp, perfecto, total_pas
         leccion_id, {"pasos": {}, "completada": False, "perfecta": False})
     antes = lec["pasos"].get(str(indice), {"xp": 0, "perfecto": False})
     mejor = {"xp": max(antes["xp"], xp), "perfecto": bool(antes["perfecto"] or perfecto)}
+    if estrellas is not None or "estrellas" in antes:                # pasos 'escribir' de cursos sin ejercicio
+        mejor["estrellas"] = max(antes.get("estrellas", 0), estrellas or 0)
     ganado = mejor["xp"] - antes["xp"]
     lec["pasos"][str(indice)] = mejor
     sumar_xp(progreso, ganado)
