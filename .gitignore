@@ -14,3 +14,6 @@ logs/
 
 .claude/
 config_tortuscript.json
+
+# Paquetes generados por herramientas/crear_paquete.py
+dist/
