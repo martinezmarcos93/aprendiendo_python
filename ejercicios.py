@@ -21,7 +21,7 @@ EJERCICIOS = [
 # NIVEL 2 - VARIABLES
 # =========================
 {"nivel":2,"titulo":"4. Tu primera variable",
- "descripcion":"Guardá el número 12 en una variable llamada edad y mostrala.   Forma:  edad es 12",
+ "descripcion":"Guardá el número 12 en una variable llamada edad y mostrala.   Forma:  edad es 12. Llama a la variable edad sin comillas",
  "solucion":"edad es 12\nmostrar edad"},
 {"nivel":2,"titulo":"5. Variable de texto",
  "descripcion":"Guardá el texto Juan en una variable llamada nombre y mostrala (el texto va con comillas).",
