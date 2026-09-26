@@ -15,6 +15,7 @@ from datetime import date
 from pathlib import Path
 
 from flask import Flask, abort, g, jsonify, redirect, render_template, request, url_for
+from werkzeug.exceptions import HTTPException
 
 RAIZ = Path(__file__).resolve().parent.parent
 if str(RAIZ) not in sys.path:
@@ -61,6 +62,21 @@ CABECERAS_SEGURIDAD = {
 }
 
 
+# Lo que ve el chico ante un error: nunca trazas, rutas ni "500 Internal Server Error".
+ERRORES = {
+    400: ("🤔", "Eso no se entendió", "El pedido llegó incompleto. Volvé a intentarlo desde la página."),
+    403: ("🔒", "Esto no se puede abrir desde acá", "Volvé al inicio y seguí desde ahí."),
+    404: ("🧭", "Esta página no existe", "Puede que el enlace esté mal escrito. Volvé al inicio y seguí desde ahí."),
+    500: ("🔧", "Algo se rompió de nuestro lado",
+          "No fue culpa tuya. Tu progreso sigue guardado. Probá de nuevo en un ratito."),
+}
+
+
+def codigo_de_referencia():
+    """Código corto para cruzar lo que vio el chico con el log (p. ej. 8F72A1)."""
+    return secrets.token_hex(3).upper()
+
+
 def create_app(token=None):
     app = Flask(__name__)
     app.config["TOKEN"] = token or secrets.token_urlsafe(24)
@@ -74,6 +90,34 @@ def create_app(token=None):
     practicas = {}   # sesión de práctica del día por perfil: {"dia", "pasos": [(lección, paso)]}
     colas = {}       # colas de repaso fijadas al empezar: (perfil, modo, semilla) -> [índices]
     turno = threading.RLock()     # los pedidos van de a uno: cargar → modificar → guardar el progreso no se pisa
+
+    # ─────────────── errores ───────────────
+    def _respuesta_de_error(estado, codigo=None):
+        icono, titulo, mensaje = ERRORES.get(estado, ERRORES[500] if estado >= 500 else ERRORES[400])
+        if request.path.startswith("/api/"):
+            datos = {"error": titulo, "mensaje": mensaje + (f" (código {codigo})" if codigo else "")}
+            if codigo:
+                datos["codigo"] = codigo
+            return jsonify(datos), estado
+        # Sin render_template: sus context processors cargan el progreso, y el error puede venir de ahí.
+        html = app.jinja_env.get_template("error.html").render(icono=icono, titulo=titulo, mensaje=mensaje, codigo=codigo)
+        return html, estado
+
+    @app.errorhandler(HTTPException)
+    def _error_http(e):
+        if e.code is None or e.code < 400:
+            return e
+        if e.code >= 500:
+            codigo = codigo_de_referencia()
+            logger.error("Error %s [%s] en %s %s", e.code, codigo, request.method, request.path)
+            return _respuesta_de_error(e.code, codigo)
+        return _respuesta_de_error(e.code)
+
+    @app.errorhandler(Exception)
+    def _error_inesperado(e):
+        codigo = codigo_de_referencia()
+        logger.error("Error interno [%s] en %s %s: %s", codigo, request.method, request.path, e, exc_info=True)
+        return _respuesta_de_error(500, codigo)
 
     # ─────────────── seguridad ───────────────
     @app.after_request

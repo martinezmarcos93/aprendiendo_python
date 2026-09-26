@@ -87,6 +87,59 @@ class TestWeb(unittest.TestCase):
         self.assertEqual(json.loads(dato)["token"], "secreto")
         self.assertIn("avisos", json.loads(dato))
 
+    # ── errores ──
+    def test_pagina_404_humana_con_cabeceras(self):
+        r = self.c.get("/no-existe")
+        html = r.get_data(as_text=True)
+        self.assertEqual(r.status_code, 404)
+        self.assertIn("Esta página no existe", html)
+        self.assertIn("Volver al inicio", html)
+        self.assertNotIn("Not Found", html)
+        self.assertIn("frame-ancestors", r.headers["Content-Security-Policy"])
+
+    def test_error_de_la_api_en_json(self):
+        r = self.c.get("/api/no-existe", headers=self.h)
+        self.assertEqual(r.status_code, 404)
+        self.assertEqual(r.get_json()["error"], "Esta página no existe")
+        self.assertEqual(self.c.post("/api/ejecutar", json={}).get_json()["error"], "Esto no se puede abrir desde acá")
+
+    def _rutas_que_explotan(self):
+        def explotar():
+            raise RuntimeError("detalle interno /ruta/secreta")
+        self.app.add_url_rule("/explota", "explota", explotar)
+        self.app.add_url_rule("/api/explota", "api_explota", explotar)
+
+    def test_error_interno_sin_trazas_y_con_codigo_en_el_log(self):
+        self._rutas_que_explotan()
+        with self.assertLogs("tortuscript.web", level="ERROR") as log:
+            r = self.c.get("/explota")
+        html = r.get_data(as_text=True)
+        self.assertEqual(r.status_code, 500)
+        self.assertIn("Algo se rompió de nuestro lado", html)
+        self.assertIn("Tu progreso sigue guardado", html)
+        for filtrado in ("Traceback", "RuntimeError", "/ruta/secreta", "Internal Server Error"):
+            self.assertNotIn(filtrado, html)
+        codigo = re.search(r"<code>([0-9A-F]{6})</code>", html).group(1)
+        self.assertIn(codigo, log.output[0])
+        self.assertIn("RuntimeError", "\n".join(log.output))                      # la traza queda en el log
+        with self.assertLogs("tortuscript.web", level="ERROR"):
+            api = self.c.get("/api/explota", headers=self.h)
+        self.assertEqual(api.status_code, 500)
+        self.assertRegex(api.get_json()["codigo"], r"^[0-9A-F]{6}$")
+        self.assertNotIn("secreta", api.get_data(as_text=True))
+
+    def test_la_pagina_de_error_no_depende_del_progreso(self):
+        self._rutas_que_explotan()
+        original = progreso.cargar_progreso
+        progreso.cargar_progreso = lambda *a, **k: (_ for _ in ()).throw(OSError("disco roto"))
+        try:
+            with self.assertLogs("tortuscript.web", level="ERROR"):
+                r = self.c.get("/explota")
+        finally:
+            progreso.cargar_progreso = original
+        self.assertEqual(r.status_code, 500)
+        self.assertIn("Algo se rompió de nuestro lado", r.get_data(as_text=True))
+
     # ── páginas ──
     def test_paginas(self):
         for ruta in ("/", "/experimentar", "/tortuga", "/ejercicios/1"):

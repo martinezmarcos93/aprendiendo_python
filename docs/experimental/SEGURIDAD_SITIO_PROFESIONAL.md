@@ -152,7 +152,7 @@ el proyecto OWASP Secure Headers.
 | Secretos | PASS | no hay secretos en el repo; el token de sesión se genera al arrancar |
 | Logs | Parcial | errores internos a `logs/tortuscript.log` (rotación); sin auditoría de eventos |
 | Backups | Parcial | cada guardado deja `.bak` y se recupera si el archivo se daña; no hay backups externos |
-| Manejo de errores | Parcial | se explican los errores del chico sin trazas; el detalle técnico queda aparte; falta una página 500 genérica con código de referencia |
+| Manejo de errores | **PASS** (26/09/2026) | se explican los errores del chico sin trazas; páginas 403/404/500 propias (JSON en la API) sin trazas ni rutas; el 500 muestra un código de referencia que queda en el log con la traza |
 | `robots.txt` / `sitemap.xml` / `security.txt` | N/A / TODO | no aplican a una app local; sí si se publica |
 | CI/CD, SAST/DAST | TODO | hoy hay tests y un validador de contenido, sin pipeline ni escaneos |
 | Privacidad y menores | Parcial | todo el progreso queda en la PC, sin datos personales ni terceros; falta política formal |

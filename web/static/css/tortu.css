@@ -359,6 +359,8 @@ a.ficha:hover { transform: translateY(-3px); background: var(--superficie-2); }
 .paso-caja .CodeMirror { height: 180px; }
 .paso-caja .pista-caja { margin-top: .6rem; }
 .mascota.gran { font-size: 5rem; text-align: center; }
+.pagina-error { max-width: 640px; margin: 3rem auto; padding: 0 1rem; }
+.pagina-error code { font-size: 1.1em; letter-spacing: .08em; }
 
 .par-codigo { display: grid; grid-template-columns: 1fr 1fr; gap: .7rem; margin: .5rem 0 1rem; }
 .par-codigo pre { margin: .3rem 0 0; white-space: pre-wrap; font-size: 1.02rem; }

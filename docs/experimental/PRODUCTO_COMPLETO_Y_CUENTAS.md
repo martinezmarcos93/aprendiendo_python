@@ -55,7 +55,7 @@ Legenda de estado: **Existe** / **Parcial** / **Propuesto** / **Solo si es onlin
 | **Navegación global** | Barra fija: Inicio · Camino · Crear (Experimentar, Tortuga, Juegos) · Proyectos + perfil y ajustes | Parcial |
 | **Notificaciones** | Dentro de la app (logro, racha, repaso pendiente); email solo al adulto. Con chicos: evitar mecanismos de engagement manipuladores | Parcial (avisos internos) |
 | **Ayuda del producto** | Distinta de la Referencia: cómo empiezo, cómo guardo, cómo recupero mi progreso, reportar problema | Propuesto |
-| **Errores del sistema** | Mensajes humanos ("Tu último guardado sigue disponible") + registro interno; sin "500 Internal Server Error" | Parcial (log interno y recuperación del progreso; falta pantalla de error genérica) |
+| **Errores del sistema** | Mensajes humanos ("Tu último guardado sigue disponible") + registro interno; sin "500 Internal Server Error" | Existe (log interno, recuperación del progreso y páginas de error propias con código de referencia, 26/09/2026) |
 | **Privacidad en la UX** | Qué se recopila, por qué, cuánto tiempo, quién lo ve, cómo se elimina; visible en la interfaz, no solo en una página legal | Propuesto |
 | **Consentimientos** | Separados: términos, comunicaciones, analítica, cookies no esenciales, publicación de proyectos | Solo si es online |
 | **Proyectos privado / compartido / público** | Publicar, autor, versión, imagen, remixes | Propuesto (los proyectos son locales y privados) |

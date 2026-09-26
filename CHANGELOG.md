@@ -3,6 +3,17 @@
 Formato basado en [Keep a Changelog](https://keepachangelog.com/es-ES/1.1.0/). Todavía no hay una
 versión publicada de la app web: los cambios de versión se consultan antes de fijarlos.
 
+## Sin publicar — páginas de error humanas (26/09/2026)
+
+Rama `feat/pagina-de-error`.
+
+### Agregado
+- **Páginas de error propias** para 400, 403, 404 y 500, en lenguaje para chicos y con un botón para volver al inicio,
+  en vez de las páginas genéricas en inglés de Flask. En la API, el mismo mensaje en JSON (`error`, `mensaje`).
+- Un error interno muestra "Algo se rompió de nuestro lado... Tu progreso sigue guardado" y un **código de referencia**
+  (p. ej. `8F72A1`) que queda en `logs/tortuscript.log` junto con la traza. Nunca se muestran trazas ni rutas.
+- La página de error no depende del progreso: se muestra aunque lo que falló sea cargarlo.
+
 ## Sin publicar — cabeceras de seguridad y CSP (26/09/2026)
 
 Rama `feat/security-headers`. Era el único punto en FAIL de la auditoría de seguridad
