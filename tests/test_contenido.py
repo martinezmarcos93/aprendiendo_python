@@ -229,5 +229,22 @@ class TestValidadorDeLaberintos(unittest.TestCase):
         self.assertTrue(any("«usar» por ahora" in x for x in m))
 
 
+class TestValidadorConDado(unittest.TestCase):
+    def test_dado_hay_que_ensenarlo_antes_de_usarlo(self):
+        paso = {"tipo": "escribir", "consigna": "Tirá.", "solucion": "mostrar dado(6)"}
+        self.assertTrue(any("dado" in m and "antes de enseñarlo" in m for m in errores(EXPL, paso)))
+        explicado = {"tipo": "explicacion", "texto": "El dado.", "codigo": "mostrar dado(6)"}
+        self.assertEqual(errores(EXPL, explicado, paso), [])
+
+    def test_predecir_con_dado_es_reproducible(self):
+        from tortuscript.evaluacion import SEMILLA_EVALUACION
+        from tortuscript.executor import ejecutar_codigo
+        real = ejecutar_codigo("print(dado(6))", semilla=SEMILLA_EVALUACION)[0].strip()
+        explicado = {"tipo": "explicacion", "texto": "El dado.", "codigo": "mostrar dado(6)"}
+        otras = [str(n) for n in range(1, 7) if str(n) != real][:2]
+        paso = {"tipo": "predecir", "codigo": "mostrar dado(6)", "opciones": [real] + otras, "correcta": 0}
+        self.assertEqual(errores(EXPL, explicado, paso), [])
+
+
 if __name__ == "__main__":
     unittest.main()

@@ -20,6 +20,10 @@ CHOQUE = "choque"                 # laberinto: la tortuga tocó una pared
 NO_LLEGA = "no_llega"             # laberinto: terminó lejos de la salida
 FALTA_USAR = "falta_usar"         # llegó, pero sin usar lo que pide el paso (p. ej. repetir)
 
+# Semilla del azar de dado() al evaluar y al validar (ADR-009): el programa del chico y la solución oficial
+# tiran los mismos números, así cualquier forma de llegar al mismo resultado es válida.
+SEMILLA_EVALUACION = 2026
+
 # (estrellas, xp) según cuántas pistas se vieron: 0, 1, 2, 3 (solución)
 _PREMIOS = [(3, 30), (2, 20), (1, 10), (1, 5)]
 
@@ -50,7 +54,7 @@ def palabras_clave(solucion):
     return palabras or ["mostrar"]
 
 
-def evaluar(solucion, detalles_alumno):
+def evaluar(solucion, detalles_alumno, semilla=SEMILLA_EVALUACION):
     """Evalúa una ejecución YA hecha del alumno.
 
     `detalles_alumno` es el dict que completa ejecutar_codigo(..., detalles=...).
@@ -67,7 +71,7 @@ def evaluar(solucion, detalles_alumno):
         return {"estado": FALTA_PREGUNTAR, "esperado": "", "obtenido": obtenido}
 
     det_sol = {}
-    ejecutar_codigo(python_sol, entradas_fijas=entradas, detalles=det_sol)
+    ejecutar_codigo(python_sol, entradas_fijas=entradas, detalles=det_sol, semilla=semilla)
     esperado = normalizar_salida(det_sol.get("salida_programa", ""))
 
     if not obtenido:
@@ -79,23 +83,23 @@ def evaluar(solucion, detalles_alumno):
     return {"estado": estado, "esperado": esperado, "obtenido": obtenido}
 
 
-def ordenes_de(fuente, entradas=None):
+def ordenes_de(fuente, entradas=None, semilla=SEMILLA_EVALUACION):
     """Corre un programa de tortuga y devuelve sus órdenes (o None si falla o pregunta algo)."""
     traductor = TraductorTortuScript()
     registro = tortuga.Registro()
     detalles = {}
     _, hay_error, _ = ejecutar_codigo(
         fuente.strip() if detectar_tipo(fuente) == "python" else traductor.traducir_codigo(fuente.strip()), entradas_fijas=list(entradas or []), detalles=detalles,
-        extra_globals=registro.globales(), callback_linea=registro.callback_linea)
+        extra_globals=registro.globales(), callback_linea=registro.callback_linea, semilla=semilla)
     if hay_error or detalles.get("pregunta_pendiente") is not None:
         return None
     return registro.ordenes
 
 
-def evaluar_dibujo(solucion, ordenes_alumno, entradas=None):
+def evaluar_dibujo(solucion, ordenes_alumno, entradas=None, semilla=SEMILLA_EVALUACION):
     """Compara el dibujo del alumno con el de la solución oficial. Devuelve
     {'estado', 'similitud', 'objetivo'}: `objetivo` son las órdenes de la solución."""
-    objetivo = ordenes_de(solucion, entradas) or []
+    objetivo = ordenes_de(solucion, entradas, semilla) or []
     if not tortuga.trazos(ordenes_alumno):
         return {"estado": SIN_DIBUJO, "similitud": 0.0, "objetivo": objetivo}
     similitud = tortuga.similitud(ordenes_alumno, objetivo)

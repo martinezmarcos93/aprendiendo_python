@@ -423,6 +423,8 @@ class TraductorTortuScript:
             elif n in ("verdadero", "falso"):
                 linea.reemplazar(i, SIMPLES[n])
                 self._usar(n)
+            elif n == "dado" and i + 1 < fin and linea.tokens[i + 1].string == "(":
+                self._usar("dado")            # dado(6) es igual en TortuScript y en Python (ADR-009)
             elif n == "preguntar":
                 self._usar("preguntar")
                 sig = i + 1

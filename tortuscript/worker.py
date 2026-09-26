@@ -16,7 +16,9 @@ Pedido:
 import json
 import sys
 
-from .evaluacion import evaluar, evaluar_dibujo, evaluar_laberinto
+import secrets
+
+from .evaluacion import SEMILLA_EVALUACION, evaluar, evaluar_dibujo, evaluar_laberinto
 from .limites import limitar_memoria_windows
 from .executor import ejecutar_codigo
 from .tortuga import Registro
@@ -38,17 +40,29 @@ def _palabras_de(fuente, tipo):
     return set(traductor.ultimas_palabras)
 
 
+def semilla_del_pedido(pedido):
+    """Evaluar usa siempre la semilla fija (el chico no la elige); jugar usa la que manda el navegador para
+    re-ejecutar con las respuestas a preguntar() o, la primera vez, una nueva al azar."""
+    if pedido.get("op") in ("evaluar", "evaluar_tortuga"):
+        return SEMILLA_EVALUACION
+    semilla = pedido.get("semilla")
+    if isinstance(semilla, int) and not isinstance(semilla, bool) and 0 <= semilla < 2 ** 31:
+        return semilla
+    return secrets.randbelow(2 ** 31)
+
+
 def atender(pedido):
     tipo, python = _python_de(pedido.get("fuente", ""))
+    semilla = semilla_del_pedido(pedido)
     detalles = {}
     registro = Registro() if pedido.get("op") in ("tortuga", "evaluar_tortuga") else None
     salida, hay_error, mensaje = ejecutar_codigo(
         python, entradas_fijas=list(pedido.get("entradas") or []),
         detalles=detalles, completar_con_vacio=False,
         extra_globals=registro.globales() if registro else None,
-        callback_linea=registro.callback_linea if registro else None)
+        callback_linea=registro.callback_linea if registro else None, semilla=semilla)
     respuesta = {
-        "tipo": tipo, "python": python,
+        "tipo": tipo, "python": python, "semilla": semilla,
         "salida": salida, "error": hay_error, "mensaje": mensaje,
         "salida_programa": detalles.get("salida_programa", ""),
         "entradas": detalles.get("entradas", []),
@@ -64,9 +78,9 @@ def atender(pedido):
         respuesta["evaluacion"] = ev
     elif pedido.get("op") == "evaluar_tortuga" and not hay_error and respuesta["pregunta"] is None:
         respuesta["evaluacion"] = evaluar_dibujo(pedido.get("solucion", ""), registro.ordenes,
-                                                 respuesta["entradas"])
+                                                 respuesta["entradas"], semilla)
     if pedido.get("op") == "evaluar" and not hay_error and respuesta["pregunta"] is None:
-        respuesta["evaluacion"] = evaluar(pedido.get("solucion", ""), detalles)
+        respuesta["evaluacion"] = evaluar(pedido.get("solucion", ""), detalles, semilla)
     return respuesta
 
 

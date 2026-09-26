@@ -23,7 +23,7 @@ const Tortu = (() => {
 
   // ───────── resaltado de TortuScript (acepta tildes y mayúsculas) ─────────
   const PALABRAS = "mostrar|mostrá|preguntar|funci[oó]n|devolver|repetir|veces|mientras|sino|si|para|en|es|clase|hereda|de|y|o|no";
-  const TORTUGA = "avanzar|retroceder|girar_der|girar_izq|color|bajar_lapiz|subir_lapiz";
+  const TORTUGA = "avanzar|retroceder|girar_der|girar_izq|color|bajar_lapiz|subir_lapiz|dado";
   CodeMirror.defineSimpleMode("tortuscript", {
     start: [
       { regex: /#.*/, token: "comment" },
@@ -101,8 +101,10 @@ const Tortu = (() => {
    *  vuelve a ejecutar con las respuestas acumuladas. */
   async function ejecutarConPreguntas(ruta, datos) {
     const entradas = [];
+    let semilla;                     // la del dado(): se repite en cada vuelta para que las tiradas no cambien
     for (let vuelta = 0; vuelta < 30; vuelta++) {
-      const r = await api(ruta, { ...datos, entradas });
+      const r = await api(ruta, semilla === undefined ? { ...datos, entradas } : { ...datos, entradas, semilla });
+      if (semilla === undefined && typeof r.semilla === "number") semilla = r.semilla;
       if (r.pregunta === null || r.pregunta === undefined || r.error) return r;
       const respuesta = await pedirRespuesta(r.pregunta);
       if (respuesta === null) return { ...r, cancelado: true };

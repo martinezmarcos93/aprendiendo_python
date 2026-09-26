@@ -200,6 +200,14 @@ class TestWeb(unittest.TestCase):
                 _revisar_texto(parrafo, p["pregunta"], hallazgos)
             self.assertEqual([h.mensaje for h in hallazgos], [], p["pregunta"])     # mismas reglas que los cursos
 
+    # ── dado ──
+    def test_jugar_con_dado_devuelve_la_semilla_para_repetir_las_tiradas(self):
+        codigo = "repetir 5 veces:\n    mostrar dado(1000)"
+        r = self.post("/api/ejecutar", {"codigo": codigo}).get_json()
+        self.assertIsInstance(r["semilla"], int)
+        otra = self.post("/api/ejecutar", {"codigo": codigo, "semilla": r["semilla"]}).get_json()
+        self.assertEqual(r["salida_programa"], otra["salida_programa"])
+
     # ── páginas ──
     def test_paginas(self):
         for ruta in ("/", "/experimentar", "/tortuga", "/ejercicios/1"):
