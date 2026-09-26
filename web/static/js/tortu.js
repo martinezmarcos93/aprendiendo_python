@@ -234,6 +234,7 @@ const Tortu = (() => {
     const cong = document.getElementById("e-cong");
     if (cong) { cong.textContent = e.congeladores ? ` ❄${e.congeladores}` : ""; }
     document.getElementById("e-nivel").textContent = `${e.titulo} · Nv.${e.nivel}`;
+    if (e.color_tortuga) document.documentElement.dataset.colorTortuga = e.color_tortuga;   // al subir de nivel
     document.getElementById("e-xp").textContent = `${e.xp} XP`;
     document.getElementById("e-barra").style.width = `${Math.round(100 * e.xp_actual / e.xp_max)}%`;
   }

@@ -569,3 +569,24 @@ def titulo_nivel(nivel):
         10: "🏆 Maestro",
     }
     return titulos.get(nivel, "🏆 Maestro")
+
+
+# Color del CUERPO de la tortuga según el nivel: muestra el progreso del chico. No es el color del lápiz
+# (ese arranca siempre en verde y es parte del dibujo que se compara). Todos contrastan ≥ 3:1 con el
+# fondo blanco del lienzo (tests/test_progreso.py lo verifica); el nivel 1 es el verde de siempre.
+COLORES_TORTUGA = {
+    1: "#16a34a",   # verde
+    2: "#0d9488",   # turquesa
+    3: "#2563eb",   # azul
+    4: "#7c3aed",   # violeta
+    5: "#c026d3",   # fucsia
+    6: "#dc2626",   # rojo
+    7: "#c2410c",   # naranja
+    8: "#a16207",   # dorado
+    9: "#7c2d12",   # marrón
+    10: "#111827",  # negro
+}
+
+
+def color_tortuga(nivel):
+    return COLORES_TORTUGA[min(max(nivel, 1), max(COLORES_TORTUGA))]

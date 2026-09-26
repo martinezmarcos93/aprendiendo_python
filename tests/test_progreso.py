@@ -143,5 +143,37 @@ class TestNiveles(unittest.TestCase):
             self.assertGreaterEqual(actual, 0)
 
 
+def _contraste_con_blanco(color):
+    """Contraste WCAG entre un #rrggbb y el fondo blanco del lienzo."""
+    canales = [int(color[i:i + 2], 16) / 255 for i in (1, 3, 5)]
+    lineales = [c / 12.92 if c <= 0.03928 else ((c + 0.055) / 1.055) ** 2.4 for c in canales]
+    luminancia = 0.2126 * lineales[0] + 0.7152 * lineales[1] + 0.0722 * lineales[2]
+    return 1.05 / (luminancia + 0.05)
+
+
+class TestColorDeLaTortuga(unittest.TestCase):
+    def test_un_color_por_nivel_distinto_y_legible_sobre_el_lienzo(self):
+        colores = [progreso.color_tortuga(n) for n in range(1, 11)]
+        self.assertEqual(len(set(colores)), 10)
+        for nivel, color in enumerate(colores, start=1):
+            self.assertRegex(color, r"^#[0-9a-f]{6}$")
+            self.assertGreaterEqual(_contraste_con_blanco(color), 3.0, f"nivel {nivel}: {color}")
+
+    def test_el_nivel_1_es_el_verde_de_siempre_y_los_extremos_no_fallan(self):
+        from tortuscript import tortuga
+        self.assertEqual(progreso.color_tortuga(1), tortuga.COLOR_INICIAL)
+        self.assertEqual(progreso.color_tortuga(0), progreso.color_tortuga(1))
+        self.assertEqual(progreso.color_tortuga(99), progreso.color_tortuga(10))
+
+    def test_el_lapiz_no_depende_del_nivel(self):
+        """El cuerpo usa el color del nivel; el lápiz arranca siempre en verde (así no cambian los dibujos a comparar)."""
+        js = (Path(__file__).resolve().parent.parent / "web/static/js/tortuga.js").read_text(encoding="utf-8")
+        from tortuscript import tortuga
+        self.assertIn(f'const VERDE = "{tortuga.COLOR_INICIAL}"', js)
+        self.assertIn("color: VERDE", js)                         # estado inicial del lápiz
+        self.assertIn("ctx.fillStyle = colorCuerpo()", js)        # el cuerpo no usa el color del lápiz
+        self.assertEqual(tortuga.trazos([{"o": "avanzar", "v": 10}])[0][4], tortuga.COLOR_INICIAL)
+
+
 if __name__ == "__main__":
     unittest.main()

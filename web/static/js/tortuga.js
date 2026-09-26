@@ -49,13 +49,18 @@ const Lienzo = (() => {
     return { escala: Math.max(0.4, Math.min(2.4, 480 / extension)), cx: (minX + maxX) / 2, cy: (minY + maxY) / 2 };
   }
 
+  /** Color del cuerpo de la tortuga: el del nivel del chico (lo pone el servidor en <html>). El lápiz es otra cosa. */
+  function colorCuerpo() {
+    return document.documentElement.dataset.colorTortuga || VERDE;
+  }
+
   /** La tortuga se dibuja con tamaño fijo en pantalla, sea cual sea el zoom (ctx ya está en coordenadas del dibujo). */
   function dibujarTortuga(ctx, e, escala) {
     ctx.save();
     ctx.translate(e.x, e.y);
     ctx.scale(1 / escala, 1 / escala);
     ctx.rotate((e.rumbo * Math.PI) / 180);
-    ctx.fillStyle = e.color; ctx.strokeStyle = "#0b3d1e"; ctx.lineWidth = 2;
+    ctx.fillStyle = colorCuerpo(); ctx.strokeStyle = "#0b3d1e"; ctx.lineWidth = 2;
     for (const [px, py] of [[-11, -9], [11, -9], [-11, 10], [11, 10]]) {   // patas
       ctx.beginPath(); ctx.arc(px, py, 5, 0, 7); ctx.fill(); ctx.stroke();
     }

@@ -3,6 +3,19 @@
 Formato basado en [Keep a Changelog](https://keepachangelog.com/es-ES/1.1.0/). Todavía no hay una
 versión publicada de la app web: los cambios de versión se consultan antes de fijarlos.
 
+## Sin publicar — color de la tortuga por nivel (26/09/2026)
+
+Rama `feat/color-por-nivel`.
+
+### Agregado
+- **La tortuga cambia de color al subir de nivel** (niveles de XP 1–10: verde, turquesa, azul, violeta, fucsia, rojo,
+  naranja, dorado, marrón y negro). Todos contrastan al menos 3:1 con el fondo blanco del lienzo, y el nivel 1 es el
+  verde de siempre. El color se actualiza en el momento en que se sube de nivel.
+
+### Cambiado
+- El **cuerpo** de la tortuga ya no toma el color del lápiz: muestra el progreso del chico. El **lápiz** arranca siempre
+  en verde y solo cambia con `color`, así que los dibujos que se comparan en los ejercicios no se ven afectados.
+
 ## Sin publicar — migración a aplicación web (25/09/2026)
 
 Rama `feature/migracion-web-paridad`. Fases F0 a F9 del roadmap (`docs/ROADMAP_MIMO_KIDS.md`).

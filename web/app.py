@@ -127,6 +127,7 @@ def create_app(token=None):
             "meta_pct": min(100, round(100 * hoy_xp / meta)) if meta else 0,
             "nombre": p["config"].get("nombre") or progreso.PERFIL_ACTUAL,
             "xp": xp, "nivel": nivel, "titulo": progreso.titulo_nivel(nivel),
+            "color_tortuga": progreso.color_tortuga(nivel),
             "xp_actual": xp_actual, "xp_max": xp_max,
             "racha": progreso.racha_vigente(p),
             "completados": len(completados), "total": len(EJERCICIOS),
