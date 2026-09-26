@@ -1,0 +1,23 @@
+<!doctype html>
+{#- Página de error autónoma: no hereda de base.html (que carga el progreso), así se puede mostrar aunque
+    lo que falló sea justamente eso. Sin scripts: no hace falta nada para leerla y volver. -#}
+<html lang="es">
+<head>
+  <meta charset="utf-8">
+  <meta name="viewport" content="width=device-width, initial-scale=1">
+  <title>{{ titulo }} · TortuScript</title>
+  <link rel="icon" type="image/svg+xml" href="{{ url_for('static', filename='img/tortuscript.svg') }}">
+  <link rel="stylesheet" href="{{ url_for('static', filename='css/tortu.css') }}">
+</head>
+<body>
+  <main id="contenido" class="columna-ancha pagina-error">
+    <section class="tarjeta centrado">
+      <div class="mascota gran" aria-hidden="true">{{ icono }}</div>
+      <h1>{{ titulo }}</h1>
+      <p class="texto-grande">{{ mensaje }}</p>
+      {% if codigo %}<p class="tenue">Si le contás a un adulto, este código ayuda a encontrar el problema: <code>{{ codigo }}</code></p>{% endif %}
+      <p><a class="boton verde grande" href="{{ url_for('inicio') }}">🏠 Volver al inicio</a></p>
+    </section>
+  </main>
+</body>
+</html>
