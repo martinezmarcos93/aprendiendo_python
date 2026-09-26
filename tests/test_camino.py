@@ -331,6 +331,26 @@ class TestWebCamino(Base):
         self.assertIn('data-valor="tu-primera-variable" data-para="poquito"', html)
         self.assertIn('data-valor="si-es-grande" data-para="bastante"', html)
 
+    # ── intereses (ADR-005) ──
+    def test_la_pregunta_de_intereses_aparece_solo_al_terminar_un_curso_y_una_vez(self):
+        self.post("/api/onboarding", {"meta_min": 10})
+        self.assertNotIn('id="encuesta"', self.c.get("/").get_data(as_text=True))        # todavía no terminó nada
+        self._completar_curso_tortuga()
+        html = self.c.get("/").get_data(as_text=True)
+        self.assertIn('id="encuesta"', html)
+        self.assertIn("¿Qué te gustaría crear ahora?", html)
+        r = self.post("/api/intereses/que-crear", {"respuestas": ["rpg", "dibujos"]})
+        self.assertTrue(r.get_json()["ok"])
+        self.assertEqual(progreso.cargar_progreso()["intereses"]["que-crear"]["respuestas"], ["rpg", "dibujos"])
+        self.assertNotIn('id="encuesta"', self.c.get("/").get_data(as_text=True))       # no se repite
+
+    def test_intereses_rechaza_lo_invalido_y_pide_token(self):
+        self.post("/api/onboarding", {"meta_min": 10})
+        self.assertEqual(self.post("/api/intereses/que-crear", {"respuestas": ["inventada"]}).status_code, 400)
+        self.assertEqual(self.post("/api/intereses/otra", {"omitir": True}).status_code, 400)
+        self.assertEqual(self.c.post("/api/intereses/que-crear", json={"omitir": True}).status_code, 403)
+        self.assertTrue(self.post("/api/intereses/que-crear", {"omitir": True}).get_json()["ok"])
+
     def test_el_curso_de_la_tortuga_empieza_cerrado_y_se_abre_al_terminar_dos_variables(self):
         self.post("/api/onboarding", {"meta_min": 10})
         html = self.c.get("/").get_data(as_text=True)

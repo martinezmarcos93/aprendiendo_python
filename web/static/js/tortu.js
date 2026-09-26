@@ -312,6 +312,33 @@ const Tortu = (() => {
     };
   }
   document.getElementById("btn-perfil").addEventListener("click", abrirPerfiles);
+  const encuesta = document.getElementById("encuesta");               // intereses (ADR-005), en el inicio
+  if (encuesta) {
+    const elegidas = new Set();
+    const listo = document.getElementById("encuesta-guardar");
+    const aviso = document.getElementById("encuesta-aviso");
+    for (const b of encuesta.querySelectorAll(".opcion-encuesta")) {
+      b.addEventListener("click", () => {
+        if (encuesta.dataset.multiple !== "si") {
+          elegidas.clear();
+          for (const x of encuesta.querySelectorAll(".opcion-encuesta")) x.setAttribute("aria-pressed", "false");
+        }
+        if (elegidas.has(b.dataset.valor)) elegidas.delete(b.dataset.valor); else elegidas.add(b.dataset.valor);
+        b.setAttribute("aria-pressed", String(elegidas.has(b.dataset.valor)));
+        listo.disabled = elegidas.size === 0;
+      });
+    }
+    const enviar = async (datos, gracias) => {
+      try {
+        await api(`/api/intereses/${encuesta.dataset.id}`, datos);
+        encuesta.textContent = "";
+        const p = document.createElement("p"); p.className = "centrado"; p.textContent = gracias;
+        encuesta.appendChild(p);
+      } catch (e) { aviso.textContent = (e.datos && e.datos.mensaje) || "No se pudo guardar."; }
+    };
+    listo.addEventListener("click", () => enviar({ respuestas: [...elegidas] }, "¡Gracias! Lo tenemos en cuenta. 💡"));
+    document.getElementById("encuesta-omitir").addEventListener("click", () => enviar({ omitir: true }, "¡Listo! No te volvemos a preguntar."));
+  }
   const btnImprimir = document.getElementById("btn-imprimir");        // certificado
   if (btnImprimir) btnImprimir.addEventListener("click", () => window.print());
   avisos(window.TORTU.avisos);                 // lo que quedó pendiente desde la última vez

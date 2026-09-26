@@ -60,6 +60,21 @@
   </div>
 </section>
 
+{% if encuesta %}
+<section class="tarjeta encuesta" id="encuesta" data-id="{{ encuesta.id }}" data-multiple="{{ 'si' if encuesta.multiple else 'no' }}" aria-labelledby="encuesta-titulo">
+  <h2 id="encuesta-titulo">💡 {{ encuesta.pregunta }}</h2>
+  {% if encuesta.ayuda %}<p class="tenue">{{ encuesta.ayuda }}</p>{% endif %}
+  <div class="opciones-encuesta" role="group" aria-labelledby="encuesta-titulo">
+    {% for o in encuesta.opciones %}<button class="boton chico opcion-encuesta" type="button" aria-pressed="false" data-valor="{{ o.id }}">{{ o.texto }}</button>{% endfor %}
+  </div>
+  <div class="tenue atajo" id="encuesta-aviso" role="status"></div>
+  <div class="acciones">
+    <button class="boton verde" id="encuesta-guardar" type="button" disabled>Listo</button>
+    <button class="boton chico" id="encuesta-omitir" type="button">Ahora no</button>
+  </div>
+</section>
+{% endif %}
+
 <section class="camino-lecciones" aria-label="Camino de lecciones">
   {% for curso in camino %}
   {% if camino|length > 1 %}

@@ -9,7 +9,7 @@ import copy
 import re
 from datetime import date
 
-from . import progreso, proyectos
+from . import intereses, progreso, proyectos
 
 FORMATO = "tortuscript-progreso"
 VERSION_FORMATO = 1
@@ -68,6 +68,8 @@ def validar(sobre):
     _validar_config(config)
     if "proyectos" in limpio:
         limpio["proyectos"] = _proyectos_validos(limpio["proyectos"])
+    if "intereses" in limpio:
+        limpio["intereses"] = intereses.limpiar(limpio["intereses"])
     limpio = progreso._migrar(limpio)                 # mismo camino que un progreso viejo guardado en disco
     sugerido = progreso.sanitizar_perfil(str(sobre.get("perfil") or "")) or "importado"
     return limpio, sugerido
