@@ -41,6 +41,13 @@ HUECO = "___"
 
 
 @lru_cache(maxsize=None)
+def cargar_ayuda():
+    """Las preguntas frecuentes de la página Ayuda (contenido/ayuda.json)."""
+    with open(CARPETA.parent / "ayuda.json", encoding="utf-8") as f:
+        return json.load(f)
+
+
+@lru_cache(maxsize=None)
 def cargar_curso(curso_id=CURSO_PRINCIPAL):
     with open(CARPETA / f"{curso_id}.json", encoding="utf-8") as f:
         return json.load(f)

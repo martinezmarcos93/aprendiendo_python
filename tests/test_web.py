@@ -75,7 +75,7 @@ class TestWeb(unittest.TestCase):
             with self.subTest(plantilla.name):
                 self.assertEqual(self._scripts_inline_ejecutables(plantilla.read_text(encoding="utf-8")), [])
         for ruta in ("/", "/mapa", "/resumen", "/logros", "/liga", "/referencia", "/repaso", "/experimentar",
-                     "/tortuga", "/proyectos", "/leccion/hola-mundo", "/ejercicios/1", "/practica"):
+                     "/tortuga", "/proyectos", "/leccion/hola-mundo", "/ejercicios/1", "/practica", "/ayuda"):
             with self.subTest(ruta):
                 r = self.c.get(ruta)
                 self.assertIn(r.status_code, (200, 302))
@@ -177,6 +177,28 @@ class TestWeb(unittest.TestCase):
         html = self.c.get("/").get_data(as_text=True)
         for id_ in ("pf-exportar", "pf-importar", "pf-archivo"):
             self.assertIn(f'id="{id_}"', html)
+
+    # ── ayuda ──
+    def test_pagina_de_ayuda_en_el_menu_y_con_sus_preguntas(self):
+        from tortuscript import contenido
+        self.assertIn('href="/ayuda"', self.c.get("/").get_data(as_text=True))
+        html = self.c.get("/ayuda").get_data(as_text=True)
+        for p in contenido.cargar_ayuda()["preguntas"]:
+            self.assertIn(p["pregunta"], html)
+        self.assertIn("¿Cómo paso mi progreso a otra compu?", html)
+        self.assertEqual(self._scripts_inline_ejecutables(html), [])
+
+    def test_la_ayuda_esta_bien_formada_y_con_frases_cortas(self):
+        from tortuscript import contenido
+        from tortuscript.validacion import _revisar_texto
+        ayuda = contenido.cargar_ayuda()
+        self.assertTrue(ayuda["intro"])
+        for p in ayuda["preguntas"]:
+            self.assertTrue(p["icono"] and p["pregunta"].endswith("?") and p["respuesta"])
+            hallazgos = []
+            for parrafo in p["respuesta"]:
+                _revisar_texto(parrafo, p["pregunta"], hallazgos)
+            self.assertEqual([h.mensaje for h in hallazgos], [], p["pregunta"])     # mismas reglas que los cursos
 
     # ── páginas ──
     def test_paginas(self):
