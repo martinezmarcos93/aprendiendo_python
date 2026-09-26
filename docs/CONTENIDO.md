@@ -47,6 +47,12 @@ Detalles:
 - `forma` es la sintaxis que se presenta por primera vez (se muestra aparte). La primera vez que aparece una palabra de TortuScript tiene que haber una `forma` o un ejemplo en una `explicacion`: el validador marca ❌ si se usa antes de enseñarla.
 - `entradas_prueba` son las respuestas para `preguntar()` cuando el validador corre el paso. Obligatorias si la solución pregunta.
 - `tortuga: true` (en `completar`, `ordenar`, `escribir`) compara **dibujos** en vez de texto: se considera igual si cubre las mismas celdas de 3×3 con los mismos colores (no importa el orden ni cuántos `avanzar` se usen; 89° en vez de 90° ya falla). En la pantalla aparece el dibujo objetivo.
+- `laberinto` (en `escribir` con `tortuga: true`): `{"paredes": [[x1, y1, x2, y2], ...], "salida": [x, y]}`, en las coordenadas
+  del dibujo (la tortuga sale de 0,0 mirando hacia arriba; hacia arriba es `y` negativo). **No hay dibujo objetivo**: vale
+  cualquier recorrido que no toque una pared (a menos de 6 unidades, con el lápiz arriba o abajo) y termine a menos de 20
+  de la salida. Si choca, el chico ve la línea que la hizo chocar. La `solucion` se usa para las pistas y el validador
+  comprueba que cumpla las reglas. Conviene dejar pasillos de 60 de ancho con el camino por el medio.
+- `usar` (solo en laberintos): palabras que el recorrido tiene que usar, p. ej. `["repetir"]`. Si llega sin usarlas, no vale.
 - `lienzo: true` en `explicacion`, `elegir` y `predecir` agrega el botón para ver qué dibuja el código.
 - `inicial` (en `escribir`): el editor arranca con ese código (proyectos guiados). Sus líneas tienen que aparecer, en orden, dentro de la solución.
 - `lenguaje: "python"` (en `escribir`): el chico escribe Python real. Agregá `palabras_pista` (por ejemplo `["print", "="]`) porque la pista 1 sale del traductor.

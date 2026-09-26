@@ -366,10 +366,12 @@
       var objetivo = cajaObjetivo(paso);
       if (objetivo) derecha.appendChild(objetivo);
       const propio = el("div", "objetivo-caja");
-      propio.appendChild(el("div", "rotulo-zona", "🖼️ Tu dibujo:"));
-      const c = lienzoNuevo(); c.setAttribute("aria-label", "Tu dibujo");
+      propio.appendChild(el("div", "rotulo-zona", paso.laberinto ? "🧭 Llevá la tortuga hasta la 🏁:" : "🖼️ Tu dibujo:"));
+      const c = lienzoNuevo();
+      c.setAttribute("aria-label", paso.laberinto ? "Laberinto: la tortuga tiene que llegar a la bandera sin tocar las paredes" : "Tu dibujo");
       propio.appendChild(c); derecha.appendChild(propio);
       lienzo = Lienzo.crear(c);
+      if (paso.laberinto) { lienzo.usarLaberinto(paso.laberinto); lienzo.usarVista(Lienzo.vistaLaberinto(paso.laberinto)); }
       if (paso.objetivo) lienzo.usarVista(Lienzo.vistaPara(paso.objetivo));
       lienzo.reiniciar();
       duo.append(zonaEditor, derecha);
@@ -399,9 +401,11 @@
     cont.append(salida, cajaPista);
     ocultarPie();
 
+    let lineaChoque = null;                                  // laberinto: línea marcada donde chocó
     async function ejecutar() {
       if (run.disabled) return;
       run.disabled = true; ocultarPie();
+      if (lineaChoque !== null) { editor.removeLineClass(lineaChoque, "background", "linea-actual"); lineaChoque = null; }
       try {
         const r = await Tortu.ejecutarConPreguntas(rutaPaso(paso.indice, "evaluar"), { codigo: editor.getValue() });
         salida.textContent = r.cancelado ? "" : (r.salida || "");
@@ -415,7 +419,8 @@
         Tortu.avisos(r.avisos);
         if (r.cancelado) return;
         if (dibuja) {
-          const vista = Lienzo.vistaPara(paso.objetivo, r.ordenes);          // que entren los dos dibujos
+          const vista = paso.laberinto ? Lienzo.vistaLaberinto(paso.laberinto)
+            : Lienzo.vistaPara(paso.objetivo, r.ordenes);                    // que entren los dos dibujos
           lienzo.usarVista(vista);
           if (objetivo && objetivo.lienzo) objetivo.lienzo.usarVista(vista);
           await lienzo.reproducir(r.ordenes || [], { velocidad: 9 });
@@ -434,11 +439,18 @@
           return;
         }
         Tortu.tocar("error");
+        if (ev.estado === "choque" && ev.linea) {
+          lineaChoque = ev.linea - 1; editor.addLineClass(lineaChoque, "background", "linea-actual");
+        }
         const parecido = ev.similitud !== undefined ? `Se parece un ${Math.round(100 * ev.similitud)}% al objetivo.` : "";
         const texto = {
           falta_preguntar: ["✏️ Este ejercicio pide usar preguntar."],
           sin_salida: ["🤫 Tu programa no mostró nada.", "Recordá usar mostrar (o print, si escribís Python)."],
           sin_dibujo: ["🤫 Tu programa no dibujó nada.", "Usá avanzar para que la tortuga deje una línea."],
+          choque: [`💥 ¡La tortuga chocó con una pared en la línea ${ev.linea}!`, "Fijate cuánto avanza o para qué lado gira en esa línea."],
+          no_llega: ["🧭 La tortuga no llegó a la 🏁.", "Tiene que terminar sobre la bandera. ¿Le falta un tramo?"],
+          falta_usar: [`🎉 ¡Llegó! Pero este laberinto hay que resolverlo con ${(ev.usar || []).join(", ")}.`,
+                       "Buscá lo que se repite y escribilo una sola vez."],
           incorrecto: dibuja ? ["🤔 ¡Casi! Tu dibujo no es igual al objetivo.", parecido, "Compará los tamaños, los giros y los colores."]
                              : ["🤔 ¡Casi! Tu programa corre, pero muestra otra cosa.", `Se esperaba:\n${ev.esperado}`],
         }[ev.estado] || ["Revisalo otra vez."];

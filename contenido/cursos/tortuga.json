@@ -697,7 +697,356 @@
             },
             {
               "tipo": "explicacion",
-              "texto": "¡Terminaste! Ahora inventá tus propios dibujos en la Zona Tortuga: casas, flores, estrellas gigantes...",
+              "texto": "¡Muy bien! Ahora viene lo último del curso: los laberintos. La tortuga tiene que encontrar la salida.",
+              "codigo": "color \"violeta\"\nrepetir 36 veces:\n    avanzar 10\n    girar_der 10",
+              "lienzo": true
+            }
+          ]
+        }
+      ]
+    },
+    {
+      "id": "laberintos",
+      "nivel": 5,
+      "titulo": "Laberintos",
+      "lecciones": [
+        {
+          "id": "laberinto-1",
+          "titulo": "13. Laberinto I",
+          "pasos": [
+            {
+              "tipo": "explicacion",
+              "texto": "¡La tortuga está en un laberinto! Tiene que llegar a la bandera 🏁 sin tocar las paredes grises. Si toca una pared, se frena ahí.",
+              "codigo": null
+            },
+            {
+              "tipo": "elegir",
+              "pregunta": "La tortuga mira hacia arriba y el pasillo dobla a la derecha. ¿Qué orden la pone mirando al pasillo?",
+              "opciones": [
+                "girar_der 90",
+                "girar_izq 90",
+                "avanzar 90"
+              ],
+              "correcta": 0,
+              "pista": "Derecha se dice girar_der."
+            },
+            {
+              "tipo": "escribir",
+              "consigna": "Llevá la tortuga hasta la 🏁. El pasillo sube, dobla a la derecha y vuelve a subir. Cada tramo mide 100.",
+              "solucion": "avanzar 100\ngirar_der 90\navanzar 100\ngirar_izq 90\navanzar 100",
+              "tortuga": true,
+              "laberinto": {
+                "paredes": [
+                  [
+                    -30,
+                    30,
+                    -30,
+                    -130
+                  ],
+                  [
+                    -30,
+                    -130,
+                    70,
+                    -130
+                  ],
+                  [
+                    70,
+                    -130,
+                    70,
+                    -230
+                  ],
+                  [
+                    30,
+                    30,
+                    30,
+                    -70
+                  ],
+                  [
+                    30,
+                    -70,
+                    130,
+                    -70
+                  ],
+                  [
+                    130,
+                    -70,
+                    130,
+                    -230
+                  ],
+                  [
+                    -30,
+                    30,
+                    30,
+                    30
+                  ]
+                ],
+                "salida": [
+                  100,
+                  -200
+                ]
+              }
+            }
+          ]
+        },
+        {
+          "id": "laberinto-2",
+          "titulo": "14. Laberinto II",
+          "pasos": [
+            {
+              "tipo": "explicacion",
+              "texto": "Este laberinto tiene más vueltas. Antes de escribir, seguí el pasillo con el dedo. ¿Para qué lado dobla cada vez?",
+              "codigo": null
+            },
+            {
+              "tipo": "elegir",
+              "pregunta": "La tortuga mira hacia arriba y hace girar_izq 90. ¿Hacia dónde mira ahora?",
+              "opciones": [
+                "A la izquierda",
+                "A la derecha",
+                "Hacia abajo"
+              ],
+              "correcta": 0,
+              "pista": "girar_izq gira hacia la izquierda."
+            },
+            {
+              "tipo": "escribir",
+              "consigna": "Llevá la tortuga hasta la 🏁. Los tramos miden 100, menos el largo de arriba, que mide 200.",
+              "solucion": "avanzar 100\ngirar_izq 90\navanzar 100\ngirar_der 90\navanzar 100\ngirar_der 90\navanzar 200\ngirar_izq 90\navanzar 100",
+              "tortuga": true,
+              "laberinto": {
+                "paredes": [
+                  [
+                    -30,
+                    30,
+                    -30,
+                    -70
+                  ],
+                  [
+                    -30,
+                    -70,
+                    -130,
+                    -70
+                  ],
+                  [
+                    -130,
+                    -70,
+                    -130,
+                    -230
+                  ],
+                  [
+                    -130,
+                    -230,
+                    70,
+                    -230
+                  ],
+                  [
+                    70,
+                    -230,
+                    70,
+                    -330
+                  ],
+                  [
+                    30,
+                    30,
+                    30,
+                    -130
+                  ],
+                  [
+                    30,
+                    -130,
+                    -70,
+                    -130
+                  ],
+                  [
+                    -70,
+                    -130,
+                    -70,
+                    -170
+                  ],
+                  [
+                    -70,
+                    -170,
+                    130,
+                    -170
+                  ],
+                  [
+                    130,
+                    -170,
+                    130,
+                    -330
+                  ],
+                  [
+                    -30,
+                    30,
+                    30,
+                    30
+                  ]
+                ],
+                "salida": [
+                  100,
+                  -300
+                ]
+              }
+            }
+          ]
+        },
+        {
+          "id": "laberinto-3",
+          "titulo": "15. Laberinto III",
+          "pasos": [
+            {
+              "tipo": "explicacion",
+              "texto": "Este laberinto es una escalera: el mismo escalón se repite. Con repetir lo escribís una sola vez.",
+              "codigo": "repetir 4 veces:\n    avanzar 40\n    girar_der 90\n    avanzar 40\n    girar_izq 90",
+              "lienzo": true
+            },
+            {
+              "tipo": "predecir",
+              "pregunta": "¿Cuántas líneas dibuja este programa?",
+              "codigo": "repetir 3 veces:\n    avanzar 40\n    girar_der 90\n    avanzar 40\n    girar_izq 90",
+              "opciones": [
+                "6",
+                "3",
+                "4"
+              ],
+              "correcta": 0,
+              "cuenta": "trazos",
+              "lienzo": true
+            },
+            {
+              "tipo": "escribir",
+              "consigna": "Subí la escalera hasta la 🏁 usando repetir. Cada escalón: avanzar 80, girar a la derecha, avanzar 80 y girar a la izquierda. Al final falta un tramo más.",
+              "solucion": "repetir 4 veces:\n    avanzar 80\n    girar_der 90\n    avanzar 80\n    girar_izq 90\navanzar 80",
+              "tortuga": true,
+              "laberinto": {
+                "paredes": [
+                  [
+                    -30,
+                    30,
+                    -30,
+                    -110
+                  ],
+                  [
+                    -30,
+                    -110,
+                    50,
+                    -110
+                  ],
+                  [
+                    50,
+                    -110,
+                    50,
+                    -190
+                  ],
+                  [
+                    50,
+                    -190,
+                    130,
+                    -190
+                  ],
+                  [
+                    130,
+                    -190,
+                    130,
+                    -270
+                  ],
+                  [
+                    130,
+                    -270,
+                    210,
+                    -270
+                  ],
+                  [
+                    210,
+                    -270,
+                    210,
+                    -350
+                  ],
+                  [
+                    210,
+                    -350,
+                    290,
+                    -350
+                  ],
+                  [
+                    290,
+                    -350,
+                    290,
+                    -430
+                  ],
+                  [
+                    30,
+                    30,
+                    30,
+                    -50
+                  ],
+                  [
+                    30,
+                    -50,
+                    110,
+                    -50
+                  ],
+                  [
+                    110,
+                    -50,
+                    110,
+                    -130
+                  ],
+                  [
+                    110,
+                    -130,
+                    190,
+                    -130
+                  ],
+                  [
+                    190,
+                    -130,
+                    190,
+                    -210
+                  ],
+                  [
+                    190,
+                    -210,
+                    270,
+                    -210
+                  ],
+                  [
+                    270,
+                    -210,
+                    270,
+                    -290
+                  ],
+                  [
+                    270,
+                    -290,
+                    350,
+                    -290
+                  ],
+                  [
+                    350,
+                    -290,
+                    350,
+                    -430
+                  ],
+                  [
+                    -30,
+                    30,
+                    30,
+                    30
+                  ]
+                ],
+                "salida": [
+                  320,
+                  -400
+                ]
+              },
+              "usar": [
+                "repetir"
+              ]
+            },
+            {
+              "tipo": "explicacion",
+              "texto": "¡Terminaste el curso! Ahora inventá tus propios dibujos en la Zona Tortuga: casas, flores, estrellas gigantes...",
               "codigo": "color \"violeta\"\nrepetir 36 veces:\n    avanzar 10\n    girar_der 10",
               "lienzo": true
             }

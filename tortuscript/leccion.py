@@ -199,6 +199,8 @@ def paso_publico(paso, leccion_id, indice, numero_ejercicio=None):
             publico[bandera] = True
     if paso.get("lenguaje"):
         publico["lenguaje"] = paso["lenguaje"]
+    if paso.get("laberinto"):                                  # el mundo del paso: paredes y salida (no es la respuesta)
+        publico["laberinto"] = {"paredes": paso["laberinto"]["paredes"], "salida": paso["laberinto"]["salida"]}
     if tipo == "explicacion":
         publico.update(texto=paso["texto"], codigo=paso.get("codigo"), forma=paso.get("forma"), tortu=paso.get("tortu"))
     elif tipo == "elegir":
