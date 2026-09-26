@@ -1,0 +1,14 @@
+{% extends "base.html" %}
+{% block titulo %}Ayuda{% endblock %}
+{% block contenido %}
+<div class="columna-ancha">
+  <h1>❓ Ayuda</h1>
+  <section class="tarjeta"><p class="tenue sin-margen">{{ ayuda.intro }} <a href="{{ url_for('referencia') }}">📖 Ir a la Referencia</a></p></section>
+  {% for p in ayuda.preguntas %}
+  <details class="tarjeta pregunta-ayuda">
+    <summary><span aria-hidden="true">{{ p.icono }}</span> {{ p.pregunta }}</summary>
+    {% for parrafo in p.respuesta %}<p>{{ parrafo }}</p>{% endfor %}
+  </details>
+  {% endfor %}
+</div>
+{% endblock %}

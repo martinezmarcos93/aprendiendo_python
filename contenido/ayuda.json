@@ -1,0 +1,25 @@
+{
+  "intro": "Respuestas cortas a lo que más se pregunta. Para ver cómo se escribe cada orden, mirá la Referencia.",
+  "preguntas": [
+    {"icono": "🚀", "pregunta": "¿Por dónde empiezo?",
+     "respuesta": ["Tocá Inicio: ahí está tu camino de lecciones.", "La que dice «¡Te toca!» es la que sigue. Cada lección dura unos 2 minutos."]},
+    {"icono": "💾", "pregunta": "¿Tengo que guardar?",
+     "respuesta": ["No. Tu progreso se guarda solo, en esta compu, cada vez que terminás un paso.", "Lo que escribís en Experimentar o en la Zona Tortuga sí se guarda con «💾 Guardar», y aparece en Mis proyectos."]},
+    {"icono": "👥", "pregunta": "¿Pueden usarla varios chicos?",
+     "respuesta": ["Sí. Tocá 👤, arriba a la derecha, y elegí tu nombre o escribí uno nuevo.", "Cada perfil tiene su progreso, sus ajustes y su meta."]},
+    {"icono": "🚚", "pregunta": "¿Cómo paso mi progreso a otra compu?",
+     "respuesta": ["Tocá 👤 y después «💾 Guardar mi progreso en un archivo».", "En la otra compu, abrí TortuScript, tocá 👤 y elegí «📥 Traer un progreso desde un archivo».", "Se crea un perfil nuevo: no se borra nada."]},
+    {"icono": "🤔", "pregunta": "¿Qué pasa si me equivoco?",
+     "respuesta": ["Nada malo: no hay vidas ni castigos. Te damos una pista y podés volver a intentar.", "Después de dos errores podés ver la respuesta. Ese paso no da XP, pero seguís avanzando."]},
+    {"icono": "🔥", "pregunta": "¿Qué es la racha?",
+     "respuesta": ["Son los días seguidos que programaste.", "Si faltás un día, un congelador ❄️ la protege. Los congeladores se ganan: uno cada 7 días seguidos, hasta 2."]},
+    {"icono": "⚙️", "pregunta": "¿Puedo agrandar la letra o escuchar las consignas?",
+     "respuesta": ["Sí, en ⚙️: letra más grande, alto contraste, letra fácil de leer, menos movimiento y lectura en voz alta."]},
+    {"icono": "📖", "pregunta": "¿Dónde veo cómo se escribe algo?",
+     "respuesta": ["En la Referencia están todas las palabras de TortuScript, con su versión en Python y un botón para probarlas."]},
+    {"icono": "🔧", "pregunta": "¿Qué hago si algo no anda?",
+     "respuesta": ["Recargá la página: tu progreso está guardado.", "Si aparece un código como 8F72A1, anotalo y contáselo a un adulto.", "El adulto puede buscar ese código en el archivo logs/tortuscript.log, dentro de la carpeta de TortuScript."]},
+    {"icono": "🌐", "pregunta": "¿Necesito internet?",
+     "respuesta": ["No. TortuScript corre en tu compu, sin internet, sin cuentas y sin publicidad."]}
+  ]
+}

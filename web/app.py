@@ -433,6 +433,10 @@ def create_app(token=None):
     def referencia():
         return render_template("referencia.html", ref=cargar_referencia())
 
+    @app.get("/ayuda")
+    def ayuda():
+        return render_template("ayuda.html", ayuda=contenido.cargar_ayuda())
+
     @app.get("/repaso")
     def repaso():
         completados, imperfectos = contar(progreso.cargar_progreso(), len(EJERCICIOS))

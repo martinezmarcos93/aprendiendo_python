@@ -3,6 +3,18 @@
 Formato basado en [Keep a Changelog](https://keepachangelog.com/es-ES/1.1.0/). Todavía no hay una
 versión publicada de la app web: los cambios de versión se consultan antes de fijarlos.
 
+## Sin publicar — página de ayuda (26/09/2026)
+
+Rama `feat/ayuda`.
+
+### Agregado
+- **❓ Ayuda** (menú *Más*): 10 preguntas frecuentes con respuestas cortas, distinta de la Referencia del lenguaje.
+  Cómo empezar, si hay que guardar, varios chicos en la misma compu, cómo pasar el progreso a otra compu, qué pasa si
+  te equivocás, la racha, la accesibilidad, dónde ver cómo se escribe algo, qué hacer si algo no anda (el código de
+  referencia y el log) y si hace falta internet.
+- La ayuda es dato (`contenido/ayuda.json`) y un test le aplica las mismas reglas de estilo que a los cursos.
+- No guarda reportes ni opiniones: eso es feedback local y depende de ADR-005, que sigue en Propuesta.
+
 ## Sin publicar — pantalla de retorno (26/09/2026)
 
 Rama `feat/pantalla-de-retorno`.

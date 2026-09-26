@@ -54,7 +54,7 @@ Legenda de estado: **Existe** / **Parcial** / **Propuesto** / **Solo si es onlin
 | **Estado al volver** | "Hola, Marcos. Ayer completaste Variables (+40 XP). Hoy te espera Preguntar. **[Continuar]**": recordar última lección, paso, proyecto, práctica pendiente | Existe (26/09/2026): al volver un día nuevo, el inicio cuenta cuándo fue la última vez, cuánto XP ganó, qué lección sigue y si hay repaso, con **[Continuar]** |
 | **Navegación global** | Barra fija: Inicio · Camino · Crear (Experimentar, Tortuga, Juegos) · Proyectos + perfil y ajustes | Parcial |
 | **Notificaciones** | Dentro de la app (logro, racha, repaso pendiente); email solo al adulto. Con chicos: evitar mecanismos de engagement manipuladores | Parcial (avisos internos) |
-| **Ayuda del producto** | Distinta de la Referencia: cómo empiezo, cómo guardo, cómo recupero mi progreso, reportar problema | Propuesto |
+| **Ayuda del producto** | Distinta de la Referencia: cómo empiezo, cómo guardo, cómo recupero mi progreso, reportar problema | Existe (26/09/2026): página ❓ Ayuda con 10 preguntas (`contenido/ayuda.json`). "Reportar problema" se limita a explicar el código de error y el log: guardar reportes depende de ADR-005 (Propuesta) |
 | **Errores del sistema** | Mensajes humanos ("Tu último guardado sigue disponible") + registro interno; sin "500 Internal Server Error" | Existe (log interno, recuperación del progreso y páginas de error propias con código de referencia, 26/09/2026) |
 | **Privacidad en la UX** | Qué se recopila, por qué, cuánto tiempo, quién lo ve, cómo se elimina; visible en la interfaz, no solo en una página legal | Propuesto |
 | **Consentimientos** | Separados: términos, comunicaciones, analítica, cookies no esenciales, publicación de proyectos | Solo si es online |

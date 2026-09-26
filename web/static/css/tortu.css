@@ -363,6 +363,10 @@ a.ficha:hover { transform: translateY(-3px); background: var(--superficie-2); }
 .respaldo-perfil { display: flex; flex-wrap: wrap; gap: .5rem; margin: .8rem 0; padding-top: .8rem; border-top: 1px solid var(--borde); }
 .respaldo-perfil p { margin: 0; flex-basis: 100%; }
 .regreso { margin: .3rem 0 0; font-size: 1.05rem; }
+.sin-margen { margin: 0; }
+.pregunta-ayuda { margin-top: .7rem; }
+.pregunta-ayuda summary { cursor: pointer; font-weight: 800; font-size: 1.1rem; }
+.pregunta-ayuda p { margin: .6rem 0 0; }
 .pagina-error code { font-size: 1.1em; letter-spacing: .08em; }
 
 .par-codigo { display: grid; grid-template-columns: 1fr 1fr; gap: .7rem; margin: .5rem 0 1rem; }
