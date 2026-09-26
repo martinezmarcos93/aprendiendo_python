@@ -3,6 +3,18 @@
 Formato basado en [Keep a Changelog](https://keepachangelog.com/es-ES/1.1.0/). Todavía no hay una
 versión publicada de la app web: los cambios de versión se consultan antes de fijarlos.
 
+## Sin publicar — intereses locales (26/09/2026)
+
+Rama `feat/intereses`. Implementa ADR-005 (aceptada). Esquema del progreso **v10** (aditivo: campo `intereses`).
+
+### Agregado
+- Al terminar un curso, el inicio pregunta **"¿Qué te gustaría crear ahora?"** (videojuegos, aventura y rol, estrategia,
+  dibujos, web, robots e IA, historias, "no sé todavía"). Se pueden elegir varias o tocar **"Ahora no"**, y no se
+  vuelve a preguntar.
+- Todo queda en el progreso local: nada se manda a ningún lado. Solo opciones cerradas, sin texto libre. Viaja en la
+  exportación del progreso (y al importar se descarta lo que no corresponda).
+- Las encuestas son datos (`contenido/encuestas/*.json`) y un test les aplica las reglas de estilo de los cursos.
+
 ## Sin publicar — diagnóstico: elegir dónde empezar (26/09/2026)
 
 Rama `feat/diagnostico`. Implementa ADR-004 (aceptada). Esquema del progreso **v9** (aditivo: campo `salteadas`).

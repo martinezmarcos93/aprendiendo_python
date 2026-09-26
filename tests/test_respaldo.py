@@ -112,6 +112,13 @@ class TestImportarLimpia(unittest.TestCase):
         self.assertEqual(respaldo.validar(sobre)[1], "hackeo_total")
         self.assertEqual(respaldo.validar({**sobre, "perfil": "!!!"})[1], "importado")
 
+    def test_los_intereses_viajan_y_se_limpian(self):
+        sobre = respaldo.exportar(un_progreso(), "lua")
+        sobre["progreso"]["intereses"] = {"que-crear": {"respuestas": ["juegos", "raro"], "fecha": "2026-09-26"},
+                                          "inventada": {"respuestas": ["x"]}}
+        importado, _ = respaldo.validar(sobre)
+        self.assertEqual(importado["intereses"], {"que-crear": {"respuestas": ["juegos"], "fecha": "2026-09-26"}})
+
     def test_nombre_libre_nunca_pisa(self):
         self.assertEqual(respaldo.nombre_libre("lua", ["default"]), "lua")
         self.assertEqual(respaldo.nombre_libre("lua", ["lua", "lua_2"]), "lua_3")

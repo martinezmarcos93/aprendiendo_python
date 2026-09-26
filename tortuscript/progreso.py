@@ -27,7 +27,7 @@ logger = logging.getLogger("tortuscript.progreso")
 # Los archivos viven en la carpeta raíz del proyecto (no en la carpeta desde donde se
 # lo abre, ni dentro del paquete tortuscript/).
 DIRECTORIO = Path(__file__).resolve().parent.parent
-VERSION_ESQUEMA = 9
+VERSION_ESQUEMA = 10
 
 PERFIL_ACTUAL = "default"
 
@@ -128,6 +128,8 @@ PROGRESO_INICIAL = {
     # Diagnóstico (v9, ADR-004): lecciones salteadas al elegir dónde empezar {leccion_id: "YYYY-MM-DD"}.
     # No cuentan como hechas (sin XP, logros, liga ni certificado); solo dejan pasar el camino.
     "salteadas": {},
+    # Intereses (v10, ADR-005): {encuesta_id: {"respuestas": [...], "fecha", "omitida"?}}. Solo local, sin texto libre.
+    "intereses": {},
 }
 
 

@@ -1,0 +1,17 @@
+{
+  "id": "que-crear",
+  "pregunta": "Ya sabés programar. ¿Qué te gustaría crear ahora?",
+  "ayuda": "Podés elegir varias. Tus respuestas quedan en esta compu y nos ayudan a decidir qué aprender después.",
+  "cuando": "curso-terminado",
+  "multiple": true,
+  "opciones": [
+    {"id": "juegos", "texto": "🎮 Videojuegos"},
+    {"id": "rpg", "texto": "🐉 Juegos de aventura y rol"},
+    {"id": "estrategia", "texto": "🏰 Juegos de estrategia"},
+    {"id": "dibujos", "texto": "🎨 Dibujos y animaciones"},
+    {"id": "web", "texto": "🌐 Páginas web"},
+    {"id": "robots", "texto": "🤖 Robots e inteligencia artificial"},
+    {"id": "historias", "texto": "📖 Historias interactivas"},
+    {"id": "no-se", "texto": "🤷 No sé todavía"}
+  ]
+}

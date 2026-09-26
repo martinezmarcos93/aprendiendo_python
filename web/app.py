@@ -24,7 +24,7 @@ if str(RAIZ) not in sys.path:
 from tortuscript import contenido, evaluacion, leccion as motor, liga, logros, progreso  # noqa: E402
 from tortuscript import practica as espaciado  # noqa: E402
 from tortuscript import proyectos as mis_proyectos  # noqa: E402
-from tortuscript import respaldo  # noqa: E402
+from tortuscript import intereses, respaldo  # noqa: E402
 from tortuscript.ejercicios import EJERCICIOS  # noqa: E402
 from tortuscript.proceso import correr  # noqa: E402
 from tortuscript.referencia import cargar_referencia  # noqa: E402
@@ -326,8 +326,11 @@ def create_app(token=None):
     @app.get("/")
     def inicio():
         camino = _camino()
+        p = progreso.cargar_progreso()
+        # ADR-005: se pregunta después de usar el producto (al terminar un curso) y una sola vez
+        encuesta = intereses.pendiente(p, "curso-terminado") if any(c["completo"] for c in camino) else None
         return render_template("inicio.html", camino=camino, actual=motor.leccion_actual(camino),
-                               regreso=progreso.regreso(progreso.cargar_progreso()))
+                               regreso=progreso.regreso(p), encuesta=encuesta)
 
     @app.get("/aprender")
     def aprender():
@@ -813,6 +816,21 @@ def create_app(token=None):
         progreso.set_perfil(nombre)
         progreso.recordar_perfil(nombre)
         return jsonify(ok=True, actual=nombre, estado=_estado())
+
+    @app.post("/api/intereses/<encuesta_id>")
+    def api_intereses(encuesta_id):
+        """Guarda lo que el chico eligió (o "Ahora no"), solo en su progreso local."""
+        datos = request.get_json(silent=True) or {}
+        p = progreso.cargar_progreso()
+        try:
+            if datos.get("omitir") is True:
+                intereses.omitir(p, encuesta_id)
+            else:
+                intereses.responder(p, encuesta_id, datos.get("respuestas"))
+        except ValueError as e:
+            return jsonify(ok=False, mensaje=str(e)), 400
+        progreso.guardar_progreso(p)
+        return jsonify(ok=True)
 
     @app.get("/api/estado")
     def api_estado():
