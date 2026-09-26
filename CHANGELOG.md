@@ -3,6 +3,20 @@
 Formato basado en [Keep a Changelog](https://keepachangelog.com/es-ES/1.1.0/). Todavía no hay una
 versión publicada de la app web: los cambios de versión se consultan antes de fijarlos.
 
+## Sin publicar — herramientas de verificación con Playwright (26/09/2026)
+
+Rama `chore/playwright-dev`.
+
+### Agregado
+- `requirements-dev.txt` con `playwright==1.63.0` (auditado: Apache-2.0, sin CVE en OSV; solo para desarrollo).
+  En discos sin permiso de ejecución va en un venv aparte (ver README).
+- Primera corrida de las tres herramientas: el jugador de cursos resolvió **54/54 lecciones (301 pasos) sin errores
+  de consola** (tampoco violaciones de CSP); contraste WCAG AA sin problemas.
+
+### Corregido
+- Pantallas de 320–360 px: las tres casillas de estadísticas del inicio y los botones de certificado de *Logros* se
+  salían de la pantalla (las detectó `revisar_responsive.py`).
+
 ## Sin publicar — cierre de lección reforzado (26/09/2026)
 
 Rama `feat/cierre-de-leccion`.

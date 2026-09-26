@@ -1,0 +1,7 @@
+# Herramientas de desarrollo (NO las necesita la app; la app solo usa requirements.txt).
+# Auditado 26/09/2026 con dependency-auditor: Apache-2.0 (y sus deps greenlet/pyee), sin CVE en OSV,
+# ~48 MB + Chromium (~170 MB en ~/.cache/ms-playwright, fuera del repo).
+# Lo usan herramientas/jugar_cursos.py, revisar_contraste.py, revisar_responsive.py y simular_chicos.py.
+# Instalar:  .venv/bin/python -m pip install -r requirements-dev.txt && .venv/bin/python -m playwright install chromium
+-r requirements.txt
+playwright==1.63.0

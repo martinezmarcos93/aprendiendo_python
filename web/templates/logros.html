@@ -11,7 +11,7 @@
   <section class="tarjeta">
     <h2>🎓 Mis certificados</h2>
     <div class="fila">
-      {% for c in diplomas %}<a class="boton amarillo" href="{{ url_for('certificado', curso_id=c.id) }}">{{ c.icono }} {{ c.titulo }}</a>{% endfor %}
+      {% for c in diplomas %}<a class="boton amarillo envuelve" href="{{ url_for('certificado', curso_id=c.id) }}">{{ c.icono }} {{ c.titulo }}</a>{% endfor %}
     </div>
   </section>
   {% endif %}

@@ -128,9 +128,15 @@ main { max-width: 1280px; margin: 0 auto; padding: 1.4rem; }
 .hero > *, .accesos > *, .columna-angosta > *, .columna-ancha > * { min-width: 0; }      /* que las tarjetas puedan achicarse */
 .hero h1 { font-size: 2.3rem; }
 .hero .mascota { font-size: 5rem; line-height: 1; animation: nadar 3s ease-in-out infinite; }
-.mini-stats { display: grid; grid-template-columns: repeat(3, 1fr); gap: .8rem; margin-top: 1rem; }
+.mini-stats { display: grid; grid-template-columns: repeat(3, minmax(0, 1fr)); gap: .8rem; margin-top: 1rem; }
 .mini-stats div { background: var(--fondo-2); border: 1px solid var(--borde); border-radius: var(--radio-chico); padding: .7rem; text-align: center; }
 .mini-stats b { display: block; font-size: 1.5rem; font-weight: 900; }
+@media (max-width: 380px) {                /* en 320-360 px las tres casillas entran sin desbordar */
+  .mini-stats { gap: .4rem; }
+  .mini-stats div { padding: .5rem .25rem; }
+  .mini-stats b { font-size: 1.2rem; }
+}
+.boton.envuelve { white-space: normal; max-width: 100%; text-align: center; }
 .accesos { display: grid; gap: 1rem; }
 .acceso { display: flex; gap: 1rem; align-items: center; text-decoration: none; transition: transform .15s, border-color .15s; }
 .acceso:hover { transform: translateY(-3px); border-color: var(--violeta); }
