@@ -1,6 +1,6 @@
 # ADR-005: Intereses y feedback locales
 
-## Estado: Propuesta (26/09/2026) — **no autoriza implementación**
+## Estado: Aceptada (26/09/2026) — decisión de Marcos; propuesta el mismo día
 
 > Ver la regla de gobernanza en el [índice](README.md). Origen: revisión crítica de `docs/experimental/` (26/09/2026).
 
@@ -8,7 +8,7 @@
 El sistema de intereses ("¿Qué querés crear?", votos) sirve para decidir qué construir. Guardar intereses en el perfil
 es inocuo; agregarlos entre muchos chicos implica enviar datos de menores a un servidor.
 
-## Decisión propuesta
+## Decisión
 - Intereses, votos y feedback se guardan **solo en el progreso local** del perfil (campos aditivos).
 - **No** hay envío a servidor, telemetría ni analítica online en esta etapa.
 - La recolección posible es una **exportación voluntaria** que hace el adulto.

@@ -1,6 +1,6 @@
 # ADR-009: Determinismo y azar controlado
 
-## Estado: Propuesta (26/09/2026) — **no autoriza implementación**
+## Estado: Aceptada (26/09/2026) — decisión de Marcos; propuesta el mismo día
 
 > Ver la regla de gobernanza en el [índice](README.md). Origen: revisión crítica de `docs/experimental/` (26/09/2026).
 
@@ -8,7 +8,7 @@
 El RPG necesita dados y botín aleatorio, pero el ejecutor no permite `import` (no hay `random`), y la evaluación
 automática y el validador de contenido necesitan resultados reproducibles.
 
-## Decisión propuesta
+## Decisión
 - El azar se ofrece como **primitiva controlada** del lenguaje (p. ej. `dado(6)`), no importando `random`.
 - Su generador es **determinista con semilla**: mismo código + misma semilla = mismo resultado.
 - El validador y la evaluación fijan la semilla; el chico, al jugar, puede recibir una semilla nueva.
