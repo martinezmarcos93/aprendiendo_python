@@ -60,7 +60,7 @@ El **camino** es la pantalla de inicio: muestra dónde estás y qué sigue. Las 
 - **🧪 Experimentar**: escribís lo que quieras, con la traducción a Python en vivo. Acepta TortuScript o Python.
 - **🎨 Zona Tortuga**: dibujo con `avanzar`, `retroceder`, `girar_der`, `girar_izq`, `color`, `subir_lapiz` y `bajar_lapiz`; con *paso a paso* se resalta cada línea mientras la tortuga la ejecuta. Colores en español (`"rojo"`, `"celeste"`...) o `#rrggbb`. La tortuga cambia de color con cada nivel de XP; el lápiz arranca siempre en verde.
 - **📂 Mis proyectos**: guardar, abrir, duplicar y borrar lo hecho en Experimentar y en la Zona Tortuga (hasta 30 por perfil).
-- **📖 Referencia** del lenguaje, **🗺️ Mapa** de los 30 ejercicios clásicos, **🔁 Repaso** de ejercicios (4 modos) , **📊 Resumen** de hoy y **❓ Ayuda** con las preguntas más comunes.
+- **📖 Referencia** del lenguaje, **🗺️ Mapa** de los 30 ejercicios clásicos, **🔁 Repaso** de ejercicios (4 modos), **📊 Resumen** de hoy y **❓ Ayuda** con las preguntas más comunes.
 - **👤 Perfiles**: cada chico tiene su progreso, sus ajustes y su meta en la misma compu. Desde el botón del perfil se puede **guardar el progreso en un archivo** y **traerlo en otra compu** (crea un perfil nuevo, no pisa nada).
 
 ### ♿ Accesibilidad y voz

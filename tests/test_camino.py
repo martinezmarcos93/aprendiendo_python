@@ -286,6 +286,13 @@ class TestWebCamino(Base):
         progreso.guardar_progreso(p)
         self.assertNotIn("Hola de nuevo", self.c.get("/").get_data(as_text=True))
 
+    def test_el_cierre_de_la_leccion_cuenta_que_aprendio_y_que_sigue(self):
+        self.post("/api/onboarding", {"meta_min": 10})
+        r = self.post("/api/lecciones/hola-mundo/pasos/0/comprobar", {}).get_json()
+        self.assertEqual(r["leccion"]["aprendiste"], ["mostrar"])
+        self.assertEqual(r["leccion"]["practicaste"], [])
+        self.assertEqual(r["leccion"]["siguiente"], "texto-o-cuenta")
+
     def test_el_curso_de_la_tortuga_empieza_cerrado_y_se_abre_al_terminar_dos_variables(self):
         self.post("/api/onboarding", {"meta_min": 10})
         html = self.c.get("/").get_data(as_text=True)

@@ -23,7 +23,7 @@ especializarse → construir proyectos → desarrollar sus propios juegos*. Segu
 | 7 | **Primera misión** | "Hacé que la computadora diga algo": `mostrar "Hola"` → ▶ Probar → sale `Hola`. Escribo → ejecuto → pasa algo | Existe como lección 1; puede acortarse a esta forma |
 | 8 | **Lección** | Explicación → ejemplo ejecutable → elegir → predecir → completar → ordenar → escribir | Existe (6 tipos de paso) |
 | 9 | **Error** | Nunca "ERROR 404": "Casi. La computadora necesita saber qué querés mostrar." + 💡 pista. Sin vidas ni castigos; tras dos fallos se puede ver la respuesta (sin XP) | Existe |
-| 10 | **Completar** | ✓ Misión completada · +XP · concepto nuevo · próxima misión. Claro: qué aprendí → qué gané → qué sigue | Existe (XP, logros); se puede reforzar el cierre |
+| 10 | **Completar** | ✓ Misión completada · +XP · concepto nuevo · próxima misión. Claro: qué aprendí → qué gané → qué sigue | Existe: el cierre muestra qué aprendí (palabras nuevas), qué practiqué, qué gané (XP, aciertos) y qué sigue (26/09/2026) |
 | 11 | **Progreso visible** | Camino con ✓ / → / 🔒, XP, nivel, racha, logros, meta diaria | Existe |
 | 12 | **Conceptos en secuencia** | mostrar → variables → preguntar → cuentas → si/sino → repetir → mientras → funciones | Existe (curso 1) |
 | 13 | **Herramientas paralelas** | Experimentar, Zona Tortuga, Mis proyectos, Referencia, Repaso, Resumen. No compiten con el Camino: Camino = guiado, Experimentar = laboratorio, Proyectos = creación, Referencia = consulta, Repaso = memoria | Existe |

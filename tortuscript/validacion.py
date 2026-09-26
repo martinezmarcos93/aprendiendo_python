@@ -17,7 +17,7 @@ from . import tortuga
 from .contenido import HUECO, TIPOS, pasos
 from .evaluacion import normalizar_salida
 from .executor import ejecutar_codigo
-from .translator import TraductorTortuScript, detectar_tipo
+from .translator import TraductorTortuScript, detectar_tipo, palabras_usadas
 
 ERROR, AVISO = "error", "aviso"
 
@@ -72,9 +72,7 @@ def _dibuja(codigo_tortu, entradas=None):
 
 
 def _palabras(codigo_tortu):
-    t = TraductorTortuScript()
-    t.traducir_codigo(codigo_tortu or "")
-    return set(t.ultimas_palabras)
+    return palabras_usadas(codigo_tortu)
 
 
 def _textos_del_paso(paso):

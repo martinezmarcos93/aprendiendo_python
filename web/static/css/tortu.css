@@ -367,6 +367,8 @@ a.ficha:hover { transform: translateY(-3px); background: var(--superficie-2); }
 .pregunta-ayuda { margin-top: .7rem; }
 .pregunta-ayuda summary { cursor: pointer; font-weight: 800; font-size: 1.1rem; }
 .pregunta-ayuda p { margin: .6rem 0 0; }
+.palabras-cierre { margin: .4rem 0; }
+.palabras-cierre code { margin: 0 .2rem; padding: .1rem .45rem; border-radius: 6px; background: var(--fondo-2); border: 1px solid var(--borde); }
 .pagina-error code { font-size: 1.1em; letter-spacing: .08em; }
 
 .par-codigo { display: grid; grid-template-columns: 1fr 1fr; gap: .7rem; margin: .5rem 0 1rem; }
