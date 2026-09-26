@@ -1,7 +1,7 @@
 {% extends "base.html" %}
 {% block titulo %}Mis proyectos{% endblock %}
 {% block contenido %}
-<div class="columna-ancha">
+<div class="columna-ancha" data-lista-proyectos>
   <section class="tarjeta">
     <div class="fila">
       <h1 style="margin:0">📂 Mis proyectos</h1>
@@ -35,5 +35,4 @@
   {% endif %}
 </div>
 {% endblock %}
-{% block scripts %}<script src="{{ url_for('static', filename='js/proyectos.js') }}"></script>
-<script>Proyectos.iniciarLista();</script>{% endblock %}
+{% block scripts %}<script src="{{ url_for('static', filename='js/proyectos.js') }}"></script>{% endblock %}
