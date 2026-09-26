@@ -83,6 +83,16 @@ Estimaciones en **semanas-persona** (rango). "Puerta" = decisión que se toma co
 - **Criterios:** tests verdes, validador en 0 errores, migración aditiva del progreso (v9), revisión de contraste y responsive.
 - **Puerta 1:** ¿los cambios mejoran la retención con chicos reales?
 
+> **Estado de la Fase 1 (26/09/2026)** — ver `CHANGELOG.md` y `docs/handoffs/2026-09-26.md`:
+> 1 ✅ pantalla de retorno · 2 ✅ ya existía una barra fija (Inicio · Aprender · Experimentar · Tortuga · Practicar ·
+> Más); no se reorganizó sin un problema concreto · 3 ✅ en su versión mínima (nombre → ¿ya programaste? → meta); no se
+> amplía, para no demorar el primer `mostrar "Hola"` · 4 ⛔ depende de ADR-004 y ADR-005 (Propuesta) · 5 ✅ exportar/importar
+> · 6 ✅ ayuda y páginas de error; "reportar un problema" se limita a explicar el código de error (guardar reportes
+> depende de ADR-005) · 7 ✅ cierre de lección · 8 ✅ cabeceras y CSP.
+> Nada de esto necesitó cambiar el esquema del progreso (sigue en v8). Pendiente de los criterios: revisión automática
+> de contraste y responsive (`herramientas/revisar_*.py` necesitan Playwright, que no está instalado). La **Puerta 1**
+> y la Fase 0 (probar con chicos reales) no se pueden cerrar desde el código.
+
 ### Fase 2 — Contenido piloto "Tortuaria" (RPG por consola) (5–8 sem) · flujo A
 1. Diseñar 10–12 lecciones (héroe, estadísticas, enemigo, combate, dados, inventario, pociones, mapa, mazmorra, jefe) con **el motor actual** (datos + validador).
 2. Curso de misiones: cada concepto aparece porque el juego lo pide (problema → concepto → solución → resultado).
