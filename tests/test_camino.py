@@ -2,7 +2,7 @@
 import shutil
 import tempfile
 import unittest
-from datetime import date
+from datetime import date, timedelta
 from pathlib import Path
 
 from tortuscript import contenido, leccion, liga, logros, progreso
@@ -266,6 +266,25 @@ class TestWebCamino(Base):
         self.assertEqual([o["o"] for o in r["ordenes"]], ["avanzar"])             # el nivel no le cambia el color al lápiz
         paso = self.post("/api/lecciones/hola-mundo/pasos/0/comprobar", {}).get_json()
         self.assertEqual(paso["estado_juego"]["color_tortuga"], progreso.color_tortuga(3))
+
+    def test_al_volver_otro_dia_el_inicio_cuenta_que_paso_y_que_sigue(self):
+        self.post("/api/onboarding", {"meta_min": 10, "nombre": "Lua"})
+        html = self.c.get("/").get_data(as_text=True)
+        self.assertNotIn("Hola de nuevo", html)                                # perfil nuevo: saludo normal
+        self._dar_por_completa("hola-mundo")                                    # ya había hecho una lección
+        p = progreso.cargar_progreso()
+        ayer = (date.today() - timedelta(days=1)).isoformat()
+        p["ultimo_dia"], p["xp_por_dia"] = ayer, {ayer: 35}
+        progreso.guardar_progreso(p)
+        html = self.c.get("/").get_data(as_text=True)
+        self.assertIn("¡Hola de nuevo, Lua!", html)
+        self.assertIn("Ayer", html)
+        self.assertIn("35 XP", html)
+        self.assertIn("Hoy te espera <b>«", html)
+        self.assertIn("▶ Continuar:", html)
+        p["ultimo_dia"] = date.today().isoformat()                                  # ya vino hoy: no se repite
+        progreso.guardar_progreso(p)
+        self.assertNotIn("Hola de nuevo", self.c.get("/").get_data(as_text=True))
 
     def test_el_curso_de_la_tortuga_empieza_cerrado_y_se_abre_al_terminar_dos_variables(self):
         self.post("/api/onboarding", {"meta_min": 10})

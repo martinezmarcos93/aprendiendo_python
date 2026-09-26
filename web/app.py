@@ -320,7 +320,8 @@ def create_app(token=None):
     @app.get("/")
     def inicio():
         camino = _camino()
-        return render_template("inicio.html", camino=camino, actual=motor.leccion_actual(camino))
+        return render_template("inicio.html", camino=camino, actual=motor.leccion_actual(camino),
+                               regreso=progreso.regreso(progreso.cargar_progreso()))
 
     @app.get("/aprender")
     def aprender():

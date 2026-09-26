@@ -3,6 +3,15 @@
 Formato basado en [Keep a Changelog](https://keepachangelog.com/es-ES/1.1.0/). Todavía no hay una
 versión publicada de la app web: los cambios de versión se consultan antes de fijarlos.
 
+## Sin publicar — pantalla de retorno (26/09/2026)
+
+Rama `feat/pantalla-de-retorno`.
+
+### Agregado
+- **Al volver un día nuevo**, el inicio saluda "¡Hola de nuevo!" y cuenta qué pasó la última vez y qué sigue:
+  "Ayer ganaste 40 XP. Hoy te espera «Dos líneas». Y tenés 3 tarjetas para repasar", con el botón **▶ Continuar**.
+  Solo cuenta lo bueno: si faltó varios días, no lo reta. Usa datos que el progreso ya guardaba (sin cambio de esquema).
+
 ## Sin publicar — exportar e importar el progreso (26/09/2026)
 
 Rama `feat/exportar-importar`.

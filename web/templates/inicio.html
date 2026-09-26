@@ -6,8 +6,18 @@
     <div class="fila">
       <div class="mascota">🐢</div>
       <div>
+        {% if regreso %}
+        <h1>¡Hola de nuevo, {{ estado.nombre }}!</h1>
+        <p class="regreso">
+          {%- if regreso.dias == 1 %}Ayer{% else %}La última vez, hace {{ regreso.dias }} días,{% endif %}
+          {% if regreso.xp %}ganaste <b>{{ regreso.xp }} XP</b>.{% else %}estuviste programando.{% endif %}
+          {% if actual %}Hoy te espera <b>«{{ actual.nombre }}»</b>.{% endif %}
+          {% if estado.practica_pendientes %}Y tenés {{ estado.practica_pendientes }} tarjeta{{ 's' if estado.practica_pendientes != 1 }} para repasar.{% endif %}
+        </p>
+        {% else %}
         <h1>¡Hola, {{ estado.nombre }}!</h1>
         <p class="tenue">Aprendé a programar de a poco, en español, y mirá cómo se convierte en Python de verdad.</p>
+        {% endif %}
       </div>
     </div>
     <div class="mini-stats">
@@ -17,7 +27,7 @@
     </div>
     <div class="acciones">
       {% if actual %}
-        <a class="boton verde grande" href="{{ url_for('leccion', leccion_id=actual.id) }}">▶ {{ 'Empezar' if estado.lecciones_hechas == 0 else 'Seguir' }}: {{ actual.nombre }}</a>
+        <a class="boton verde grande" href="{{ url_for('leccion', leccion_id=actual.id) }}">▶ {{ 'Empezar' if estado.lecciones_hechas == 0 else ('Continuar' if regreso else 'Seguir') }}: {{ actual.nombre }}</a>
       {% else %}
         <a class="boton violeta grande" href="{{ url_for('repaso') }}">🎉 ¡Terminaste todo! Repasá</a>
       {% endif %}

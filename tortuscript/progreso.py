@@ -371,6 +371,20 @@ def _ganar_congelador(progreso):
     stats["congeladores_ganados"] = stats.get("congeladores_ganados", 0) + 1
 
 
+def regreso(progreso, hoy=None):
+    """Qué contarle al chico cuando vuelve un día nuevo: {"dias": desde la última vez, "xp": lo que ganó ese día}.
+    None si nunca practicó o si ya vino hoy. Solo cuenta lo bueno: no reta por los días que faltó."""
+    hoy = hoy or date.today()
+    try:
+        ultimo = date.fromisoformat(progreso.get("ultimo_dia") or "")
+    except ValueError:
+        return None
+    dias = (hoy - ultimo).days
+    if dias < 1:
+        return None
+    return {"dias": dias, "xp": int((progreso.get("xp_por_dia") or {}).get(ultimo.isoformat(), 0) or 0)}
+
+
 def racha_vigente(progreso, hoy=None):
     """La racha que corresponde mostrar: si el último día jugado fue antes de ayer,
     la racha ya se cortó (aunque el archivo todavía guarde el número viejo).
