@@ -6,13 +6,29 @@
 > [PRODUCTO_COMPLETO_Y_CUENTAS](PRODUCTO_COMPLETO_Y_CUENTAS.md).
 > **Las cifras de esfuerzo son estimaciones de orden de magnitud** (no hay medición previa de este tipo de trabajo en el proyecto) y deben revisarse al cerrar cada fase.
 
+> **Gobernanza (26/09/2026):** las decisiones que estructuran este roadmap están en [`docs/decisions/`](../decisions/README.md)
+> como ADR-003 a ADR-014, todas en estado *Propuesta*. **Ninguna fase de este documento está autorizada** hasta que su ADR
+> pase a *Aceptada*. Cada fase tiene un presupuesto de esfuerzo y una puerta de decisión; **no hay fecha global de
+> finalización**. Las cifras no incluyen mantenimiento, soporte, hosting, asesoramiento legal, pentest ni arte.
+
+### Qué entra ahora y qué no
+
+| ✅ Ahora (local, Fases 0–2) | ⛔ Todavía no |
+|---|---|
+| Pantalla de retorno, navegación global | Backend, cuentas, sincronización |
+| Onboarding mínimo (nombre → ¿ya programaste? → `mostrar "Hola"`) | Pagos, suscripciones, freemium |
+| Intereses locales, diagnóstico simple (ADR-004/005) | Comunidad, amigos, ranking global, moderación |
+| Exportar/importar progreso, ayuda, página de error | Portfolio público, CMS, otras academias |
+| Security headers / CSP | Pygame, runtime de juegos completo |
+| Curso piloto Tortuaria; pruebas con chicos reales | Mapa complejo, economía interna, analítica online |
+
 ## 1. Veredicto sobre la magnitud
 
 | Lectura | Valor |
 |---|---|
 | Lo que existe hoy | un producto **local y completo**: 4 cursos / 51 lecciones, gamificación, perfiles, proyectos, accesibilidad, 335 tests |
 | Lo que se plantea | **un producto nuevo encima del actual**: cuentas y backend, sincronización, panel de padres, pagos, runtime de juegos, 3 disciplinas más, comunidad y operación |
-| Esfuerzo total estimado (1 persona a tiempo completo, con asistencia de IA) | **≈ 90–130 semanas ≈ 20–30 meses** en secuencia; con 2–3 personas y contenido en paralelo, **≈ 12–18 meses** |
+| Esfuerzo total estimado (1 persona a tiempo completo, con asistencia de IA) | **≈ 77–126 semanas-persona** (suma de la tabla §4) en secuencia; con 2–3 personas y contenido en paralelo, **≈ 12–18 meses** |
 | Proporción | ~35 % contenido pedagógico, ~35 % backend/cuentas/seguridad/legal, ~20 % experiencia y juegos, ~10 % operación |
 | Lo más caro y arriesgado | (1) cuentas de menores + normativa, (2) runtime de juegos, (3) el volumen de contenido |
 | Lo más barato y valioso | Fases 0–2: mejoran el producto actual **sin backend** y sirven para validar con chicos reales |
