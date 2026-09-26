@@ -30,6 +30,9 @@ Cuenta del adulto (email + contraseña)
   derechos de acceso/eliminación, retención). Es un requisito de diseño, no un trámite posterior.
 
 ### Decisión de arquitectura: **opción C (híbrido), elegida el 25/09/2026**
+
+> **Actualización 26/09/2026:** el modelo padre → hijos y la opción C pasaron a [ADR-012](../decisions/ADR-012-cuenta-adulto-perfiles-hijo.md)
+> y [ADR-013](../decisions/ADR-013-desktop-y-cloud.md) en estado **Propuesta**: son la dirección elegida, pero su implementación **no está autorizada**.
 | Opción | Cómo funciona | Pros | Contras |
 |---|---|---|---|
 | **A. Local con "cuenta del hogar"** | Un perfil de adulto protege el modo padres; todo sigue en la PC | Mantiene el modelo offline y la privacidad; costo cero | Sin sincronización entre equipos; no permite cobro ni multi-dispositivo |
