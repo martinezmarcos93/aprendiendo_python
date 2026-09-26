@@ -253,6 +253,20 @@ class TestWebCamino(Base):
         con_repetir = "repetir 4 veces:\n    avanzar 80\n    girar_der 90\n    avanzar 80\n    girar_izq 90\navanzar 80"
         self.assertEqual(self.post(ruta, {"codigo": con_repetir}).get_json()["evaluacion"]["estado"], "correcto")
 
+    def test_la_tortuga_cambia_de_color_al_subir_de_nivel(self):
+        self.post("/api/onboarding", {"meta_min": 10})
+        html = self.c.get("/tortuga").get_data(as_text=True)
+        self.assertIn(f'data-color-tortuga="{progreso.color_tortuga(1)}"', html)
+        p = progreso.cargar_progreso()
+        p["xp_total"] = progreso.UMBRALES_NIVEL[2]                                  # nivel 3
+        progreso.guardar_progreso(p)
+        html = self.c.get("/tortuga").get_data(as_text=True)
+        self.assertIn(f'data-color-tortuga="{progreso.color_tortuga(3)}"', html)
+        r = self.post("/api/tortuga", {"codigo": "avanzar 10"}).get_json()
+        self.assertEqual([o["o"] for o in r["ordenes"]], ["avanzar"])             # el nivel no le cambia el color al lápiz
+        paso = self.post("/api/lecciones/hola-mundo/pasos/0/comprobar", {}).get_json()
+        self.assertEqual(paso["estado_juego"]["color_tortuga"], progreso.color_tortuga(3))
+
     def test_el_curso_de_la_tortuga_empieza_cerrado_y_se_abre_al_terminar_dos_variables(self):
         self.post("/api/onboarding", {"meta_min": 10})
         html = self.c.get("/").get_data(as_text=True)
