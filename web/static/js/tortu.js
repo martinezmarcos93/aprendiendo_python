@@ -276,6 +276,32 @@ const Tortu = (() => {
         if (r.ok) location.reload();
       } catch (e) { error.textContent = "Usá letras o números para el nombre."; }
     }
+    document.getElementById("pf-exportar").onclick = async () => {
+      try {
+        const r = await api("/api/perfil/exportar");
+        const enlace = document.createElement("a");
+        enlace.href = URL.createObjectURL(new Blob([JSON.stringify(r.datos, null, 2)], { type: "application/json" }));
+        enlace.download = r.archivo;
+        document.body.appendChild(enlace); enlace.click(); enlace.remove();
+        setTimeout(() => URL.revokeObjectURL(enlace.href), 1000);
+        error.textContent = `✅ Listo: se descargó «${r.archivo}».`;
+      } catch (e) { error.textContent = "No se pudo preparar el archivo."; }
+    };
+    const archivo = document.getElementById("pf-archivo");
+    document.getElementById("pf-importar").onclick = () => { archivo.value = ""; archivo.click(); };
+    archivo.onchange = async () => {
+      const elegido = archivo.files[0];
+      if (!elegido) return;
+      if (elegido.size > 1000000) { error.textContent = "Ese archivo es demasiado grande para ser un progreso."; return; }
+      let sobre;
+      try { sobre = JSON.parse(await elegido.text()); } catch (e) {
+        error.textContent = "Ese archivo no es un progreso de TortuScript."; return;
+      }
+      try {
+        const r = await api("/api/perfil/importar", { sobre });
+        if (r.ok) location.reload();
+      } catch (e) { error.textContent = (e.datos && e.datos.mensaje) || "No se pudo traer el progreso."; }
+    };
     document.getElementById("pf-ok").onclick = () => campo.value.trim() && cambiar(campo.value);
     document.getElementById("pf-cancelar").onclick = () => { modal.hidden = true; };
     campo.onkeydown = (ev) => {

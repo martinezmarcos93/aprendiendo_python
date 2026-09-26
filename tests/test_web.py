@@ -140,6 +140,44 @@ class TestWeb(unittest.TestCase):
         self.assertEqual(r.status_code, 500)
         self.assertIn("Algo se rompió de nuestro lado", r.get_data(as_text=True))
 
+    # ── exportar / importar ──
+    def test_exportar_pide_token_y_no_lleva_campos_internos(self):
+        self.assertEqual(self.c.get("/api/perfil/exportar").status_code, 403)
+        r = self.c.get("/api/perfil/exportar", headers=self.h).get_json()
+        self.assertRegex(r["archivo"], r"^tortuscript-default-\d{4}-\d{2}-\d{2}\.json$")
+        self.assertEqual(r["datos"]["formato"], "tortuscript-progreso")
+        self.assertNotIn("_perfil", r["datos"]["progreso"])
+
+    def test_importar_crea_un_perfil_nuevo_sin_pisar_y_cambia_a_ese(self):
+        p = progreso.cargar_progreso()
+        p["xp_total"] = 123
+        progreso.guardar_progreso(p)
+        sobre = self.c.get("/api/perfil/exportar", headers=self.h).get_json()["datos"]
+        p["xp_total"] = 7                                                      # el perfil original sigue su vida
+        progreso.guardar_progreso(p)
+        r = self.post("/api/perfil/importar", {"sobre": sobre}).get_json()
+        self.assertTrue(r["ok"])
+        self.assertEqual(r["actual"], "default_2")                              # "default" ya existía
+        self.assertEqual(progreso.PERFIL_ACTUAL, "default_2")
+        self.assertEqual(progreso.cargar_progreso("default_2")["xp_total"], 123)
+        self.assertEqual(progreso.cargar_progreso("default")["xp_total"], 7)    # no se pisó
+        self.assertEqual(r["estado"]["xp"], 123)
+
+    def test_importar_rechaza_archivos_invalidos_o_enormes(self):
+        r = self.post("/api/perfil/importar", {"sobre": {"formato": "otro"}})
+        self.assertEqual(r.status_code, 400)
+        self.assertIn("no es un progreso de TortuScript", r.get_json()["mensaje"])
+        enorme = self.post("/api/perfil/importar", {"sobre": {"relleno": "x" * 1_100_000}})
+        self.assertEqual(enorme.status_code, 400)
+        self.assertIn("demasiado grande", enorme.get_json()["mensaje"])
+        self.assertEqual(self.c.post("/api/perfil/importar", json={"sobre": {}}).status_code, 403)   # sin token
+        self.assertEqual(progreso.obtener_perfiles(), ["default"])              # no se creó nada
+
+    def test_el_modal_de_perfiles_ofrece_guardar_y_traer(self):
+        html = self.c.get("/").get_data(as_text=True)
+        for id_ in ("pf-exportar", "pf-importar", "pf-archivo"):
+            self.assertIn(f'id="{id_}"', html)
+
     # ── páginas ──
     def test_paginas(self):
         for ruta in ("/", "/experimentar", "/tortuga", "/ejercicios/1"):

@@ -85,6 +85,12 @@
       <div class="lista-perfiles" id="pf-lista"></div>
       <input class="campo" id="pf-campo" placeholder="O escribí un nombre nuevo" autocomplete="off" aria-label="Nombre nuevo">
       <div class="tenue atajo" id="pf-error" role="alert"></div>
+      <div class="respaldo-perfil">
+        <button class="boton chico" id="pf-exportar" type="button">💾 Guardar mi progreso en un archivo</button>
+        <button class="boton chico" id="pf-importar" type="button">📥 Traer un progreso desde un archivo</button>
+        <input type="file" id="pf-archivo" accept="application/json,.json" hidden>
+        <p class="tenue">Sirve para pasar tu progreso a otra compu. Traer un archivo crea un perfil nuevo: no borra nada.</p>
+      </div>
       <div class="pie">
         <button class="boton chico" id="pf-cancelar" type="button">Cancelar</button>
         <button class="boton violeta" id="pf-ok" type="button">Entrar</button>
