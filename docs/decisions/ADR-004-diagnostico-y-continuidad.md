@@ -1,6 +1,6 @@
 # ADR-004: Diagnóstico y continuidad del camino educativo
 
-## Estado: Aceptada (26/09/2026) — decisión de Marcos; propuesta el mismo día
+## Estado: Aceptada (26/09/2026) — decisión de Marcos; propuesta el mismo día. **Implementada** el 26/09/2026 (esquema v9)
 
 > Ver la regla de gobernanza en el [índice](README.md). Origen: revisión crítica de `docs/experimental/` (26/09/2026).
 
@@ -25,3 +25,11 @@ hay caminos personalizados ni reordenamiento algorítmico.
 ## Consecuencias
 + Se conserva la semántica de progreso aditivo y la integridad de XP, logros y liga.
 − El motor necesita distinguir "salteada" de "pendiente" en la regla de "la que toca".
+
+## Notas de implementación (26/09/2026)
+- Campo `salteadas` en el progreso (v9, aditivo). Puntos de entrada: "un poquito" → *Variables* (L4), "bastante" →
+  *Condicionales* (L13), al comienzo de una sección. Se elige en la bienvenida; "desde el principio" viene elegido.
+- **Precisión:** una lección salteada cuenta como superada **solo para el orden del camino y los `requiere`** (si no,
+  quien empieza en *Condicionales* tendría cerrado el curso de la tortuga, que pide *Dos variables*). Para todo lo que
+  la ADR enumera (completada, XP, logros, liga) no cuenta, y tampoco para el certificado del curso.
+

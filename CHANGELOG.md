@@ -3,6 +3,17 @@
 Formato basado en [Keep a Changelog](https://keepachangelog.com/es-ES/1.1.0/). Todavía no hay una
 versión publicada de la app web: los cambios de versión se consultan antes de fijarlos.
 
+## Sin publicar — diagnóstico: elegir dónde empezar (26/09/2026)
+
+Rama `feat/diagnostico`. Implementa ADR-004 (aceptada). Esquema del progreso **v9** (aditivo: campo `salteadas`).
+
+### Agregado
+- En la bienvenida, quien ya programó ("un poquito" o "bastante") puede elegir **dónde empezar**: desde el principio
+  (viene elegido) o en *Variables* / *Condicionales*.
+- Las lecciones anteriores quedan **salteadas** (⏭ en el camino, "la salteaste: hacela cuando quieras"): no dan XP,
+  logros, liga ni certificado, se pueden hacer cuando se quiera y, al hacerlas, pasan a hechas normalmente.
+- El servidor solo acepta el punto de entrada que corresponde a la experiencia elegida.
+
 ## Sin publicar — azar con dado() (26/09/2026)
 
 Rama `feat/dado`. Implementa ADR-009 (aceptada).

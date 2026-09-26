@@ -338,7 +338,12 @@ def create_app(token=None):
 
     @app.get("/bienvenida")
     def bienvenida():
-        return render_template("bienvenida.html", metas=progreso.METAS_MIN, xp_por_minuto=progreso.XP_POR_MINUTO)
+        lecciones = {lec["id"]: (seccion["titulo"], lec["titulo"].partition(". ")[0])
+                     for seccion, lec in contenido.lecciones(contenido.cargar_curso())}
+        entradas = {exp: {"id": lid, "seccion": lecciones[lid][0], "numero": lecciones[lid][1]}
+                    for exp, lid in progreso.PUNTOS_DE_ENTRADA.items()}
+        return render_template("bienvenida.html", metas=progreso.METAS_MIN, xp_por_minuto=progreso.XP_POR_MINUTO,
+                               entradas=entradas)
 
     @app.get("/ejercicios")
     def ejercicios_siguiente():
@@ -742,11 +747,16 @@ def create_app(token=None):
             if perfil != progreso.PERFIL_ACTUAL:
                 progreso.set_perfil(perfil)
                 progreso.recordar_perfil(perfil)
+        entrada = datos.get("entrada")                   # diagnóstico (ADR-004): solo el punto que le toca
+        if entrada and entrada != progreso.PUNTOS_DE_ENTRADA.get(datos.get("experiencia")):
+            return jsonify(ok=False, mensaje="Alguna respuesta no es válida."), 400
         p = progreso.cargar_progreso()
         ok = progreso.guardar_config(p, experiencia=datos.get("experiencia"), meta_min=datos.get("meta_min"),
                                      nombre=crudo or None, onboarding=True)
         if not ok:
             return jsonify(ok=False, mensaje="Alguna respuesta no es válida."), 400
+        if entrada:
+            progreso.saltear_hasta(p, [lec["id"] for _, lec in contenido.lecciones(contenido.cargar_curso())], entrada)
         return jsonify(ok=True, actual=progreso.PERFIL_ACTUAL, estado=_estado())
 
     @app.post("/api/config")

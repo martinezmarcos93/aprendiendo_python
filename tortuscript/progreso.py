@@ -27,7 +27,7 @@ logger = logging.getLogger("tortuscript.progreso")
 # Los archivos viven en la carpeta raíz del proyecto (no en la carpeta desde donde se
 # lo abre, ni dentro del paquete tortuscript/).
 DIRECTORIO = Path(__file__).resolve().parent.parent
-VERSION_ESQUEMA = 8
+VERSION_ESQUEMA = 9
 
 PERFIL_ACTUAL = "default"
 
@@ -125,6 +125,9 @@ PROGRESO_INICIAL = {
     "repaso": {},
     "xp_practica": {},        # XP ganado practicando por día (tope diario), últimos 7 días
     "proyectos": {},          # Mis proyectos (v7): {id: {nombre, tipo, codigo, creado, actualizado}}
+    # Diagnóstico (v9, ADR-004): lecciones salteadas al elegir dónde empezar {leccion_id: "YYYY-MM-DD"}.
+    # No cuentan como hechas (sin XP, logros, liga ni certificado); solo dejan pasar el camino.
+    "salteadas": {},
 }
 
 
@@ -206,6 +209,9 @@ def guardar_progreso(progreso):
 # CONFIGURACIÓN, XP Y META DIARIA
 # ─────────────────────────────────────────
 EXPERIENCIAS = ("nunca", "poquito", "bastante")
+# Dónde puede empezar quien ya programó (ADR-004, primera versión: solo un punto de entrada, al comienzo de una
+# sección del curso 1). "nunca" empieza siempre por el principio.
+PUNTOS_DE_ENTRADA = {"poquito": "tu-primera-variable", "bastante": "si-es-grande"}
 METAS_MIN = (5, 10, 15)
 XP_POR_MINUTO = 4                 # meta de 5 min = 20 XP, 10 min = 40 XP, 15 min = 60 XP
 
@@ -293,6 +299,19 @@ def ajustes_de(progreso):
     base = copy.deepcopy(PROGRESO_INICIAL["config"]["ajustes"])
     base.update({k: v for k, v in (progreso.get("config", {}).get("ajustes") or {}).items() if v in AJUSTES.get(k, ())})
     return base
+
+
+def saltear_hasta(progreso, lecciones_en_orden, entrada, hoy=None):
+    """Marca como salteadas por diagnóstico las lecciones anteriores a `entrada` que no estaban hechas.
+    No toca XP, logros ni lecciones hechas: el progreso solo crece (ADR-002)."""
+    if entrada not in lecciones_en_orden:
+        raise ValueError(f"lección de entrada desconocida: {entrada!r}")
+    salteadas = progreso.setdefault("salteadas", {})
+    hechas = progreso.get("lecciones", {})
+    for leccion_id in lecciones_en_orden[:lecciones_en_orden.index(entrada)]:
+        if not hechas.get(leccion_id, {}).get("completada"):
+            salteadas.setdefault(leccion_id, str(hoy or date.today()))
+    return guardar_progreso(progreso)
 
 
 def guardar_config(progreso, experiencia=None, meta_min=None, nombre=None, onboarding=None):

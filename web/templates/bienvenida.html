@@ -19,10 +19,19 @@
   <section class="tarjeta centrado paso-bv" data-paso="2" hidden>
     <div class="mascota gran">🤔</div>
     <h1>¿Ya programaste alguna vez?</h1>
-    <div class="opciones" role="radiogroup" aria-label="Experiencia">
+    <div class="opciones" role="radiogroup" aria-label="Experiencia" data-campo="experiencia">
       <button class="opcion-paso" type="button" role="radio" aria-checked="false" data-valor="nunca">🌱 Nunca, es la primera vez</button>
       <button class="opcion-paso" type="button" role="radio" aria-checked="false" data-valor="poquito">🌿 Un poquito</button>
       <button class="opcion-paso" type="button" role="radio" aria-checked="false" data-valor="bastante">🌳 Bastante</button>
+    </div>
+    <div id="bv-entrada" hidden>
+      <h2>¿Dónde querés empezar?</h2>
+      <div class="opciones" role="radiogroup" aria-label="Dónde empezar" data-campo="entrada">
+        <button class="opcion-paso elegida" type="button" role="radio" aria-checked="true" data-valor="">🌱 Desde el principio <small class="tenue">(repasás todo)</small></button>
+        {% for exp, e in entradas.items() %}
+        <button class="opcion-paso" type="button" role="radio" aria-checked="false" data-valor="{{ e.id }}" data-para="{{ exp }}" hidden>⏩ En «{{ e.seccion }}» <small class="tenue">(lección {{ e.numero }}; las anteriores las podés hacer cuando quieras)</small></button>
+        {% endfor %}
+      </div>
     </div>
     <div class="acciones" style="justify-content:center"><button class="boton verde grande" id="bv-sig-2" type="button" disabled>Seguir ➡</button></div>
   </section>
@@ -30,7 +39,7 @@
   <section class="tarjeta centrado paso-bv" data-paso="3" hidden>
     <div class="mascota gran">🎯</div>
     <h1>¿Cuánto querés practicar por día?</h1>
-    <div class="opciones" role="radiogroup" aria-label="Meta diaria">
+    <div class="opciones" role="radiogroup" aria-label="Meta diaria" data-campo="meta_min">
       {% for m in metas %}
       <button class="opcion-paso" type="button" role="radio" aria-checked="{{ 'true' if m == 10 else 'false' }}" data-valor="{{ m }}">
         ⏱️ {{ m }} minutos {% if m == 5 %}· tranqui{% elif m == 10 %}· recomendado{% else %}· con ganas{% endif %}
