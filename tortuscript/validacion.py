@@ -111,11 +111,35 @@ def _requeridos(paso, campos, donde, hallazgos):
     return not faltan
 
 
+def _validar_laberinto(paso, ordenes, usadas, donde, hallazgos):
+    """Un laberinto se evalúa por reglas (no chocar, llegar a la salida): la solución oficial tiene que cumplirlas."""
+    if not paso.get("tortuga"):
+        hallazgos.append(Hallazgo(ERROR, donde, "un laberinto necesita «tortuga»: true"))
+        return
+    problema = tortuga.problema_laberinto(paso["laberinto"])
+    if problema:
+        hallazgos.append(Hallazgo(ERROR, donde, problema))
+        return
+    r = tortuga.recorrer_laberinto(ordenes, paso["laberinto"])
+    if r["estado"] == tortuga.CHOCO:
+        hallazgos.append(Hallazgo(ERROR, donde, f"la solución choca con una pared (línea {r['linea']})"))
+    elif r["estado"] == tortuga.NO_LLEGO:
+        hallazgos.append(Hallazgo(ERROR, donde, "la solución no termina en la salida"))
+    faltan = [p for p in paso.get("usar") or [] if p not in usadas]
+    if faltan:
+        hallazgos.append(Hallazgo(ERROR, donde, f"el paso exige {', '.join(faltan)} pero la solución no lo usa"))
+
+
 def _validar_paso(paso, donde, hallazgos):
     """Revisa un paso. Devuelve las palabras de TortuScript que usa su código."""
     tipo = paso.get("tipo")
     entradas = paso.get("entradas_prueba")
     usadas = set()
+    for campo in ("laberinto", "usar"):
+        if campo in paso and tipo != "escribir":
+            hallazgos.append(Hallazgo(ERROR, donde, f"«{campo}» solo sirve en pasos «escribir»"))
+    if paso.get("usar") and paso.get("laberinto") is None:
+        hallazgos.append(Hallazgo(ERROR, donde, "«usar» por ahora solo se comprueba en los laberintos"))
 
     if tipo == "explicacion":
         if paso.get("tortu"):                      # TortuScript y Python lado a lado: el Python es la traducción exacta
@@ -228,6 +252,8 @@ def _validar_paso(paso, donde, hallazgos):
             hallazgos.append(Hallazgo(AVISO, donde, "ejercicio en Python sin «palabras_pista» (la pista 1 diría mostrar)"))
         if err:
             hallazgos.append(Hallazgo(ERROR, donde, f"la solución no corre: {err}"))
+        elif paso.get("laberinto") is not None:
+            _validar_laberinto(paso, ordenes, usadas, donde, hallazgos)
         elif paso.get("tortuga"):
             if not tortuga.trazos(ordenes):
                 hallazgos.append(Hallazgo(ERROR, donde, "la solución no dibuja nada (no se podría evaluar)"))

@@ -10,11 +10,13 @@ Pedido:
   {"op": "tortuga",  "fuente": "...", "entradas": [...]}   → agrega "ordenes"
   {"op": "evaluar_tortuga", "fuente": "...", "entradas": [...], "solucion": "..."}
                                                                 → "ordenes" + "evaluacion" del dibujo
+  (con "laberinto": {...} y "usar": [...] se evalúa el laberinto en vez de comparar con la solución;
+   "ordenes" llega entonces solo hasta el choque, si lo hubo)
 """
 import json
 import sys
 
-from .evaluacion import evaluar, evaluar_dibujo
+from .evaluacion import evaluar, evaluar_dibujo, evaluar_laberinto
 from .limites import limitar_memoria_windows
 from .executor import ejecutar_codigo
 from .tortuga import Registro
@@ -25,6 +27,15 @@ def _python_de(fuente):
     tipo = detectar_tipo(fuente)
     python = fuente if tipo == "python" else TraductorTortuScript().traducir_codigo(fuente)
     return tipo, python
+
+
+def _palabras_de(fuente, tipo):
+    """Palabras de TortuScript que usa el programa del chico (para los pasos que exigen alguna)."""
+    if tipo == "python":
+        return set()
+    traductor = TraductorTortuScript()
+    traductor.traducir_codigo(fuente)
+    return set(traductor.ultimas_palabras)
 
 
 def atender(pedido):
@@ -45,7 +56,13 @@ def atender(pedido):
     }
     if registro is not None:
         respuesta["ordenes"] = registro.ordenes       # aunque haya error: se dibuja lo hecho
-    if pedido.get("op") == "evaluar_tortuga" and not hay_error and respuesta["pregunta"] is None:
+    if pedido.get("op") == "evaluar_tortuga" and pedido.get("laberinto") and not hay_error \
+            and respuesta["pregunta"] is None:
+        palabras = _palabras_de(pedido.get("fuente", ""), tipo)
+        ev = evaluar_laberinto(registro.ordenes, pedido["laberinto"], palabras, pedido.get("usar") or [])
+        respuesta["ordenes"] = ev.pop("ordenes")
+        respuesta["evaluacion"] = ev
+    elif pedido.get("op") == "evaluar_tortuga" and not hay_error and respuesta["pregunta"] is None:
         respuesta["evaluacion"] = evaluar_dibujo(pedido.get("solucion", ""), registro.ordenes,
                                                  respuesta["entradas"])
     if pedido.get("op") == "evaluar" and not hay_error and respuesta["pregunta"] is None:

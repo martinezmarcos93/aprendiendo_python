@@ -192,7 +192,7 @@ class TestWebCamino(Base):
         self.assertEqual(html.count('class="parada'), 30)
         self.assertIn("¡Te toca!", html)
         self.assertIn('href="/leccion/hola-mundo"', html)
-        self.assertIn("0/51", html)
+        self.assertIn("0/54", html)
 
     def test_aprender_lleva_a_la_leccion_actual(self):
         self.post("/api/onboarding", {"meta_min": 10})
@@ -214,6 +214,44 @@ class TestWebCamino(Base):
 
     def _dar_por_completa(self, leccion_id):
         progreso.registrar_paso_leccion(progreso.cargar_progreso(), leccion_id, 0, 0, True, 1)
+
+    def _abrir_laberintos(self):
+        self.post("/api/onboarding", {"meta_min": 10})
+        self._terminar_hasta("dos-variables")
+        for _, lec in contenido.lecciones(contenido.cargar_curso("tortuga")):
+            if lec["id"].startswith("laberinto"):
+                break
+            self._dar_por_completa(lec["id"])
+
+    def test_el_laberinto_llega_con_paredes_y_sin_dibujo_objetivo_ni_solucion(self):
+        self._abrir_laberintos()
+        html = self.c.get("/leccion/laberinto-1").get_data(as_text=True)
+        self.assertIn('"laberinto"', html)
+        self.assertIn('"paredes"', html)
+        self.assertNotIn('"objetivo"', html)
+        self.assertNotIn('"solucion"', html)
+
+    def test_evaluar_el_laberinto_por_reglas(self):
+        self._abrir_laberintos()
+        ruta = "/api/lecciones/laberinto-1/pasos/2/evaluar"
+        choque = self.post(ruta, {"codigo": "avanzar 100\ngirar_izq 90\navanzar 100"}).get_json()
+        self.assertEqual((choque["evaluacion"]["estado"], choque["evaluacion"]["linea"]), ("choque", 3))
+        self.assertNotIn("premio", choque)
+        lejos = self.post(ruta, {"codigo": "avanzar 50"}).get_json()
+        self.assertEqual(lejos["evaluacion"]["estado"], "no_llega")
+        ok = self.post(ruta, {"codigo": "avanzar 110\ngirar_der 90\navanzar 100\ngirar_izq 90\navanzar 90"}).get_json()
+        self.assertEqual(ok["evaluacion"]["estado"], "correcto")                 # otra ruta, no la oficial
+        self.assertEqual(ok["premio"]["estrellas"], 3)
+
+    def test_el_ultimo_laberinto_exige_repetir(self):
+        self._abrir_laberintos()
+        self._dar_por_completa("laberinto-1")
+        self._dar_por_completa("laberinto-2")
+        ruta = "/api/lecciones/laberinto-3/pasos/2/evaluar"
+        a_mano = "\n".join(["avanzar 80\ngirar_der 90\navanzar 80\ngirar_izq 90"] * 4 + ["avanzar 80"])
+        self.assertEqual(self.post(ruta, {"codigo": a_mano}).get_json()["evaluacion"]["estado"], "falta_usar")
+        con_repetir = "repetir 4 veces:\n    avanzar 80\n    girar_der 90\n    avanzar 80\n    girar_izq 90\navanzar 80"
+        self.assertEqual(self.post(ruta, {"codigo": con_repetir}).get_json()["evaluacion"]["estado"], "correcto")
 
     def test_el_curso_de_la_tortuga_empieza_cerrado_y_se_abre_al_terminar_dos_variables(self):
         self.post("/api/onboarding", {"meta_min": 10})
@@ -479,7 +517,7 @@ class TestWebCamino(Base):
         self.post("/api/onboarding", {"meta_min": 10, "nombre": "Lua"})
         self._completar_curso_tortuga()
         html = self.c.get("/certificado/tortuga").get_data(as_text=True)
-        for texto in ("Certificado", "Lua", "Dibujá con la tortuga", ">12<", "lecciones perfectas", "puntos de experiencia"):
+        for texto in ("Certificado", "Lua", "Dibujá con la tortuga", ">15<", "lecciones perfectas", "puntos de experiencia"):
             self.assertIn(texto, html)
         self.assertIn("@media print", self.c.get("/static/css/tortu.css").get_data(as_text=True))
         self.assertIn("Ver mi certificado", self.c.get("/").get_data(as_text=True))

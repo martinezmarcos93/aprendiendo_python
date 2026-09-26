@@ -196,5 +196,38 @@ class TestElValidadorAtrapaErrores(unittest.TestCase):
             self.assertTrue(any(esperado in a for a in avisos), (esperado, avisos))
 
 
+LAB = {"paredes": [[-30, 30, -30, -130], [30, 30, 30, -130], [-30, 30, 30, 30]], "salida": [0, -100]}
+
+
+def escribir_lab(solucion="avanzar 100", **extra):
+    return {"tipo": "escribir", "consigna": "Llegá.", "solucion": solucion, "tortuga": True, "laberinto": LAB, **extra}
+
+
+class TestValidadorDeLaberintos(unittest.TestCase):
+    def test_laberinto_bien_hecho(self):
+        self.assertEqual(errores(EXPL_T, escribir_lab()), [])
+
+    def test_la_solucion_choca_o_no_llega(self):
+        self.assertTrue(any("choca con una pared (línea 2)" in m for m in errores(EXPL_T, escribir_lab("girar_der 90\navanzar 100"))))
+        self.assertTrue(any("no termina en la salida" in m for m in errores(EXPL_T, escribir_lab("avanzar 40"))))
+
+    def test_dato_mal_escrito_o_sin_tortuga(self):
+        mal = {**escribir_lab(), "laberinto": {"paredes": [[1, 2]], "salida": [0, 0]}}
+        self.assertTrue(any("pared mal escrita" in m for m in errores(EXPL_T, mal)))
+        sin = {k: v for k, v in escribir_lab().items() if k != "tortuga"}
+        self.assertTrue(any("necesita «tortuga»" in m for m in errores(EXPL_T, sin)))
+
+    def test_usar_se_comprueba_contra_la_solucion(self):
+        m = errores(EXPL_T, escribir_lab(usar=["repetir"]))
+        self.assertTrue(any("exige repetir" in x for x in m))
+
+    def test_laberinto_y_usar_solo_en_escribir(self):
+        m = errores(EXPL_T, {"tipo": "elegir", "pregunta": "?", "opciones": ["a", "b"], "correcta": 0, "laberinto": LAB})
+        self.assertTrue(any("«laberinto» solo sirve" in x for x in m))
+        m = errores(EXPL_T, {"tipo": "escribir", "consigna": "Dibujá.", "solucion": "avanzar 10", "tortuga": True,
+                             "usar": ["repetir"]})
+        self.assertTrue(any("«usar» por ahora" in x for x in m))
+
+
 if __name__ == "__main__":
     unittest.main()

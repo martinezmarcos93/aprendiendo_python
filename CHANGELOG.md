@@ -3,6 +3,22 @@
 Formato basado en [Keep a Changelog](https://keepachangelog.com/es-ES/1.1.0/). Todavía no hay una
 versión publicada de la app web: los cambios de versión se consultan antes de fijarlos.
 
+## Sin publicar — laberintos de la tortuga (26/09/2026)
+
+Rama `feat/laberinto`.
+
+### Agregado
+- **Tres laberintos** al final de *Dibujá con la tortuga* (lecciones 13–15): recto y con giros, más giros, y una
+  escalera que exige `repetir`. El curso pasa a 15 lecciones (54 en total).
+- **Nueva forma de comprobar** los pasos `escribir` con `laberinto`: no se compara con un dibujo, se revisan las reglas
+  del mundo (no tocar paredes y terminar en la 🏁). Vale cualquier ruta. Si la tortuga choca, se frena contra la pared
+  y el chico ve la línea que la hizo chocar, marcada en el editor. `usar` exige palabras (p. ej. `repetir`).
+- El validador revisa el dato del laberinto y que la solución oficial llegue sin chocar y use lo que pide `usar`.
+
+### Cambiado
+- El paso final de *12. Reto: la espiral* ya no dice "¡Terminaste!": anuncia los laberintos. El cierre del curso pasó
+  al final de *15. Laberinto III*. No se borró ni se movió ningún paso, así que el progreso guardado no cambia.
+
 ## Sin publicar — migración a aplicación web (25/09/2026)
 
 Rama `feature/migracion-web-paridad`. Fases F0 a F9 del roadmap (`docs/ROADMAP_MIMO_KIDS.md`).

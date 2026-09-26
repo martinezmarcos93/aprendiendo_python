@@ -4,6 +4,8 @@ const Lienzo = (() => {
   const VERDE = "#16a34a";
   const TAM = 600;
   const VISTA_INICIAL = Object.freeze({ escala: 1, cx: 0, cy: 0 });
+  const GRIS_PARED = "#6b7280";
+  const RADIO_SALIDA = 20;                  // igual que tortuscript/tortuga.py
 
   /** Estado puro de la tortuga (0° = arriba, giro a la derecha = horario). Sin DOM: testeable. */
   function nuevoEstado() {
@@ -49,6 +51,32 @@ const Lienzo = (() => {
     return { escala: Math.max(0.4, Math.min(2.4, 480 / extension)), cx: (minX + maxX) / 2, cy: (minY + maxY) / 2 };
   }
 
+  /** Encuadre de un laberinto: entra entero, con margen (el mundo no cambia con el recorrido del chico). */
+  function vistaLaberinto(lab) {
+    let minX = 0, maxX = 0, minY = 0, maxY = 0;
+    for (const [x1, y1, x2, y2] of lab.paredes) {
+      minX = Math.min(minX, x1, x2); maxX = Math.max(maxX, x1, x2);
+      minY = Math.min(minY, y1, y2); maxY = Math.max(maxY, y1, y2);
+    }
+    const extension = Math.max(maxX - minX, maxY - minY) || 1;
+    return { escala: Math.max(0.4, Math.min(2.4, 480 / extension)), cx: (minX + maxX) / 2, cy: (minY + maxY) / 2 };
+  }
+
+  /** Paredes grises y la bandera de salida (ctx ya está en coordenadas del dibujo). */
+  function dibujarLaberinto(ctx, lab, escala) {
+    const [sx, sy] = lab.salida;
+    ctx.fillStyle = "rgba(250, 204, 21, .35)";
+    ctx.beginPath(); ctx.arc(sx, sy, RADIO_SALIDA, 0, 7); ctx.fill();
+    ctx.strokeStyle = GRIS_PARED; ctx.lineWidth = 7 / escala; ctx.lineCap = "round";
+    for (const [x1, y1, x2, y2] of lab.paredes) {
+      ctx.beginPath(); ctx.moveTo(x1, y1); ctx.lineTo(x2, y2); ctx.stroke();
+    }
+    ctx.save(); ctx.translate(sx, sy); ctx.scale(1 / escala, 1 / escala);
+    ctx.font = "44px sans-serif"; ctx.textAlign = "center"; ctx.textBaseline = "middle";   // como la tortuga
+    ctx.fillText("🏁", 0, 0);
+    ctx.restore();
+  }
+
   /** La tortuga se dibuja con tamaño fijo en pantalla, sea cual sea el zoom (ctx ya está en coordenadas del dibujo). */
   function dibujarTortuga(ctx, e, escala) {
     ctx.save();
@@ -70,12 +98,14 @@ const Lienzo = (() => {
     const ctx = canvas.getContext("2d");
     let e = nuevoEstado();
     let vista = VISTA_INICIAL;
+    let laberinto = null;                    // {paredes, salida} en los pasos de laberinto
     let ejecucion = 0;                       // se incrementa para cancelar una animación en curso
 
     function pintar(parcial) {
       ctx.setTransform(1, 0, 0, 1, 0, 0);
       ctx.fillStyle = "#fff"; ctx.fillRect(0, 0, TAM, TAM);
       ctx.setTransform(vista.escala, 0, 0, vista.escala, TAM / 2 - vista.cx * vista.escala, TAM / 2 - vista.cy * vista.escala);
+      if (laberinto) dibujarLaberinto(ctx, laberinto, vista.escala);
       ctx.lineCap = "round"; ctx.lineWidth = 3 / Math.max(1, vista.escala * 0.6 + 0.4);
       const trazos = parcial ? e.trazos.concat([parcial]) : e.trazos;
       for (const t of trazos) {
@@ -125,6 +155,8 @@ const Lienzo = (() => {
       estado: () => e,
       /** Cambia el encuadre (ver vistaPara) y vuelve a pintar lo que hay. */
       usarVista(nueva) { vista = nueva || VISTA_INICIAL; pintar(null); },
+      /** Muestra (o saca, con null) las paredes y la salida de un laberinto. */
+      usarLaberinto(lab) { laberinto = lab || null; pintar(null); },
       /** Dibuja todas las órdenes de una vez (vista previa del objetivo). */
       dibujar(ordenes) {
         ejecucion++; e = nuevoEstado();
@@ -155,7 +187,7 @@ const Lienzo = (() => {
     };
   }
 
-  return { crear, nuevoEstado, aplicar, destino, vistaPara };
+  return { crear, nuevoEstado, aplicar, destino, vistaPara, vistaLaberinto };
 })();
 
 (() => {

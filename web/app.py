@@ -232,8 +232,8 @@ def create_app(token=None):
         """El paso listo para el navegador (+ el dibujo objetivo de los pasos de tortuga)."""
         ejercicio = contenido.indices_ejercicio(leccion_id).get(i)
         publico = motor.paso_publico(paso, leccion_id, i, None if ejercicio is None else ejercicio + 1)
-        if paso.get("tortuga") and paso["tipo"] in ("escribir", "completar", "ordenar"):
-            publico["objetivo"] = _objetivo(paso)
+        if paso.get("tortuga") and paso["tipo"] in ("escribir", "completar", "ordenar") and not paso.get("laberinto"):
+            publico["objetivo"] = _objetivo(paso)          # en un laberinto no hay dibujo objetivo: vale cualquier camino
         return publico
 
     # ─────────────── páginas ───────────────
@@ -488,6 +488,8 @@ def create_app(token=None):
         resultado en `ejercicios` (clave histórica); los de otros cursos, en el paso de la lección."""
         pedido = {"op": "evaluar_tortuga" if paso.get("tortuga") else "evaluar", "fuente": datos.get("codigo", ""),
                   "entradas": datos.get("entradas", []), "solucion": paso["solucion"]}
+        if paso.get("laberinto"):
+            pedido.update(laberinto=paso["laberinto"], usar=paso.get("usar") or [])
         r = correr(pedido)
         ev = r.get("evaluacion")
         if ev and ev.get("objetivo") is not None:

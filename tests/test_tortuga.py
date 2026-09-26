@@ -141,5 +141,69 @@ class TestComparacionDeDibujos(unittest.TestCase):
         self.assertNotIn("evaluacion", r)
 
 
+# Pasillo en L: sube 100, dobla a la derecha 100 y sube 100 hasta la salida (mismo dato que "Laberinto I").
+LAB_L = {"paredes": [[-30, 30, -30, -130], [-30, -130, 70, -130], [70, -130, 70, -230], [30, 30, 30, -70],
+                     [30, -70, 130, -70], [130, -70, 130, -230], [-30, 30, 30, 30]], "salida": [100, -200]}
+CAMINO_L = "avanzar 100\ngirar_der 90\navanzar 100\ngirar_izq 90\navanzar 100"
+
+
+class TestLaberinto(unittest.TestCase):
+    def recorrer(self, tortu, lab=LAB_L):
+        ordenes, error, _ = correr(tortu)
+        self.assertFalse(error)
+        return tortuga.recorrer_laberinto(ordenes, lab)
+
+    def test_el_camino_llega_a_la_salida(self):
+        r = self.recorrer(CAMINO_L)
+        self.assertEqual((r["estado"], r["linea"]), (tortuga.LLEGO, None))
+
+    def test_cualquier_ruta_que_no_choque_y_termine_en_la_salida_vale(self):
+        for otra in ("avanzar 110\ngirar_der 90\navanzar 100\ngirar_izq 90\navanzar 90",       # otros largos
+                     "avanzar 50\navanzar 50\ngirar_izq 270\navanzar 100\ngirar_der 270\navanzar 100",  # otros giros
+                     CAMINO_L + "\nretroceder 10"):                                            # termina cerca
+            self.assertEqual(self.recorrer(otra)["estado"], tortuga.LLEGO, otra)
+
+    def test_chocar_informa_la_linea_y_frena_contra_la_pared(self):
+        r = self.recorrer("avanzar 100\ngirar_izq 90\navanzar 100")
+        self.assertEqual((r["estado"], r["linea"]), (tortuga.CHOCO, 3))
+        self.assertEqual(len(r["ordenes"]), 3)
+        self.assertAlmostEqual(r["ordenes"][-1]["v"], 30 - tortuga.MARGEN_PARED, delta=1)   # la pared está a 30
+
+    def test_con_el_lapiz_arriba_tambien_choca(self):
+        self.assertEqual(self.recorrer("subir_lapiz\navanzar 300")["estado"], tortuga.CHOCO)
+
+    def test_un_tramo_largo_que_atraviesa_la_pared_choca(self):
+        r = self.recorrer("girar_der 90\navanzar 1000")
+        self.assertEqual((r["estado"], r["linea"]), (tortuga.CHOCO, 2))
+
+    def test_no_llegar_o_no_moverse(self):
+        self.assertEqual(self.recorrer("avanzar 50")["estado"], tortuga.NO_LLEGO)
+        self.assertEqual(self.recorrer("girar_der 90")["estado"], tortuga.NO_LLEGO)
+
+    def test_problemas_del_dato(self):
+        self.assertIsNone(tortuga.problema_laberinto(LAB_L))
+        self.assertIn("paredes", tortuga.problema_laberinto({"paredes": [], "salida": [0, 0]}))
+        self.assertIn("pared mal escrita", tortuga.problema_laberinto({"paredes": [[1, 2, 3]], "salida": [0, 0]}))
+        self.assertIn("salida", tortuga.problema_laberinto({"paredes": [[50, 0, 50, 10]], "salida": "arriba"}))
+        self.assertIn("pegada", tortuga.problema_laberinto({"paredes": [[-10, 2, 10, 2]], "salida": [0, -50]}))
+
+    def test_evaluar_laberinto_exige_las_palabras_pedidas(self):
+        ordenes, _, _ = correr(CAMINO_L)
+        ev = evaluacion.evaluar_laberinto(ordenes, LAB_L, {"avanzar"}, ["repetir"])
+        self.assertEqual((ev["estado"], ev["usar"]), (evaluacion.FALTA_USAR, ["repetir"]))
+        self.assertEqual(evaluacion.evaluar_laberinto(ordenes, LAB_L, {"repetir"}, ["repetir"])["estado"],
+                         evaluacion.CORRECTO)
+
+    def test_el_worker_evalua_el_laberinto_y_corta_las_ordenes_en_el_choque(self):
+        pedido = {"op": "evaluar_tortuga", "fuente": "avanzar 500\ngirar_der 90", "solucion": CAMINO_L,
+                  "laberinto": LAB_L}
+        r = atender(pedido)
+        self.assertEqual((r["evaluacion"]["estado"], r["evaluacion"]["linea"]), ("choque", 1))
+        self.assertEqual(len(r["ordenes"]), 1)                                  # el giro no llega a pasar
+        self.assertNotIn("objetivo", r["evaluacion"])                           # no hay dibujo objetivo
+        con_repetir = atender({**pedido, "fuente": CAMINO_L, "usar": ["repetir"]})
+        self.assertEqual(con_repetir["evaluacion"]["estado"], "falta_usar")
+
+
 if __name__ == "__main__":
     unittest.main()

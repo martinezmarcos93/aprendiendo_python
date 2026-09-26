@@ -16,6 +16,9 @@ INCORRECTO = "incorrecto"
 SIN_SALIDA = "sin_salida"
 FALTA_PREGUNTAR = "falta_preguntar"
 SIN_DIBUJO = "sin_dibujo"
+CHOQUE = "choque"                 # laberinto: la tortuga tocó una pared
+NO_LLEGA = "no_llega"             # laberinto: terminó lejos de la salida
+FALTA_USAR = "falta_usar"         # llegó, pero sin usar lo que pide el paso (p. ej. repetir)
 
 # (estrellas, xp) según cuántas pistas se vieron: 0, 1, 2, 3 (solución)
 _PREMIOS = [(3, 30), (2, 20), (1, 10), (1, 5)]
@@ -98,3 +101,20 @@ def evaluar_dibujo(solucion, ordenes_alumno, entradas=None):
     similitud = tortuga.similitud(ordenes_alumno, objetivo)
     estado = CORRECTO if tortuga.mismo_dibujo(ordenes_alumno, objetivo) else INCORRECTO
     return {"estado": estado, "similitud": round(similitud, 3), "objetivo": objetivo}
+
+
+def evaluar_laberinto(ordenes_alumno, laberinto, palabras_usadas=(), usar=()):
+    """Evalúa un paso de laberinto: no hay dibujo objetivo, se comprueban las reglas del mundo
+    (no tocar paredes y terminar en la salida). `usar`: palabras que el paso exige (p. ej. repetir).
+    Devuelve {'estado', 'linea', 'ordenes'}; `ordenes` llega hasta el choque, si lo hubo."""
+    r = tortuga.recorrer_laberinto(ordenes_alumno, laberinto)
+    if r["estado"] == tortuga.CHOCO:
+        estado = CHOQUE
+    elif r["estado"] == tortuga.NO_LLEGO:
+        estado = NO_LLEGA
+    elif any(p not in palabras_usadas for p in usar):
+        estado = FALTA_USAR
+    else:
+        estado = CORRECTO
+    return {"estado": estado, "linea": r["linea"], "ordenes": r["ordenes"],
+            "usar": [p for p in usar if p not in palabras_usadas]}
