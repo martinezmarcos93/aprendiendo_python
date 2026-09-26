@@ -97,9 +97,15 @@ def es_perfecta(progreso, leccion_id, indices_escribir, total_pasos):
         ejercicios.get(str(i), {}).get("estrellas", 0) == 3 for i in indices_escribir)
 
 
+def esta_superada(progreso, leccion_id, indices_escribir):
+    """Hecha, o salteada por el diagnóstico (ADR-004): deja pasar el camino y los `requiere`, pero no da nada."""
+    return leccion_id in (progreso.get("salteadas") or {}) or esta_completada(progreso, leccion_id, indices_escribir)
+
+
 def estado_camino(curso, progreso, indices_por_leccion, curso_abierto=True, titulos=None):
     """Estado de cada lección para dibujar el camino:
-    'perfecta' | 'hecha' | 'actual' (la primera pendiente) | 'bloqueada'.
+    'perfecta' | 'hecha' | 'salteada' (por el diagnóstico: se puede hacer cuando se quiera) |
+    'actual' (la primera pendiente) | 'bloqueada'.
     `indices_por_leccion`: {leccion_id: [índices de ejercicio 'escribir']}.
     Con `curso_abierto=False` (el curso pide algo que falta) todas salen bloqueadas.
     Una lección puede pedir otra con {"requiere": "<id>"}: hasta completarla queda bloqueada (y las
@@ -113,9 +119,11 @@ def estado_camino(curso, progreso, indices_por_leccion, curso_abierto=True, titu
             pide = None
             if esta_completada(progreso, lec["id"], indices):
                 estado = "perfecta" if es_perfecta(progreso, lec["id"], indices, len(lec["pasos"])) else "hecha"
+            elif lec["id"] in (progreso.get("salteadas") or {}) and curso_abierto:
+                estado = "salteada"
             else:
                 requisito = lec.get("requiere")
-                cumplido = not requisito or esta_completada(progreso, requisito, indices_por_leccion.get(requisito, []))
+                cumplido = not requisito or esta_superada(progreso, requisito, indices_por_leccion.get(requisito, []))
                 if not primera_pendiente_vista and curso_abierto and cumplido:
                     estado = "actual"
                 else:
@@ -146,7 +154,7 @@ def estado_cursos(cursos, progreso, indices_por_leccion):
         if requiere:
             hallada = buscar_en_cursos(cursos, requiere)
             titulo_requerido = hallada[2]["titulo"].partition(". ")[2] or hallada[2]["titulo"] if hallada else requiere
-            abierto = esta_completada(progreso, requiere, indices_por_leccion.get(requiere, []))
+            abierto = esta_superada(progreso, requiere, indices_por_leccion.get(requiere, []))
         secciones = estado_camino(curso, progreso, indices_por_leccion, abierto, titulos)
         lecciones = [l for s in secciones for l in s["lecciones"]]
         hechas = sum(1 for l in lecciones if l["estado"] in ("hecha", "perfecta"))

@@ -293,6 +293,44 @@ class TestWebCamino(Base):
         self.assertEqual(r["leccion"]["practicaste"], [])
         self.assertEqual(r["leccion"]["siguiente"], "texto-o-cuenta")
 
+    # ── diagnóstico (ADR-004) ──
+    def test_empezar_mas_adelante_saltea_sin_dar_nada(self):
+        r = self.post("/api/onboarding", {"meta_min": 10, "experiencia": "poquito", "entrada": "tu-primera-variable"})
+        self.assertTrue(r.get_json()["ok"])
+        planas = leccion.lecciones_planas(leccion.estado_cursos(contenido.todos_los_cursos(), progreso.cargar_progreso(), {}))
+        estados = {l["id"]: l["estado"] for l in planas}
+        self.assertEqual([estados[i] for i in ("hola-mundo", "texto-o-cuenta", "dos-lineas")], ["salteada"] * 3)
+        self.assertEqual(estados["tu-primera-variable"], "actual")
+        p = progreso.cargar_progreso()
+        self.assertEqual((p["xp_total"], p["logros"]), (0, {}))                         # no se regala nada
+        estado = self.c.get("/api/estado", headers=self.h).get_json()
+        self.assertEqual(estado["lecciones_hechas"], 0)
+        html = self.c.get("/").get_data(as_text=True)
+        self.assertIn("la salteaste: hacela cuando quieras", html)
+        self.assertIn('href="/leccion/tu-primera-variable">▶ Empezar', html)
+        self.assertEqual(self.c.get("/leccion/hola-mundo").status_code, 200)            # se puede hacer después
+
+    def test_hacer_despues_una_salteada_la_convierte_en_hecha(self):
+        self.post("/api/onboarding", {"meta_min": 10, "experiencia": "poquito", "entrada": "tu-primera-variable"})
+        self.post("/api/lecciones/hola-mundo/pasos/0/comprobar", {})
+        progreso.registrar_paso_leccion(progreso.cargar_progreso(), "hola-mundo", 1, 5, True, 2)
+        planas = leccion.lecciones_planas(leccion.estado_cursos(contenido.todos_los_cursos(), progreso.cargar_progreso(), {}))
+        self.assertIn(next(l["estado"] for l in planas if l["id"] == "hola-mundo"), ("hecha", "perfecta"))
+
+    def test_la_entrada_tiene_que_corresponder_a_la_experiencia(self):
+        for datos in ({"experiencia": "nunca", "entrada": "tu-primera-variable"},
+                      {"experiencia": "poquito", "entrada": "si-es-grande"},
+                      {"experiencia": "bastante", "entrada": "desafio-final"}):
+            with self.subTest(datos):
+                self.assertEqual(self.post("/api/onboarding", {"meta_min": 10, **datos}).status_code, 400)
+        self.assertEqual(progreso.cargar_progreso()["salteadas"], {})
+
+    def test_la_bienvenida_ofrece_empezar_mas_adelante(self):
+        html = self.c.get("/bienvenida").get_data(as_text=True)
+        self.assertIn("¿Dónde querés empezar?", html)
+        self.assertIn('data-valor="tu-primera-variable" data-para="poquito"', html)
+        self.assertIn('data-valor="si-es-grande" data-para="bastante"', html)
+
     def test_el_curso_de_la_tortuga_empieza_cerrado_y_se_abre_al_terminar_dos_variables(self):
         self.post("/api/onboarding", {"meta_min": 10})
         html = self.c.get("/").get_data(as_text=True)

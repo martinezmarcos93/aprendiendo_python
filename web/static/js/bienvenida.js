@@ -1,11 +1,28 @@
-/* Bienvenida: nombre → experiencia → meta diaria. Un POST al final. */
+/* Bienvenida: nombre → experiencia (y, si ya programó, dónde empezar) → meta diaria. Un POST al final. */
 "use strict";
 (() => {
   const paso = (n) => document.querySelector(`.paso-bv[data-paso="${n}"]`);
   const nombre = document.getElementById("bv-nombre");
   const error = document.getElementById("bv-error");
   const errorFinal = document.getElementById("bv-error-final");
-  const respuestas = { experiencia: null, meta_min: 10 };
+  const respuestas = { experiencia: null, entrada: "", meta_min: 10 };
+  const bloqueEntrada = document.getElementById("bv-entrada");
+
+  function elegir(grupo, boton) {
+    for (const x of grupo.querySelectorAll(".opcion-paso")) {
+      x.classList.toggle("elegida", x === boton);
+      x.setAttribute("aria-checked", String(x === boton));
+    }
+  }
+
+  /** Quien ya programó puede elegir empezar más adelante (ADR-004); "desde el principio" queda elegido. */
+  function mostrarEntrada(experiencia) {
+    const opcion = bloqueEntrada.querySelector(`[data-para="${experiencia}"]`);
+    for (const b of bloqueEntrada.querySelectorAll("[data-para]")) b.hidden = b !== opcion;
+    bloqueEntrada.hidden = !opcion;
+    elegir(bloqueEntrada.querySelector('[role="radiogroup"]'), bloqueEntrada.querySelector('[data-valor=""]'));
+    respuestas.entrada = "";
+  }
 
   function ir(n) {
     for (const i of [1, 2, 3]) paso(i).hidden = i !== n;
@@ -21,15 +38,16 @@
     grupo.addEventListener("click", (ev) => {
       const b = ev.target.closest(".opcion-paso");
       if (!b) return;
-      for (const x of grupo.querySelectorAll(".opcion-paso")) {
-        x.classList.toggle("elegida", x === b);
-        x.setAttribute("aria-checked", String(x === b));
-      }
-      if (paso(2).contains(b)) { respuestas.experiencia = b.dataset.valor; document.getElementById("bv-sig-2").disabled = false; }
+      elegir(grupo, b);
+      const campo = grupo.dataset.campo;
+      if (campo === "experiencia") {
+        respuestas.experiencia = b.dataset.valor; document.getElementById("bv-sig-2").disabled = false;
+        mostrarEntrada(b.dataset.valor);
+      } else if (campo === "entrada") respuestas.entrada = b.dataset.valor;
       else respuestas.meta_min = Number(b.dataset.valor);
     });
   }
-  document.querySelector('[data-valor="10"]').classList.add("elegida");
+  document.querySelector('[data-campo="meta_min"] [data-valor="10"]').classList.add("elegida");
 
   document.getElementById("bv-sig-1").addEventListener("click", () => {
     error.textContent = "";
@@ -47,6 +65,7 @@
     try {
       const r = await Tortu.api("/api/onboarding", {
         nombre: nombre.value.trim(), experiencia: respuestas.experiencia, meta_min: respuestas.meta_min,
+        entrada: respuestas.entrada || undefined,
       });
       if (r.ok) location.href = "/";
     } catch (e) {

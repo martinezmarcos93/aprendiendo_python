@@ -439,6 +439,7 @@ a.nodo-camino:hover { transform: translateY(-3px) scale(1.05); }
 .parada.perfecta .nodo-camino { background: #3b3312; border-color: var(--amarillo); }
 .parada.actual .nodo-camino { background: var(--violeta); border-color: #c9bbff; color: #fff; animation: latido 1.6s ease-in-out infinite; }
 .parada.bloqueada { opacity: .6; }
+.parada.salteada .nodo-camino { background: var(--fondo-2); border-style: dashed; border-color: var(--celeste, #38bdf8); color: var(--celeste, #38bdf8); }
 .nombre-camino { font-weight: 800; min-width: 0; overflow-wrap: anywhere; }
 .burbuja { display: inline-block; margin-left: .5rem; padding: .15rem .7rem; border-radius: 999px; background: var(--amarillo); color: #2a1c00; font-size: .8rem; font-weight: 900; }
 @media (max-width: 600px) { .parada.z1 { transform: translateX(28px); } .parada.z3 { transform: translateX(-4px); } }

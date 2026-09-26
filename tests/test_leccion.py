@@ -330,5 +330,49 @@ class TestQueEnsenaCadaLeccion(unittest.TestCase):
             self.assertFalse({"verdadero", "falso", "="} & set(v["aprendiste"] + v["practicaste"]))
 
 
+class TestSalteadasPorDiagnostico(unittest.TestCase):
+    def setUp(self):
+        self.cursos = contenido.todos_los_cursos()
+        self.p = {"lecciones": {}, "ejercicios": {}, "salteadas": {}}
+
+    def estados(self):
+        return {l["id"]: l["estado"] for l in leccion.lecciones_planas(leccion.estado_cursos(self.cursos, self.p, {}))}
+
+    def test_saltear_hasta_condicionales_abre_el_camino_y_los_cursos_sin_completarlos(self):
+        ids = [lec["id"] for _, lec in contenido.lecciones(contenido.cargar_curso())]
+        for i in ids[:ids.index("si-es-grande")]:
+            self.p["salteadas"][i] = "2026-09-26"
+        e = self.estados()
+        self.assertEqual(e["si-es-grande"], "actual")
+        self.assertEqual(e["dos-variables"], "salteada")
+        self.assertEqual(e["tortuga-avanzar"], "actual")          # el curso de la tortuga pide «Dos variables»: salteada alcanza
+        estado = leccion.estado_cursos(self.cursos, self.p, {})
+        self.assertEqual(estado[0]["hechas"], 0)
+        self.assertFalse(estado[0]["completo"])                    # sin certificado por saltear
+
+
+class TestSaltearHasta(unittest.TestCase):
+    def setUp(self):
+        self._dir = Path(tempfile.mkdtemp())
+        self._orig = progreso.DIRECTORIO
+        progreso.DIRECTORIO = self._dir
+
+    def tearDown(self):
+        progreso.DIRECTORIO = self._orig
+        shutil.rmtree(self._dir)
+
+    def test_solo_marca_las_anteriores_no_hechas(self):
+        p = progreso.cargar_progreso()
+        p["lecciones"]["b"] = {"pasos": {}, "completada": True, "perfecta": False}
+        progreso.saltear_hasta(p, ["a", "b", "c", "d"], "c")
+        self.assertEqual(sorted(progreso.cargar_progreso()["salteadas"]), ["a"])
+        with self.assertRaises(ValueError):
+            progreso.saltear_hasta(p, ["a", "b"], "z")
+
+    def test_un_progreso_v8_gana_el_campo_nuevo(self):
+        viejo = {"version": 8, "xp_total": 10, "ejercicios": {}}
+        self.assertEqual(progreso._migrar(viejo)["salteadas"], {})
+
+
 if __name__ == "__main__":
     unittest.main()
