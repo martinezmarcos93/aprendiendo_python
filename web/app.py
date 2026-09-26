@@ -291,7 +291,7 @@ def create_app(token=None):
         op = "tortuga" if paso.get("tortuga") else "ejecutar"
 
         def ejecutar(fuente, entradas):
-            r = correr({"op": op, "fuente": fuente, "entradas": entradas})
+            r = correr({"op": op, "fuente": fuente, "entradas": entradas, "semilla": evaluacion.SEMILLA_EVALUACION})
             if r.get("error") or r.get("pregunta") is not None:
                 return None
             return {"salida": r.get("salida_programa", ""), "ordenes": r.get("ordenes", [])}
@@ -303,7 +303,8 @@ def create_app(token=None):
         clave = (paso["solucion"] if paso["tipo"] == "escribir" else "\n".join(paso.get("lineas") or [])
                  or _completado_oficial(paso), tuple(paso.get("entradas_prueba") or ()))
         if clave not in objetivos:
-            r = correr({"op": "tortuga", "fuente": clave[0], "entradas": list(clave[1])})
+            r = correr({"op": "tortuga", "fuente": clave[0], "entradas": list(clave[1]),
+                        "semilla": evaluacion.SEMILLA_EVALUACION})
             objetivos[clave] = [] if r.get("error") else r.get("ordenes", [])
         return objetivos[clave]
 
@@ -520,13 +521,13 @@ def create_app(token=None):
     def api_ejecutar():
         datos = request.get_json(silent=True) or {}
         return jsonify(correr({"op": "ejecutar", "fuente": datos.get("codigo", ""),
-                               "entradas": datos.get("entradas", [])}))
+                               "entradas": datos.get("entradas", []), "semilla": datos.get("semilla")}))
 
     @app.post("/api/tortuga")
     def api_tortuga():
         datos = request.get_json(silent=True) or {}
         return jsonify(correr({"op": "tortuga", "fuente": datos.get("codigo", ""),
-                               "entradas": datos.get("entradas", [])}))
+                               "entradas": datos.get("entradas", []), "semilla": datos.get("semilla")}))
 
     def _paso_o_404(leccion_id, i):
         _, _, lec = _leccion_o_404(leccion_id)

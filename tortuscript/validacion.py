@@ -15,7 +15,7 @@ from dataclasses import dataclass
 
 from . import tortuga
 from .contenido import HUECO, TIPOS, pasos
-from .evaluacion import normalizar_salida
+from .evaluacion import SEMILLA_EVALUACION, normalizar_salida
 from .executor import ejecutar_codigo
 from .translator import TraductorTortuScript, detectar_tipo, palabras_usadas
 
@@ -54,7 +54,8 @@ def _correr_dibujo(codigo_tortu, entradas=None):
     detalles = {}
     registro = tortuga.Registro()
     _, hay_error, mensaje = ejecutar_codigo(python, entradas_fijas=list(entradas or []), detalles=detalles,
-                                            extra_globals=registro.globales(), callback_linea=registro.callback_linea)
+                                            extra_globals=registro.globales(), callback_linea=registro.callback_linea,
+                                            semilla=SEMILLA_EVALUACION)
     primera = mensaje.split("\n")[0] if hay_error else ""
     return detalles.get("salida_programa", ""), primera, list(t.ultimas_palabras), registro.ordenes
 

@@ -3,6 +3,18 @@
 Formato basado en [Keep a Changelog](https://keepachangelog.com/es-ES/1.1.0/). Todavía no hay una
 versión publicada de la app web: los cambios de versión se consultan antes de fijarlos.
 
+## Sin publicar — azar con dado() (26/09/2026)
+
+Rama `feat/dado`. Implementa ADR-009 (aceptada).
+
+### Agregado
+- **`dado(caras)`**: un número al azar de 1 a `caras` (6 si no se dice), igual en TortuScript y en Python. Sin `import`:
+  el ejecutor sigue igual de cerrado. Si se usa mal (`dado("seis")`, `dado(1)`), lo explica en lenguaje simple.
+- **Azar reproducible**: al evaluar y al validar se usa siempre la misma semilla, así que un ejercicio con dados se
+  puede comprobar ("mismo código + misma semilla = mismo resultado"). Al jugar libremente, cada ejecución tira distinto
+  y, si el programa pregunta algo, la página repite la semilla para que las tiradas no cambien entre vueltas.
+- `dado` en la Referencia (Operaciones matemáticas) y resaltado en el editor.
+
 ## Sin publicar — herramientas de verificación con Playwright (26/09/2026)
 
 Rama `chore/playwright-dev`.

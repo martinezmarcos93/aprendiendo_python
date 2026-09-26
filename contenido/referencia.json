@@ -60,6 +60,11 @@
           "descripcion": "Resto (módulo)",
           "tortu": "mostrar 10 % 3",
           "python": "print(10 % 3)"
+        },
+        {
+          "descripcion": "Un número al azar con dado (de 1 a las caras que digas; sin número, 6)",
+          "tortu": "tirada es dado(6)\nmostrar tirada\nmostrar dado(20)",
+          "python": "tirada = dado(6)\nprint(tirada)\nprint(dado(20))"
         }
       ]
     },

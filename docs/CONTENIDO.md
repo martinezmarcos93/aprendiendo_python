@@ -52,6 +52,10 @@ Detalles:
   cualquier recorrido que no toque una pared (a menos de 6 unidades, con el lápiz arriba o abajo) y termine a menos de 20
   de la salida. Si choca, el chico ve la línea que la hizo chocar. La `solucion` se usa para las pistas y el validador
   comprueba que cumpla las reglas. Conviene dejar pasillos de 60 de ancho con el camino por el medio.
+- **Azar con `dado(caras)`** (ADR-009): devuelve un número de 1 a `caras` (6 si no se dice). Al evaluar y al validar se
+  usa siempre la misma semilla (`SEMILLA_EVALUACION`), así que el programa del chico y la solución tiran los mismos
+  números **si los piden en el mismo orden**. Un `predecir` con `dado` es válido: la opción correcta es la que sale con esa
+  semilla (el validador la comprueba). Como cualquier palabra, `dado` hay que presentarlo antes de usarlo.
 - `usar` (solo en laberintos): palabras que el recorrido tiene que usar, p. ej. `["repetir"]`. Si llega sin usarlas, no vale.
 - `lienzo: true` en `explicacion`, `elegir` y `predecir` agrega el botón para ver qué dibuja el código.
 - `inicial` (en `escribir`): el editor arranca con ese código (proyectos guiados). Sus líneas tienen que aparecer, en orden, dentro de la solución.

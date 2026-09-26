@@ -1,6 +1,6 @@
 # ADR-009: Determinismo y azar controlado
 
-## Estado: Aceptada (26/09/2026) — decisión de Marcos; propuesta el mismo día
+## Estado: Aceptada (26/09/2026) — decisión de Marcos; propuesta el mismo día. **Implementada** el 26/09/2026 (`dado()`, semilla `SEMILLA_EVALUACION` en `tortuscript/evaluacion.py`)
 
 > Ver la regla de gobernanza en el [índice](README.md). Origen: revisión crítica de `docs/experimental/` (26/09/2026).
 

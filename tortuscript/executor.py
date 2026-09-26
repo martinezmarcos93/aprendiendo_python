@@ -15,10 +15,12 @@ y de copiar/pegar cosas peligrosas, no de un atacante.
 """
 import ast
 import io
+import random
 import sys
 from .error_handler import armar_mensaje_error
 
 MAX_PASOS = 50_000
+MAX_CARAS = 1000             # dado(caras): de 2 a 1000 caras
 MAX_SALIDA = 20_000          # caracteres
 ARCHIVO_ALUMNO = "<tu código>"
 
@@ -40,6 +42,20 @@ class NecesitaEntrada(BaseException):
     def __init__(self, pregunta):
         super().__init__(pregunta)
         self.pregunta = pregunta
+
+
+class ErrorDado(Exception):
+    """El chico le pidió algo raro al dado (se explica en lenguaje simple)."""
+
+
+def _hacer_dado(azar):
+    """dado(caras): un número al azar de 1 a `caras` (ADR-009). El azar sale de `azar` (random.Random con una
+    semilla): con la misma semilla, el mismo programa tira siempre los mismos números, así se puede evaluar."""
+    def dado(caras=6):
+        if isinstance(caras, bool) or not isinstance(caras, int) or not 2 <= caras <= MAX_CARAS:
+            raise ErrorDado(f"dado necesita un número entero de caras, de 2 a {MAX_CARAS}. Por ejemplo:  dado(6)")
+        return azar.randint(1, caras)
+    return dado
 
 
 class CodigoNoPermitido(Exception):
@@ -125,9 +141,10 @@ class InputInteractivo:
 # -------------------------
 # ENTORNO
 # -------------------------
-def _hacer_globals(salida, entradas, registro, completar_con_vacio):
+def _hacer_globals(salida, entradas, registro, completar_con_vacio, semilla=None):
     return {
         "__builtins__": {
+            "dado": _hacer_dado(random.Random(semilla)),
             "print": print,
             "input": InputInteractivo(salida, entradas, registro, completar_con_vacio),
             "range": range, "len": len, "int": int, "float": float, "str": str,
@@ -170,8 +187,10 @@ def _hacer_tracer(callback_linea):
 # -------------------------
 def ejecutar_codigo(codigo_python, extra_globals=None, callback_linea=None,
                     entradas_fijas=None, detalles=None,
-                    completar_con_vacio=None):
+                    completar_con_vacio=None, semilla=None):
     """Ejecuta el código y devuelve (salida_pantalla, hubo_error, mensaje_error).
+
+    - semilla: la del azar de dado() (misma semilla → mismas tiradas). None = azar nuevo.
 
     - callback_linea(n): se llama antes de ejecutar cada línea n del alumno (depurador).
     - entradas_fijas: respuestas para preguntar(), en orden. Si se pasa (aunque sea []),
@@ -192,7 +211,7 @@ def ejecutar_codigo(codigo_python, extra_globals=None, callback_linea=None,
         codigo = validar_codigo(codigo_python)
         if completar_con_vacio is None:
             completar_con_vacio = entradas_fijas is not None
-        entorno = _hacer_globals(salida, entradas_fijas, registro_entradas, completar_con_vacio)
+        entorno = _hacer_globals(salida, entradas_fijas, registro_entradas, completar_con_vacio, semilla)
         if extra_globals:
             entorno.update(extra_globals)
         sys.stdout = salida
