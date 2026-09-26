@@ -3,6 +3,22 @@
 Formato basado en [Keep a Changelog](https://keepachangelog.com/es-ES/1.1.0/). Todavía no hay una
 versión publicada de la app web: los cambios de versión se consultan antes de fijarlos.
 
+## Sin publicar — cierre de lección reforzado (26/09/2026)
+
+Rama `feat/cierre-de-leccion`.
+
+### Agregado
+- Al terminar una lección, la pantalla final cuenta **qué aprendí → qué gané → qué sigue**: las palabras que la lección
+  presentó por primera vez (📚 *Aprendiste*), las que se usaron para practicar (🔁 *Practicaste*), el XP y los aciertos, y
+  el botón **▶ Sigue: <próxima lección>**.
+- Las palabras salen del propio contenido, con la misma regla del validador (una palabra se "aprende" donde aparece por
+  primera vez en una *Forma* o un ejemplo, recorriendo los cursos en orden). En *Python real* se usan sus
+  `palabras_pista`. Ningún campo nuevo en los JSON.
+
+### Cambiado
+- `translator.palabras_usadas()` concentra el cálculo de palabras que antes estaba solo en el validador.
+- README: coma mal puesta en la lista de herramientas.
+
 ## Sin publicar — página de ayuda (26/09/2026)
 
 Rama `feat/ayuda`.

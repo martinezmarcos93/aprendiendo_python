@@ -304,5 +304,31 @@ class TestComprobarConDibujos(unittest.TestCase):
         self.assertFalse(leccion.comprobar(paso, ["30", "30"], ejecutar_dibujo)["ok"])
 
 
+class TestQueEnsenaCadaLeccion(unittest.TestCase):
+    @classmethod
+    def setUpClass(cls):
+        from tortuscript import contenido
+        cls.r = leccion.resumen_de_palabras(contenido.todos_los_cursos())
+
+    def test_cada_leccion_muestra_algo(self):
+        vacias = [k for k, v in self.r.items() if not v["aprendiste"] and not v["practicaste"]]
+        self.assertEqual(vacias, [])
+
+    def test_una_palabra_se_aprende_una_sola_vez_en_todos_los_cursos(self):
+        aprendidas = [p for v in self.r.values() for p in v["aprendiste"]]
+        self.assertEqual(len(aprendidas), len(set(aprendidas)))
+        self.assertEqual(self.r["hola-mundo"]["aprendiste"], ["mostrar"])
+        self.assertEqual(self.r["tortuga-avanzar"]["aprendiste"], ["avanzar"])
+        self.assertEqual(self.r["proyecto-adivinador"]["aprendiste"], [])           # todo ya se había visto
+
+    def test_practicaste_no_repite_lo_aprendido_y_python_usa_sus_palabras(self):
+        self.assertEqual(self.r["texto-o-cuenta"], {"aprendiste": [], "practicaste": ["mostrar"]})
+        self.assertIn("repetir", self.r["laberinto-3"]["practicaste"])
+        self.assertIn("print", self.r["py-print"]["practicaste"])
+        for v in self.r.values():
+            self.assertFalse(set(v["aprendiste"]) & set(v["practicaste"]))
+            self.assertFalse({"verdadero", "falso", "="} & set(v["aprendiste"] + v["practicaste"]))
+
+
 if __name__ == "__main__":
     unittest.main()

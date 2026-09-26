@@ -491,10 +491,23 @@
       const d = el("div"); d.appendChild(el("b", "", valor)); d.appendChild(el("span", "tenue", rotulo)); stats.appendChild(d);
     }
     cont.appendChild(stats);
+    if (!practica && resultadoFinal) {                     // qué aprendí → (qué gané, arriba) → qué sigue, abajo
+      for (const [clave, rotulo] of [["aprendiste", "📚 Aprendiste:"], ["practicaste", "🔁 Practicaste:"]]) {
+        const palabras = resultadoFinal[clave] || [];
+        if (!palabras.length) continue;
+        const fila = el("p", "palabras-cierre centrado");
+        fila.appendChild(el("span", "tenue", `${rotulo} `));
+        palabras.forEach((p, i) => {                       // la coma separa las palabras para los lectores de pantalla
+          if (i) fila.appendChild(el("span", "solo-lector", ", "));
+          fila.appendChild(el("code", "", p));
+        });
+        cont.appendChild(fila);
+      }
+    }
     const acciones = el("div", "acciones"); acciones.style.justifyContent = "center";
     const sig = !practica && resultadoFinal && resultadoFinal.siguiente;
     if (sig) {
-      const a = el("a", "boton verde grande", `▶ ${resultadoFinal.titulo_siguiente}`);
+      const a = el("a", "boton verde grande", `▶ Sigue: ${resultadoFinal.titulo_siguiente}`);
       a.href = `/leccion/${sig}`; acciones.appendChild(a);
     }
     const volver = el("a", "boton", "🏠 Volver al inicio"); volver.href = "/"; acciones.appendChild(volver);

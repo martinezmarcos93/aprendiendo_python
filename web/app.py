@@ -274,10 +274,15 @@ def create_app(token=None):
         return any(l["id"] == leccion_id and l["estado"] != "bloqueada"
                    for l in motor.lecciones_planas(_camino(p)))
 
+    palabras_por_leccion = {}     # qué enseña y qué practica cada lección (el contenido no cambia: se calcula una vez)
+
     def _resumen_leccion(leccion_id, info):
-        """Lo que la página necesita saber al terminar (o no) una lección."""
+        """Lo que la página necesita saber al terminar (o no) una lección: qué aprendió, qué ganó y qué sigue."""
+        if not palabras_por_leccion:
+            palabras_por_leccion.update(motor.resumen_de_palabras(_cursos()))
         siguiente = motor.siguiente_global(_cursos(), leccion_id)
-        return {**info, "siguiente": siguiente["id"] if siguiente else None,
+        return {**info, **palabras_por_leccion.get(leccion_id, {"aprendiste": [], "practicaste": []}),
+                "siguiente": siguiente["id"] if siguiente else None,
                 "titulo_siguiente": siguiente["titulo"] if siguiente else None}
 
     def _ejecutar_para_motor(paso):

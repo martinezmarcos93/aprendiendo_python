@@ -440,6 +440,13 @@ class TraductorTortuScript:
 # ──────────────────────────────────────────
 # DETECTOR DE TIPO DE CÓDIGO
 # ──────────────────────────────────────────
+def palabras_usadas(codigo_tortu):
+    """Palabras de TortuScript que usa un programa (las que anota el traductor)."""
+    traductor = TraductorTortuScript()
+    traductor.traducir_codigo(codigo_tortu or "")
+    return set(traductor.ultimas_palabras)
+
+
 def detectar_tipo(codigo):
     """
     Retorna 'tortuscript', 'python' o 'mixto'.

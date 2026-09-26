@@ -16,6 +16,7 @@ import zlib
 
 from . import tortuga
 from .contenido import HUECO
+from .translator import detectar_tipo, palabras_usadas
 from .evaluacion import normalizar_salida
 
 XP_PRIMER_INTENTO = 5
@@ -335,3 +336,49 @@ def xp_maximo(curso):
 
 def puede_ver_respuesta(errores):
     return errores >= ERRORES_PARA_VER_RESPUESTA
+
+
+# ─────────────────────────────────────────
+# QUÉ ENSEÑA CADA LECCIÓN (para el cierre: "Aprendiste... Practicaste...")
+# ─────────────────────────────────────────
+_NO_SE_ENSENAN = {"verdadero", "falso"}         # valores, no palabras que se presentan
+
+
+def _fuentes_tortu(paso):
+    """(código que presenta, código que usa) de un paso, solo si es TortuScript."""
+    presenta = [paso.get("forma")] + ([paso.get("tortu") or paso.get("codigo")] if paso["tipo"] == "explicacion" else [])
+    usa = [paso.get("codigo") if paso["tipo"] != "completar" else None,
+           "\n".join(paso.get("lineas") or []), paso.get("solucion")]
+    if paso["tipo"] == "completar" and paso.get("codigo"):
+        codigo = paso["codigo"]
+        for r in paso.get("respuesta") or []:
+            codigo = codigo.replace(HUECO, r, 1)
+        usa.append(codigo)
+    limpio = lambda lista: [c for c in lista if c and detectar_tipo(c) != "python"]  # noqa: E731
+    return limpio(presenta), limpio(usa)
+
+
+def resumen_de_palabras(cursos):
+    """{leccion_id: {"aprendiste": [...], "practicaste": [...]}} recorriendo los cursos en orden.
+    Aprendiste = palabras que la lección presenta por primera vez (en una Forma o un ejemplo, la misma regla del
+    validador); practicaste = las demás que usa. En Python real se usan las `palabras_pista` del contenido."""
+    vistas, salida = set(), {}
+    for curso in cursos:
+        for seccion in curso["secciones"]:
+            for lec in seccion["lecciones"]:
+                nuevas, usadas = [], set()
+                for paso in lec["pasos"]:
+                    presenta, usa = _fuentes_tortu(paso)
+                    for fuente in presenta:
+                        for p in sorted(palabras_usadas(fuente) - _NO_SE_ENSENAN):
+                            if p not in vistas:
+                                vistas.add(p)
+                                nuevas.append(p)
+                    for fuente in presenta + usa:
+                        usadas |= palabras_usadas(fuente)
+                    if paso.get("lenguaje") == "python":
+                        usadas |= set(paso.get("palabras_pista") or [])
+                practicadas = sorted(usadas - set(nuevas) - _NO_SE_ENSENAN - {"="})
+                salida[lec["id"]] = {"aprendiste": nuevas, "practicaste": practicadas}
+    return salida
+
