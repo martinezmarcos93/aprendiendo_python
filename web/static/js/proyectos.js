@@ -90,5 +90,6 @@ const Proyectos = (() => {
     }
   }
 
+  if (document.querySelector("[data-lista-proyectos]")) iniciarLista();   // página /proyectos (sin script inline)
   return { iniciar, iniciarLista };
 })();

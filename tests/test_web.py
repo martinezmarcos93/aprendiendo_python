@@ -1,4 +1,6 @@
 """Tests de la app web (se saltean si Flask no está instalado)."""
+import json
+import re
 import shutil
 import tempfile
 import unittest
@@ -40,6 +42,50 @@ class TestWeb(unittest.TestCase):
     def test_host_ajeno_rechazado(self):
         r = self.c.get("/", headers={"Host": "malicioso.com"})
         self.assertEqual(r.status_code, 403)
+
+    def test_cabeceras_de_seguridad_en_toda_respuesta(self):
+        respuestas = {"página": self.c.get("/"), "api": self.c.get("/api/estado", headers=self.h),
+                      "estático": self.c.get("/static/css/tortu.css"), "404": self.c.get("/no-existe"),
+                      "403": self.c.post("/api/ejecutar", json={})}
+        for nombre, r in respuestas.items():
+            with self.subTest(nombre):
+                self.assertIn("frame-ancestors 'none'", r.headers.get("Content-Security-Policy", ""))
+                self.assertEqual(r.headers.get("X-Content-Type-Options"), "nosniff")
+                self.assertEqual(r.headers.get("Referrer-Policy"), "no-referrer")
+                self.assertEqual(r.headers.get("X-Frame-Options"), "DENY")
+                self.assertIn("camera=()", r.headers.get("Permissions-Policy", ""))
+            r.close()
+
+    def test_la_csp_no_permite_scripts_inline_ni_eval_ni_nada_de_afuera(self):
+        csp = dict(d.strip().split(" ", 1) for d in self.c.get("/").headers["Content-Security-Policy"].split(";"))
+        self.assertEqual(csp["script-src"], "'self'")
+        self.assertEqual(csp["default-src"], "'self'")
+        self.assertEqual(csp["connect-src"], "'self'")
+        self.assertEqual(csp["object-src"], "'none'")
+        self.assertNotIn("http", " ".join(csp.values()))
+
+    @staticmethod
+    def _scripts_inline_ejecutables(html):
+        return [cuerpo[:60] for atributos, cuerpo in re.findall(r"<script\b([^>]*)>(.*?)</script>", html, re.S)
+                if "src=" not in atributos and 'type="application/json"' not in atributos]
+
+    def test_ninguna_plantilla_ni_pagina_tiene_scripts_inline(self):
+        """Con script-src 'self' un script inline no correría: tiene que ir en un .js o como dato JSON."""
+        for plantilla in sorted((Path(__file__).resolve().parent.parent / "web/templates").glob("*.html")):
+            with self.subTest(plantilla.name):
+                self.assertEqual(self._scripts_inline_ejecutables(plantilla.read_text(encoding="utf-8")), [])
+        for ruta in ("/", "/mapa", "/resumen", "/logros", "/liga", "/referencia", "/repaso", "/experimentar",
+                     "/tortuga", "/proyectos", "/leccion/hola-mundo", "/ejercicios/1", "/practica"):
+            with self.subTest(ruta):
+                r = self.c.get(ruta)
+                self.assertIn(r.status_code, (200, 302))
+                self.assertEqual(self._scripts_inline_ejecutables(r.get_data(as_text=True)), [])
+
+    def test_la_configuracion_de_la_pagina_viaja_como_json(self):
+        html = self.c.get("/").get_data(as_text=True)
+        dato = re.search(r'<script type="application/json" id="tortu-config">(.*?)</script>', html, re.S).group(1)
+        self.assertEqual(json.loads(dato)["token"], "secreto")
+        self.assertIn("avisos", json.loads(dato))
 
     # ── páginas ──
     def test_paginas(self):

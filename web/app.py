@@ -33,6 +33,34 @@ logger = logging.getLogger("tortuscript.web")
 HOSTS_PERMITIDOS = {"127.0.0.1", "localhost"}
 
 
+# Cabeceras de seguridad (docs/experimental/SEGURIDAD_SITIO_PROFESIONAL.md §5). La app es local, pero se
+# endurece igual: nada se carga de afuera, ningún script inline se ejecuta y ninguna página se puede enmarcar.
+# style-src admite 'unsafe-inline' a propósito: las plantillas usan atributos style= y CodeMirror pone estilos;
+# inyectar estilos no ejecuta código y las plantillas ya escapan todo (autoescape). Sin HSTS: es http://127.0.0.1.
+CSP = "; ".join((
+    "default-src 'self'",
+    "script-src 'self'",
+    "style-src 'self' 'unsafe-inline'",
+    "img-src 'self' data:",
+    "font-src 'self'",
+    "connect-src 'self'",
+    "media-src 'self'",
+    "object-src 'none'",
+    "base-uri 'none'",
+    "form-action 'self'",
+    "frame-ancestors 'none'",
+))
+CABECERAS_SEGURIDAD = {
+    "Content-Security-Policy": CSP,
+    "X-Content-Type-Options": "nosniff",
+    "Referrer-Policy": "no-referrer",
+    "X-Frame-Options": "DENY",
+    "Cross-Origin-Opener-Policy": "same-origin",
+    "Cross-Origin-Resource-Policy": "same-origin",
+    "Permissions-Policy": "camera=(), microphone=(), geolocation=(), payment=(), usb=()",
+}
+
+
 def create_app(token=None):
     app = Flask(__name__)
     app.config["TOKEN"] = token or secrets.token_urlsafe(24)
@@ -48,6 +76,12 @@ def create_app(token=None):
     turno = threading.RLock()     # los pedidos van de a uno: cargar → modificar → guardar el progreso no se pisa
 
     # ─────────────── seguridad ───────────────
+    @app.after_request
+    def _cabeceras_de_seguridad(respuesta):
+        for nombre, valor in CABECERAS_SEGURIDAD.items():
+            respuesta.headers.setdefault(nombre, valor)
+        return respuesta
+
     @app.before_request
     def _proteger():
         if request.host.split(":")[0] not in HOSTS_PERMITIDOS:

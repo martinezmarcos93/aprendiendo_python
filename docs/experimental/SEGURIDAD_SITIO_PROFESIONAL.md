@@ -141,7 +141,7 @@ el proyecto OWASP Secure Headers.
 | XSS | **PASS** | plantillas con autoescape; el JS pinta con `textContent` (no hay `innerHTML`, `eval` ni `document.write`); los datos viajan como JSON escapado; hay tests con `<script>` |
 | Inyección SQL | N/A | no hay base de datos |
 | CSRF | **Parcial** | toda la API exige un token secreto por sesión en un encabezado propio (no lo puede mandar una página ajena) y se rechazan `Host` no locales (anti *DNS rebinding*); falta modelo para cuentas reales |
-| Security headers / CSP | **FAIL** | no se envía ninguno (CSP, `X-Content-Type-Options`, `Referrer-Policy`, `frame-ancestors`…) |
+| Security headers / CSP | **PASS** (26/09/2026) | CSP (`script-src 'self'` sin inline ni eval, nada de afuera, `frame-ancestors 'none'`), `X-Content-Type-Options`, `Referrer-Policy`, `X-Frame-Options`, `Permissions-Policy`, COOP/CORP en toda respuesta. `style-src` admite `'unsafe-inline'` (atributos `style=`); sin HSTS mientras sea `http://127.0.0.1` |
 | Control de acceso | Parcial | hay perfiles locales sin aislamiento de seguridad entre ellos (misma PC, mismo servidor); no hay roles |
 | Rate limiting | **FAIL** | no hay (irrelevante en local; obligatorio en línea) |
 | Validación de entradas | PASS (local) | nombres, colores, tamaños de proyecto, valores de ajustes y respuestas se validan en el servidor |

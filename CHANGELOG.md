@@ -3,6 +3,24 @@
 Formato basado en [Keep a Changelog](https://keepachangelog.com/es-ES/1.1.0/). Todavía no hay una
 versión publicada de la app web: los cambios de versión se consultan antes de fijarlos.
 
+## Sin publicar — cabeceras de seguridad y CSP (26/09/2026)
+
+Rama `feat/security-headers`. Era el único punto en FAIL de la auditoría de seguridad
+(`docs/experimental/SEGURIDAD_SITIO_PROFESIONAL.md` §22).
+
+### Agregado
+- **Cabeceras de seguridad en toda respuesta** (páginas, API, estáticos y errores): Content-Security-Policy,
+  `X-Content-Type-Options: nosniff`, `Referrer-Policy: no-referrer`, `X-Frame-Options: DENY`, `Permissions-Policy`,
+  `Cross-Origin-Opener-Policy` y `Cross-Origin-Resource-Policy`.
+- La CSP solo permite scripts propios (`script-src 'self'`: nada inline, nada de `eval`, nada de afuera) y ninguna
+  página se puede meter en un marco. Los estilos inline siguen permitidos porque las plantillas usan `style=`.
+- Un test recorre todas las plantillas y páginas y falla si vuelve a aparecer un script inline.
+
+### Cambiado
+- El token de la sesión y los avisos viajan como dato JSON (`#tortu-config`), no como script inline. El botón de
+  imprimir del certificado y la lista de *Mis proyectos* se inician desde sus `.js`.
+- El confeti se dibuja sin Worker (antes lo creaba desde `blob:`), así la CSP no necesita abrir `blob:`.
+
 ## Sin publicar — color de la tortuga por nivel (26/09/2026)
 
 Rama `feat/color-por-nivel`.

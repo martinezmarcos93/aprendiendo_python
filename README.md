@@ -119,6 +119,7 @@ proyecto/
 - **El código del chico nunca corre dentro del servidor.** Va a un subproceso con límite de tiempo y de memoria (512 MB: `resource` en Linux/macOS, un Job Object en Windows; el de CPU es solo Linux/macOS), validación previa con AST (sin `import` ni nombres que empiecen con `_`), builtins limitados, tope de 50.000 pasos y de 20.000 caracteres de salida. **No es un sandbox para código hostil**: protege al chico de errores y de copiar/pegar cosas peligrosas.
 - **`preguntar()`** se resuelve re-ejecutando el programa con las respuestas acumuladas; la tortuga es un registro de órdenes que el navegador anima en un `<canvas>`.
 - **Todo offline**: CodeMirror, confeti y las fuentes están en `web/static/`; no se pide nada a internet.
+- **Cabeceras de seguridad en toda respuesta**: una CSP que solo deja correr scripts propios (nada inline ni de afuera) y no deja enmarcar la app, más `nosniff`, `no-referrer` y `Permissions-Policy` (`web/app.py`, `CABECERAS_SEGURIDAD`).
 
 Decisiones de diseño: [`docs/decisions/`](docs/decisions/) (ADR-001 migración a web, ADR-002 cursos como datos y progreso aditivo).
 

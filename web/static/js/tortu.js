@@ -1,6 +1,9 @@
 /* TortuScript — funciones compartidas por todas las páginas. */
 "use strict";
 
+// Token de la sesión y avisos pendientes: vienen como dato JSON (la CSP no permite scripts inline).
+window.TORTU = JSON.parse(document.getElementById("tortu-config").textContent);
+
 const Tortu = (() => {
   // ───────── API (con el token de esta sesión) ─────────
   async function api(ruta, datos) {
@@ -239,10 +242,12 @@ const Tortu = (() => {
     document.getElementById("e-barra").style.width = `${Math.round(100 * e.xp_actual / e.xp_max)}%`;
   }
 
+  let lanzarConfeti = null;              // sin Worker: la CSP no permite workers desde blob:
   function celebrar(grande) {
     if (typeof confetti !== "function") return;
     if (document.documentElement.dataset.movimiento === "reducido") return;
-    confetti({ particleCount: grande ? 180 : 90, spread: grande ? 100 : 70, origin: { y: 0.7 } });
+    lanzarConfeti = lanzarConfeti || confetti.create(null, { resize: true, useWorker: false });
+    lanzarConfeti({ particleCount: grande ? 180 : 90, spread: grande ? 100 : 70, origin: { y: 0.7 } });
   }
 
   // ───────── perfiles ─────────
@@ -279,6 +284,8 @@ const Tortu = (() => {
     };
   }
   document.getElementById("btn-perfil").addEventListener("click", abrirPerfiles);
+  const btnImprimir = document.getElementById("btn-imprimir");        // certificado
+  if (btnImprimir) btnImprimir.addEventListener("click", () => window.print());
   avisos(window.TORTU.avisos);                 // lo que quedó pendiente desde la última vez
 
   // ───────── voz (Web Speech: usa las voces del sistema, sin internet) ─────────
