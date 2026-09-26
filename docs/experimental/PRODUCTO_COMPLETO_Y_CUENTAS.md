@@ -49,7 +49,7 @@ Legenda de estado: **Existe** / **Parcial** / **Propuesto** / **Solo si es onlin
 | Área | Qué falta considerar | Estado hoy |
 |---|---|---|
 | **Identidad** | Registro, login, logout, recuperar y cambiar contraseña, verificación de email, sesiones ("recordarme", cerrar otras), gestión y eliminación de cuenta, 2FA en cuentas administrativas | Solo si es online (hoy solo perfiles locales) |
-| **Recuperar progreso** | Exportar/importar datos; sincronización si es online. El usuario piensa "¿qué pasa si cambio de compu?", no en JSON | Propuesto (el progreso ya es un archivo por perfil con `.bak`) |
+| **Recuperar progreso** | Exportar/importar datos; sincronización si es online. El usuario piensa "¿qué pasa si cambio de compu?", no en JSON | Existe (26/09/2026): exportar el progreso a un archivo e importarlo como perfil nuevo, con validación; falta sincronización (solo si es online) |
 | **Onboarding ampliado** | Experiencia previa, intereses, tiempo diario, accesibilidad, dispositivo (edad solo si es necesaria) | Parcial (meta diaria, accesibilidad) |
 | **Estado al volver** | "Hola, Marcos. Ayer completaste Variables (+40 XP). Hoy te espera Preguntar. **[Continuar]**": recordar última lección, paso, proyecto, práctica pendiente | Parcial (hay Camino y siguiente ejercicio; falta la pantalla de retorno) |
 | **Navegación global** | Barra fija: Inicio · Camino · Crear (Experimentar, Tortuga, Juegos) · Proyectos + perfil y ajustes | Parcial |

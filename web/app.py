@@ -24,6 +24,7 @@ if str(RAIZ) not in sys.path:
 from tortuscript import contenido, evaluacion, leccion as motor, liga, logros, progreso  # noqa: E402
 from tortuscript import practica as espaciado  # noqa: E402
 from tortuscript import proyectos as mis_proyectos  # noqa: E402
+from tortuscript import respaldo  # noqa: E402
 from tortuscript.ejercicios import EJERCICIOS  # noqa: E402
 from tortuscript.proceso import correr  # noqa: E402
 from tortuscript.referencia import cargar_referencia  # noqa: E402
@@ -767,6 +768,29 @@ def create_app(token=None):
         progreso.recordar_perfil(nombre)
         if not progreso.get_archivo_progreso(nombre).exists():
             progreso.guardar_progreso(progreso.cargar_progreso(nombre))   # que aparezca en la lista
+        return jsonify(ok=True, actual=nombre, estado=_estado())
+
+    @app.get("/api/perfil/exportar")
+    def api_exportar_perfil():
+        """El progreso del perfil actual, listo para descargar como archivo."""
+        return jsonify(archivo=respaldo.nombre_de_archivo(progreso.PERFIL_ACTUAL),
+                       datos=respaldo.exportar(progreso.cargar_progreso(), progreso.PERFIL_ACTUAL))
+
+    @app.post("/api/perfil/importar")
+    def api_importar_perfil():
+        """Trae un progreso exportado como perfil NUEVO (nunca pisa uno existente) y cambia a ese perfil."""
+        if (request.content_length or 0) > respaldo.MAX_BYTES:
+            return jsonify(ok=False, mensaje="El archivo es demasiado grande para ser un progreso."), 400
+        try:
+            datos, sugerido = respaldo.validar((request.get_json(silent=True) or {}).get("sobre"))
+        except respaldo.ErrorImportacion as e:
+            return jsonify(ok=False, mensaje=str(e)), 400
+        nombre = respaldo.nombre_libre(sugerido, progreso.obtener_perfiles())
+        datos["_perfil"] = nombre
+        if not progreso.guardar_progreso(datos):
+            return jsonify(ok=False, mensaje="No se pudo guardar el progreso en esta compu."), 500
+        progreso.set_perfil(nombre)
+        progreso.recordar_perfil(nombre)
         return jsonify(ok=True, actual=nombre, estado=_estado())
 
     @app.get("/api/estado")

@@ -3,6 +3,18 @@
 Formato basado en [Keep a Changelog](https://keepachangelog.com/es-ES/1.1.0/). Todavía no hay una
 versión publicada de la app web: los cambios de versión se consultan antes de fijarlos.
 
+## Sin publicar — exportar e importar el progreso (26/09/2026)
+
+Rama `feat/exportar-importar`.
+
+### Agregado
+- **Guardar el progreso en un archivo y traerlo en otra compu**, desde el modal de perfiles (👤). El archivo
+  (`tortuscript-<perfil>-<fecha>.json`) lleva el progreso completo: lecciones, XP, logros, ajustes y proyectos.
+- **Importar nunca pisa nada**: crea un perfil nuevo (`lua`, o `lua_2` si ya existe) y cambia a ese perfil.
+- El archivo importado se valida como entrada de afuera (`tortuscript/respaldo.py`): formato y versión, tipo de cada
+  campo, sin números negativos, meta/experiencia/ajustes válidos, proyectos con las mismas reglas que al guardarlos,
+  tope de 1 MB y nombre de perfil saneado. Los campos desconocidos se descartan.
+
 ## Sin publicar — páginas de error humanas (26/09/2026)
 
 Rama `feat/pagina-de-error`.

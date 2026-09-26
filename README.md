@@ -61,7 +61,7 @@ El **camino** es la pantalla de inicio: muestra dónde estás y qué sigue. Las 
 - **🎨 Zona Tortuga**: dibujo con `avanzar`, `retroceder`, `girar_der`, `girar_izq`, `color`, `subir_lapiz` y `bajar_lapiz`; con *paso a paso* se resalta cada línea mientras la tortuga la ejecuta. Colores en español (`"rojo"`, `"celeste"`...) o `#rrggbb`. La tortuga cambia de color con cada nivel de XP; el lápiz arranca siempre en verde.
 - **📂 Mis proyectos**: guardar, abrir, duplicar y borrar lo hecho en Experimentar y en la Zona Tortuga (hasta 30 por perfil).
 - **📖 Referencia** del lenguaje, **🗺️ Mapa** de los 30 ejercicios clásicos, **🔁 Repaso** de ejercicios (4 modos) y **📊 Resumen** de hoy.
-- **👤 Perfiles**: cada chico tiene su progreso, sus ajustes y su meta en la misma compu.
+- **👤 Perfiles**: cada chico tiene su progreso, sus ajustes y su meta en la misma compu. Desde el botón del perfil se puede **guardar el progreso en un archivo** y **traerlo en otra compu** (crea un perfil nuevo, no pisa nada).
 
 ### ♿ Accesibilidad y voz
 Ajustes por perfil (⚙️): tamaño de letra grande y enorme, alto contraste, tipo de letra fácil de leer, menos movimiento y **lectura en voz alta** de las consignas (usa las voces del sistema, sin internet). Se maneja todo con el teclado (enlace *Saltar al contenido*, foco visible, `Esc` sale del editor, teclas `1`–`9` eligen opciones) y funciona con lectores de pantalla. El contraste de las páginas principales cumple WCAG AA (`herramientas/revisar_contraste.py`).
