@@ -1,6 +1,6 @@
 # ADR-004: Diagnóstico y continuidad del camino educativo
 
-## Estado: Propuesta (26/09/2026) — **no autoriza implementación**
+## Estado: Aceptada (26/09/2026) — decisión de Marcos; propuesta el mismo día
 
 > Ver la regla de gobernanza en el [índice](README.md). Origen: revisión crítica de `docs/experimental/` (26/09/2026).
 
@@ -9,7 +9,7 @@ El recorrido propone un diagnóstico opcional ("¿Ya programaste?"). [ADR-002](A
 establece que el camino nunca se saltea una lección y que el progreso solo crece. Empezar en la lección 5 obliga a
 definir qué pasa con la 1 a la 4 sin inventar una segunda definición de "completado".
 
-## Decisión propuesta
+## Decisión
 ```
 Diagnóstico → determina un punto de entrada recomendado → NO modifica el orden del curso
 ```
