@@ -175,5 +175,21 @@ class TestColorDeLaTortuga(unittest.TestCase):
         self.assertEqual(tortuga.trazos([{"o": "avanzar", "v": 10}])[0][4], tortuga.COLOR_INICIAL)
 
 
+class TestRegreso(unittest.TestCase):
+    HOY = date(2026, 9, 26)
+
+    def test_nada_que_contar_si_nunca_vino_o_ya_vino_hoy(self):
+        self.assertIsNone(progreso.regreso({"ultimo_dia": None}, self.HOY))
+        self.assertIsNone(progreso.regreso({"ultimo_dia": "2026-09-26"}, self.HOY))
+        self.assertIsNone(progreso.regreso({"ultimo_dia": "cualquier cosa"}, self.HOY))
+
+    def test_cuenta_desde_cuando_y_lo_que_gano_ese_dia(self):
+        p = {"ultimo_dia": "2026-09-25", "xp_por_dia": {"2026-09-25": 40, "2026-09-20": 10}}
+        self.assertEqual(progreso.regreso(p, self.HOY), {"dias": 1, "xp": 40})
+        p["ultimo_dia"] = "2026-09-20"
+        self.assertEqual(progreso.regreso(p, self.HOY), {"dias": 6, "xp": 10})
+        self.assertEqual(progreso.regreso({"ultimo_dia": "2026-09-01"}, self.HOY), {"dias": 25, "xp": 0})
+
+
 if __name__ == "__main__":
     unittest.main()
