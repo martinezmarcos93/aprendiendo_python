@@ -5,6 +5,10 @@
 - **No** se hace commit, merge, rebase, reset, cherry-pick, push forzado ni borrado sobre ninguna rama `backup/*`.
   No se usa como base de trabajo: solo sirve para restaurar.
 - Cualquier excepción la decide y la ejecuta Marcos.
+- Protección técnica: hook `reference-transaction` en `~/.config/git-hooks/tortuth/` (activado con
+  `git config core.hooksPath ~/.config/git-hooks/tortuth`; fuera del repo porque el disco NTFS no permite hooks
+  ejecutables). Rechaza crear, mover o borrar `refs/heads/backup/*`; excepción deliberada: `TORTU_PERMITIR_BACKUP=1`.
+  No está versionado: en otro clon hay que volver a activarlo.
 
 ## Decisiones de arquitectura
 - Antes de implementar algo de `docs/experimental/`, leer [`docs/decisions/README.md`](docs/decisions/README.md).
