@@ -141,7 +141,16 @@ python herramientas/validar_contenido.py     # valida todos los cursos
 python herramientas/crear_paquete.py         # arma dist/TortuScript-<fecha>.zip para instalar en otra compu
 ```
 
-Con **Playwright** (opcional, no está en `requirements.txt`) se puede verificar la interfaz real:
+Con **Playwright** (opcional, fijado en `requirements-dev.txt`, no en `requirements.txt`) se puede verificar la interfaz real.
+Si el proyecto está en un disco que no permite ejecutar programas (NTFS montado sin `exec`), Playwright tiene que ir en
+un venv fuera de ese disco:
+
+```bash
+python3 -m venv ~/.venvs/tortuscript-dev
+~/.venvs/tortuscript-dev/bin/python -m pip install -r requirements-dev.txt
+~/.venvs/tortuscript-dev/bin/python -m playwright install chromium
+# y después, las herramientas con ~/.venvs/tortuscript-dev/bin/python en lugar de python
+```
 
 ```bash
 python herramientas/servidor_de_prueba.py    # servidor con progreso temporal (otra terminal)
