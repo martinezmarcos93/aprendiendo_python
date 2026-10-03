@@ -242,6 +242,28 @@ class CuentaRoutesTests(unittest.TestCase):
         })
         self.assertEqual(login.status_code, 401)
 
+    def test_login_tiene_limite_agregado_por_ip_al_rotar_correos(self):
+        for indice in range(30):
+            respuesta = self.client.post("/cuenta/login", json={
+                "email": f"rotacion-{indice}@example.com",
+                "password": "clave-incorrecta",
+            })
+            self.assertEqual(respuesta.status_code, 401)
+        bloqueado = self.client.post("/cuenta/login", json={
+            "email": "rotacion-final@example.com",
+            "password": "clave-incorrecta",
+        })
+        self.assertEqual(bloqueado.status_code, 429)
+        self.assertIn("Retry-After", bloqueado.headers)
+
+    def test_recuperacion_limita_tambien_solicitudes_malformadas(self):
+        for _ in range(5):
+            respuesta = self.client.post("/cuenta/recuperar", json={})
+            self.assertEqual(respuesta.status_code, 202)
+        bloqueado = self.client.post("/cuenta/recuperar", json={})
+        self.assertEqual(bloqueado.status_code, 429)
+        self.assertIn("Retry-After", bloqueado.headers)
+
     def test_limites_por_ip_en_login_verificacion_y_restablecimiento(self):
         for _ in range(10):
             login = self.client.post("/cuenta/login", json={
