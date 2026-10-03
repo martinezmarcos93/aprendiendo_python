@@ -242,6 +242,38 @@ class CuentaRoutesTests(unittest.TestCase):
         })
         self.assertEqual(login.status_code, 401)
 
+    def test_limites_por_ip_en_login_verificacion_y_restablecimiento(self):
+        for _ in range(10):
+            login = self.client.post("/cuenta/login", json={
+                "email": "ausente@example.com", "password": "clave-incorrecta",
+            })
+            self.assertEqual(login.status_code, 401)
+        login_bloqueado = self.client.post("/cuenta/login", json={
+            "email": "otra-cuenta@example.com", "password": "clave-incorrecta",
+        })
+        self.assertEqual(login_bloqueado.status_code, 429)
+        self.assertIn("Retry-After", login_bloqueado.headers)
+
+        for _ in range(10):
+            verificacion = self.client.post("/cuenta/verificar-email", json={
+                "token": "token-invalido",
+            })
+            self.assertEqual(verificacion.status_code, 400)
+        verificacion_bloqueada = self.client.post("/cuenta/verificar-email", json={
+            "token": "otro-token-invalido",
+        })
+        self.assertEqual(verificacion_bloqueada.status_code, 429)
+
+        for _ in range(10):
+            restablecimiento = self.client.post("/cuenta/restablecer-password", json={
+                "token": "token-invalido", "password": "una-clave-larga-123",
+            })
+            self.assertEqual(restablecimiento.status_code, 400)
+        restablecimiento_bloqueado = self.client.post("/cuenta/restablecer-password", json={
+            "token": "otro-token-invalido", "password": "una-clave-larga-123",
+        })
+        self.assertEqual(restablecimiento_bloqueado.status_code, 429)
+
     def test_login_cookie_me_csrf_perfil_y_logout(self):
         self.client.post("/cuenta/registro", json={
             "email": "adulto@example.com",
