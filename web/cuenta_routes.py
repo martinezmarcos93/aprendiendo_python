@@ -446,7 +446,7 @@ def crear_perfil():
         perfil = cuentas.crear_child_profile(row["account_id"], nombre)
     except CuentaError as exc:
         if request.form:
-            return render_template("cuenta/perfiles.html", perfiles=cuentas.listar_child_profiles(row["account_id"]), csrf=request.cookies.get("tortu_csrf", ""), perfil_activo=row["active_profile_id"], error=str(exc)), 400
+            return render_template("cuenta/perfiles.html", perfiles=cuentas.listar_child_profiles(row["account_id"]), csrf=request.cookies.get("tortu_csrf", ""), perfil_activo=row["active_profile_id"], next_url=_safe_next_url(request.args.get("next", "/")), error=str(exc)), 400
         return jsonify(ok=False, mensaje=str(exc)), 400
     if request.form:
         return redirect(url_for("cuenta.seleccionar_perfil_pagina"))
