@@ -242,6 +242,23 @@ class CuentaRoutesTests(unittest.TestCase):
         })
         self.assertEqual(login.status_code, 401)
 
+    def test_login_html_no_revela_si_la_cuenta_existe_o_esta_verificada(self):
+        self.client.post("/cuenta/registro", json={
+            "email": "pendiente@example.com",
+            "password": "una-clave-larga-123",
+        })
+        existente = self.client.post("/cuenta/login", data={
+            "email": "pendiente@example.com",
+            "password": "una-clave-larga-123",
+        })
+        inexistente = self.client.post("/cuenta/login", data={
+            "email": "no-existe@example.com",
+            "password": "una-clave-larga-123",
+        })
+        self.assertEqual(existente.status_code, 401)
+        self.assertEqual(inexistente.status_code, 401)
+        self.assertEqual(existente.get_data(as_text=True), inexistente.get_data(as_text=True))
+
     def test_login_tiene_limite_agregado_por_ip_al_rotar_correos(self):
         for indice in range(30):
             respuesta = self.client.post("/cuenta/login", json={
