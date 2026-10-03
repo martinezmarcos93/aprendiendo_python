@@ -242,6 +242,34 @@ class CuentaRoutesTests(unittest.TestCase):
         })
         self.assertEqual(login.status_code, 401)
 
+    def test_seleccion_perfil_rechaza_redireccion_externa(self):
+        email = "redirect@example.com"
+        self.client.post("/cuenta/registro", json={
+            "email": email, "password": "una-clave-larga-123",
+        })
+        cuenta_id = "acc_" + __import__("hashlib").sha256(email.encode()).hexdigest()[:24]
+        AuthRepository(self.tmp / "cuentas.sqlite3").marcar_verificada(cuenta_id)
+        login = self.client.post("/cuenta/login", json={
+            "email": email, "password": "una-clave-larga-123",
+        })
+        csrf = login.json["csrf"]
+        creado = self.client.post("/cuenta/perfiles", json={"nombre": "Ana"},
+                                  headers={"X-Tortu-CSRF": csrf})
+        self.assertEqual(creado.status_code, 201)
+
+        pagina = self.client.get("/cuenta/seleccionar-perfil?next=https://evil.example")
+        self.assertEqual(pagina.status_code, 200)
+        self.assertNotIn("evil.example", pagina.get_data(as_text=True))
+
+        seleccion = self.client.post("/cuenta/perfil", data={
+            "perfil_id": creado.json["perfil"]["id"],
+            "csrf": csrf,
+            "next": "https://evil.example",
+        })
+        self.assertEqual(seleccion.status_code, 302)
+        self.assertTrue(seleccion.headers["Location"].startswith("/"))
+        self.assertNotIn("evil.example", seleccion.headers["Location"])
+
     def test_login_html_no_revela_si_la_cuenta_existe_o_esta_verificada(self):
         self.client.post("/cuenta/registro", json={
             "email": "pendiente@example.com",
