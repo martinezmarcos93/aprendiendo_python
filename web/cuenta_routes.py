@@ -5,6 +5,7 @@ No activa todavía el despliegue remoto: create_app mantiene el límite localhos
 """
 import logging
 from pathlib import Path
+from urllib.parse import urlsplit
 
 from flask import Blueprint, abort, current_app, jsonify, make_response, redirect, render_template, request, url_for
 
@@ -71,6 +72,16 @@ def _intentar_emitir_email(tipo, email, token, expires):
         # No registrar token, dirección ni el texto arbitrario de la excepción del proveedor.
         logger.error("Falló el envío de correo transaccional (tipo=%s)", tipo)
         return False
+
+def _safe_next_url(value, default="/"):
+    """Acepta solo rutas locales para evitar redirecciones abiertas."""
+    if not isinstance(value, str) or not value.startswith("/") or value.startswith("//") or "\\" in value:
+        return default
+    parsed = urlsplit(value)
+    if parsed.scheme or parsed.netloc or not parsed.path.startswith("/") or parsed.path.startswith("//"):
+        return default
+    return value
+
 
 def _cookie_config():
     return {
@@ -145,6 +156,7 @@ def seleccionar_perfil_pagina():
         perfiles=perfiles,
         csrf=request.cookies.get("tortu_csrf", ""),
         perfil_activo=row["active_profile_id"],
+        next_url=_safe_next_url(request.args.get("next", "/")),
     )
 
 
@@ -461,7 +473,7 @@ def seleccionar_perfil():
             return redirect(url_for("cuenta.seleccionar_perfil_pagina")), 403
         return jsonify(ok=False, mensaje=str(exc)), 403
     if request.form:
-        return redirect(request.form.get("next") or url_for("inicio"))
+        return redirect(_safe_next_url(request.form.get("next"), url_for("inicio")))
     return jsonify(ok=True, perfil_activo=profile_id)
 
 
