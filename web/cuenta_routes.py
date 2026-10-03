@@ -306,8 +306,6 @@ def solicitar_recuperacion():
     datos = request.get_json(silent=True) or {}
     email = datos.get("email")
     if isinstance(email, str):
-        if limit:
-            return limit
         _, auth = _repos()
         token_info = auth.create_recovery_token(email)
         if token_info:
