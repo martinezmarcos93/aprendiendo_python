@@ -353,10 +353,12 @@ def login():
     try:
         cuenta = auth.verify_password(email, password)
         raw_session, csrf, expires = auth.create_session(cuenta["id"])
-    except AuthError as exc:
+    except AuthError:
+        # No distinguir cuenta inexistente, contraseña incorrecta o correo pendiente.
+        mensaje = "Correo o contraseña incorrectos, o cuenta sin verificar."
         if request.form:
-            return render_template("cuenta/ingresar.html", error=str(exc)), 401
-        return jsonify(ok=False, mensaje="Correo o contraseña incorrectos o cuenta sin verificar."), 401
+            return render_template("cuenta/ingresar.html", error=mensaje), 401
+        return jsonify(ok=False, mensaje=mensaje), 401
     if request.form:
         respuesta = make_response(redirect(url_for("cuenta.seleccionar_perfil_pagina")))
     else:
