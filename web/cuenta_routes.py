@@ -233,6 +233,9 @@ def verificar_email():
 
 @bp.post("/verificar-email")
 def confirmar_verificacion_email():
+    limit = _limit_or_429(f"verify-email:{request.remote_addr or 'unknown'}", 10, 900)
+    if limit:
+        return limit
     datos = request.get_json(silent=True) or request.form
     token = datos.get("token", "")
     try:
@@ -297,10 +300,12 @@ def solicitar_recuperacion():
             codigo="envio_email_no_configurado",
             mensaje="La recuperación no está disponible porque el envío de correo no está configurado.",
         ), 503
+    limit = _limit_or_429(f"recovery:{request.remote_addr or 'unknown'}", 5, 3600)
+    if limit:
+        return limit
     datos = request.get_json(silent=True) or {}
     email = datos.get("email")
     if isinstance(email, str):
-        limit = _limit_or_429(f"recovery:{request.remote_addr}", 5, 3600)
         if limit:
             return limit
         _, auth = _repos()
@@ -320,6 +325,9 @@ def restablecer_password():
     password = datos.get("password")
     if not isinstance(token, str) or not isinstance(password, str):
         return jsonify(ok=False, mensaje="Token y contraseña son obligatorios."), 400
+    limit = _limit_or_429(f"reset-password:{request.remote_addr or 'unknown'}", 10, 900)
+    if limit:
+        return limit
     try:
         _, auth = _repos()
         auth.reset_password(token, password)
@@ -336,9 +344,13 @@ def login():
     if not isinstance(email, str) or not isinstance(password, str):
         return jsonify(ok=False, mensaje="Correo o contraseña incorrectos."), 401
     email_normalizado = email.strip().lower()
-    limit = _limit_or_429(f"login:{request.remote_addr}:{email_normalizado}", 10, 900)
-    if limit:
-        return limit
+    ip = request.remote_addr or "unknown"
+    limit_ip = _limit_or_429(f"login-ip:{ip}", 30, 900)
+    if limit_ip:
+        return limit_ip
+    limit_cuenta = _limit_or_429(f"login-account:{ip}:{email_normalizado}", 10, 900)
+    if limit_cuenta:
+        return limit_cuenta
     _, auth = _repos()
     try:
         cuenta = auth.verify_password(email, password)
