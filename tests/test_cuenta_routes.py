@@ -249,7 +249,7 @@ class CuentaRoutesTests(unittest.TestCase):
             })
             self.assertEqual(login.status_code, 401)
         login_bloqueado = self.client.post("/cuenta/login", json={
-            "email": "otra-cuenta@example.com", "password": "clave-incorrecta",
+            "email": "ausente@example.com", "password": "clave-incorrecta",
         })
         self.assertEqual(login_bloqueado.status_code, 429)
         self.assertIn("Retry-After", login_bloqueado.headers)
